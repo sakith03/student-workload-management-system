@@ -1,0 +1,30 @@
+## .NET
+bin/
+obj/
+*.user
+*.suo
+.vs/
+*.swp
+
+## Secrets - NEVER commit these
+appsettings.Development.json
+appsettings.Local.json
+*.pfx
+*.key
+
+## Docker
+.dockerignore
+
+## Node 
+node_modules/
+build/
+dist/
+
+## IDE
+.idea/
+.vscode/
+*.DS_Store
+
+## Test results
+TestResults/
+coverage/
