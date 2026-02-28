@@ -1,0 +1,56 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v8.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v8.0": {
+      "StudentWorkload.Infrastructure/1.0.0": {
+        "dependencies": {
+          "StudentWorkload.Application": "1.0.0",
+          "StudentWorkload.Domain": "1.0.0"
+        },
+        "runtime": {
+          "StudentWorkload.Infrastructure.dll": {}
+        }
+      },
+      "StudentWorkload.Application/1.0.0": {
+        "dependencies": {
+          "StudentWorkload.Domain": "1.0.0"
+        },
+        "runtime": {
+          "StudentWorkload.Application.dll": {
+            "assemblyVersion": "1.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      },
+      "StudentWorkload.Domain/1.0.0": {
+        "runtime": {
+          "StudentWorkload.Domain.dll": {
+            "assemblyVersion": "1.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      }
+    }
+  },
+  "libraries": {
+    "StudentWorkload.Infrastructure/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "StudentWorkload.Application/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "StudentWorkload.Domain/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}

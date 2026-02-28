@@ -1,0 +1,12 @@
+C:\Y3S1\CSP\CSP Project\student-workload-management-system\backend\src\StudentWorkload.Domain\bin\Debug\net8.0\StudentWorkload.Domain.deps.json
+C:\Y3S1\CSP\CSP Project\student-workload-management-system\backend\src\StudentWorkload.Domain\bin\Debug\net8.0\StudentWorkload.Domain.dll
+C:\Y3S1\CSP\CSP Project\student-workload-management-system\backend\src\StudentWorkload.Domain\bin\Debug\net8.0\StudentWorkload.Domain.pdb
+C:\Y3S1\CSP\CSP Project\student-workload-management-system\backend\src\StudentWorkload.Domain\obj\Debug\net8.0\StudentWorkload.Domain.GeneratedMSBuildEditorConfig.editorconfig
+C:\Y3S1\CSP\CSP Project\student-workload-management-system\backend\src\StudentWorkload.Domain\obj\Debug\net8.0\StudentWorkload.Domain.AssemblyInfoInputs.cache
+C:\Y3S1\CSP\CSP Project\student-workload-management-system\backend\src\StudentWorkload.Domain\obj\Debug\net8.0\StudentWorkload.Domain.AssemblyInfo.cs
+C:\Y3S1\CSP\CSP Project\student-workload-management-system\backend\src\StudentWorkload.Domain\obj\Debug\net8.0\StudentWorkload.Domain.csproj.CoreCompileInputs.cache
+C:\Y3S1\CSP\CSP Project\student-workload-management-system\backend\src\StudentWorkload.Domain\obj\Debug\net8.0\StudentWorkload.Domain.sourcelink.json
+C:\Y3S1\CSP\CSP Project\student-workload-management-system\backend\src\StudentWorkload.Domain\obj\Debug\net8.0\StudentWorkload.Domain.dll
+C:\Y3S1\CSP\CSP Project\student-workload-management-system\backend\src\StudentWorkload.Domain\obj\Debug\net8.0\refint\StudentWorkload.Domain.dll
+C:\Y3S1\CSP\CSP Project\student-workload-management-system\backend\src\StudentWorkload.Domain\obj\Debug\net8.0\StudentWorkload.Domain.pdb
+C:\Y3S1\CSP\CSP Project\student-workload-management-system\backend\src\StudentWorkload.Domain\obj\Debug\net8.0\ref\StudentWorkload.Domain.dll
