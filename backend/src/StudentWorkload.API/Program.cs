@@ -11,7 +11,11 @@ using System.Text;
 var builder = WebApplication.CreateBuilder(args);
  
 // ─── Database ────────────────────────────────────
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
+var dbPassword = Environment.GetEnvironmentVariable("DB_PASSWORD") 
+                 ?? throw new Exception("DB_PASSWORD not set");
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")!
+                        .Replace("${DB_PASSWORD}", dbPassword);
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
  
@@ -20,6 +24,9 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IJwtService, JwtService>();
  
 // ─── JWT Authentication ──────────────────────────
+var jwtSecret = Environment.GetEnvironmentVariable("JWT_SECRET") 
+                ?? throw new Exception("JWT_SECRET not set");
+
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options => {
