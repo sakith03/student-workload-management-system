@@ -1,96 +1,318 @@
-// src/pages/Dashboard.jsx
+import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import '../styles/dashboard.css';
+
+const NAV_ITEMS = [
+  {
+    icon: (
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+        <rect x="2" y="2" width="7" height="7" rx="1.5" stroke="currentColor" strokeWidth="1.6" />
+        <rect x="11" y="2" width="7" height="7" rx="1.5" stroke="currentColor" strokeWidth="1.6" />
+        <rect x="2" y="11" width="7" height="7" rx="1.5" stroke="currentColor" strokeWidth="1.6" />
+        <rect x="11" y="11" width="7" height="7" rx="1.5" stroke="currentColor" strokeWidth="1.6" />
+      </svg>
+    ),
+    label: 'Dashboard',
+    active: true,
+  },
+  {
+    icon: (
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+        <path d="M4 6h12M4 10h8M4 14h10" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+      </svg>
+    ),
+    label: 'My Courses',
+    active: false,
+  },
+  {
+    icon: (
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+        <rect x="3" y="4" width="14" height="13" rx="2" stroke="currentColor" strokeWidth="1.6" />
+        <path d="M7 2v4M13 2v4M3 9h14" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+      </svg>
+    ),
+    label: 'Assignments',
+    active: false,
+  },
+  {
+    icon: (
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+        <path d="M17 11.5C17 14.538 14.314 17 11 17c-.98 0-1.904-.224-2.714-.622L4 17.5l1.3-3.8A5.44 5.44 0 013 11.5C3 8.462 5.686 6 9 6s8 2.462 8 5.5z" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
+        <path d="M7 3.5C7.87 2.578 9.147 2 10.5 2C13.538 2 16 4.238 16 7c0 .69-.148 1.346-.413 1.94" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+      </svg>
+    ),
+    label: 'Collaboration',
+    active: false,
+  },
+  {
+    icon: (
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+        <circle cx="10" cy="10" r="3" stroke="currentColor" strokeWidth="1.6" />
+        <path d="M10 2v2M10 16v2M2 10h2M16 10h2M4.22 4.22l1.42 1.42M14.36 14.36l1.42 1.42M4.22 15.78l1.42-1.42M14.36 5.64l1.42-1.42" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+      </svg>
+    ),
+    label: 'Settings',
+    active: false,
+  },
+];
+
+function getGreeting() {
+  const h = new Date().getHours();
+  if (h < 12) return 'Good morning';
+  if (h < 17) return 'Good afternoon';
+  return 'Good evening';
+}
+
+function formatDate() {
+  return new Date().toLocaleDateString('en-US', {
+    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+  });
+}
+
+function getInitials(email) {
+  if (!email) return '?';
+  return email.charAt(0).toUpperCase();
+}
 
 export default function Dashboard() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const [bannerVisible, setBannerVisible] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   const handleLogout = () => {
     logout();
     navigate('/login');
   };
 
+  const copyId = () => {
+    if (user?.id) {
+      navigator.clipboard.writeText(user.id);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-gray-100">
-      
-      {/* Navbar */}
-      <nav className="bg-white shadow-sm px-6 py-4 flex justify-between items-center">
-        <h1 className="text-xl font-bold text-blue-700">Student Workload System</h1>
-        <div className="flex items-center gap-4">
-          <span className="text-sm text-gray-600">
-            {user?.email}
-          </span>
-          <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full font-medium">
-            {user?.role}
-          </span>
-          <button
-            onClick={handleLogout}
-            className="text-sm text-red-500 hover:text-red-700 font-medium transition"
-          >
-            Logout
-          </button>
-        </div>
-      </nav>
+    <div className="dash-root">
+      {/* Sidebar overlay for mobile */}
+      {sidebarOpen && (
+        <div className="sidebar-overlay" onClick={() => setSidebarOpen(false)} />
+      )}
 
-      {/* Main Content */}
-      <main className="max-w-5xl mx-auto mt-10 px-6">
-        
-        {/* Welcome Card */}
-        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-          <h2 className="text-2xl font-bold text-gray-800 mb-1">
-            Welcome back! 👋
-          </h2>
-          <p className="text-gray-500 text-sm">
-            You are logged in as <span className="font-semibold text-blue-600">{user?.role}</span>
-          </p>
-        </div>
-
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-          <div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-blue-500">
-            <p className="text-sm text-gray-500 mb-1">Role</p>
-            <p className="text-2xl font-bold text-gray-800">{user?.role}</p>
+      {/* SIDEBAR */}
+      <aside className={`sidebar ${sidebarOpen ? 'sidebar--open' : ''}`}>
+        <div className="sidebar-brand">
+          <div className="sidebar-logo">
+            <svg width="28" height="28" viewBox="0 0 48 48" fill="none">
+              <rect width="48" height="48" rx="12" fill="#1a3a6e" />
+              <path d="M24 10L38 18V24C38 32.837 31.732 41.08 24 43C16.268 41.08 10 32.837 10 24V18L24 10Z" fill="white" />
+              <path d="M19 24L22.5 27.5L29 21" stroke="#1a3a6e" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
           </div>
-          <div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-green-500">
-            <p className="text-sm text-gray-500 mb-1">Status</p>
-            <p className="text-2xl font-bold text-green-600">Active</p>
-          </div>
-          <div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-purple-500">
-            <p className="text-sm text-gray-500 mb-1">Sprint</p>
-            <p className="text-2xl font-bold text-gray-800">1 — Auth</p>
+          <div>
+            <span className="sidebar-brand-name">LoadMate</span>
+            <span className="sidebar-brand-sub">Workload System</span>
           </div>
         </div>
 
-        {/* Info Card */}
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <h3 className="text-lg font-semibold text-gray-700 mb-4">
-            Account Information
-          </h3>
-          <div className="space-y-3">
-            <div className="flex justify-between border-b pb-2">
-              <span className="text-sm text-gray-500">User ID</span>
-              <span className="text-sm font-mono text-gray-700">{user?.id}</span>
+        <nav className="sidebar-nav">
+          <p className="sidebar-section-label">Menu</p>
+          {NAV_ITEMS.map((item) => (
+            <div
+              key={item.label}
+              className={`sidebar-item ${item.active ? 'sidebar-item--active' : 'sidebar-item--disabled'}`}
+            >
+              <span className="sidebar-item-icon">{item.icon}</span>
+              <span className="sidebar-item-label">{item.label}</span>
+              {!item.active && <span className="sidebar-soon">Soon</span>}
             </div>
-            <div className="flex justify-between border-b pb-2">
-              <span className="text-sm text-gray-500">Email</span>
-              <span className="text-sm text-gray-700">{user?.email}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-sm text-gray-500">Role</span>
-              <span className="text-sm text-gray-700">{user?.role}</span>
+          ))}
+        </nav>
+
+        <div className="sidebar-footer">
+          <div className="sidebar-sprint-badge">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+              <circle cx="6" cy="6" r="5" stroke="currentColor" strokeWidth="1.5" />
+              <path d="M6 3v3l2 1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+            </svg>
+            Sprint 1 — Authentication
+          </div>
+        </div>
+      </aside>
+
+      {/* MAIN */}
+      <div className="dash-main">
+        {/* TOP NAVBAR */}
+        <header className="dash-nav">
+          <div className="dash-nav-left">
+            <button className="hamburger" onClick={() => setSidebarOpen(o => !o)}>
+              <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+                <path d="M3 6h16M3 11h16M3 16h10" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+              </svg>
+            </button>
+            <div className="dash-nav-title">
+              <span>Dashboard</span>
             </div>
           </div>
-        </div>
+          <div className="dash-nav-right">
+            <div className="nav-date">{formatDate()}</div>
+            <div className="nav-user">
+              <div className="nav-avatar">{getInitials(user?.email)}</div>
+              <div className="nav-user-info">
+                <span className="nav-user-email">{user?.email}</span>
+                <span className={`nav-role-badge ${user?.role === 'Lecturer' ? 'badge--lecturer' : 'badge--student'}`}>
+                  {user?.role}
+                </span>
+              </div>
+            </div>
+            <button onClick={handleLogout} className="logout-btn">
+              <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                <path d="M7 3H3.5A1.5 1.5 0 002 4.5v9A1.5 1.5 0 003.5 15H7" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+                <path d="M12 6l3 3-3 3M7 9h8" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+              Logout
+            </button>
+          </div>
+        </header>
 
-        {/* Sprint 1 Complete Banner */}
-        <div className="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4 text-center">
-          <p className="text-blue-700 font-medium text-sm">
-            Welcome, {user?.email}! Be ready to get started!
-          </p>
-        </div>
+        {/* PAGE CONTENT */}
+        <main className="dash-content">
 
-      </main>
+          {/* Greeting */}
+          <div className="dash-greeting">
+            <div>
+              <h1 className="greeting-title">
+                {getGreeting()}, <span className="greeting-name">{user?.email?.split('@')[0]}</span>
+              </h1>
+              <p className="greeting-sub">
+                Here's what's happening in your academic workspace today.
+              </p>
+            </div>
+          </div>
+
+          {/* Stats Cards */}
+          <div className="stats-grid">
+            <div className="stat-card stat-card--blue">
+              <div className="stat-card-icon">
+                <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+                  <circle cx="11" cy="7" r="4" stroke="currentColor" strokeWidth="1.8" />
+                  <path d="M3 20c0-4.418 3.582-8 8-8s8 3.582 8 8" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+                </svg>
+              </div>
+              <div className="stat-card-content">
+                <p className="stat-label">Your Role</p>
+                <p className="stat-value">{user?.role}</p>
+                <p className="stat-desc">Access level confirmed</p>
+              </div>
+              <div className="stat-card-glow" />
+            </div>
+
+            <div className="stat-card stat-card--green">
+              <div className="stat-card-icon">
+                <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+                  <circle cx="11" cy="11" r="8" stroke="currentColor" strokeWidth="1.8" />
+                  <path d="M7 11l3 3 5-5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </div>
+              <div className="stat-card-content">
+                <p className="stat-label">Account Status</p>
+                <p className="stat-value">Active</p>
+                <p className="stat-desc">Session authenticated</p>
+              </div>
+              <div className="stat-card-glow" />
+            </div>
+
+            <div className="stat-card stat-card--purple">
+              <div className="stat-card-icon">
+                <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+                  <path d="M11 2l2.5 6H20l-5 3.5 2 6.5-6-4-6 4 2-6.5L2 8h6.5L11 2z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" />
+                </svg>
+              </div>
+              <div className="stat-card-content">
+                <p className="stat-label">Current Sprint</p>
+                <p className="stat-value">Sprint 1</p>
+                <p className="stat-desc">Authentication system</p>
+              </div>
+              <div className="stat-card-glow" />
+            </div>
+          </div>
+
+          {/* Account Info Card */}
+          <div className="info-card">
+            <div className="info-card-header">
+              <div className="info-card-title">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                  <circle cx="10" cy="7" r="3.5" stroke="currentColor" strokeWidth="1.6" />
+                  <path d="M3 18c0-3.866 3.134-7 7-7s7 3.134 7 7" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+                </svg>
+                Account Information
+              </div>
+            </div>
+
+            <div className="info-rows">
+              <div className="info-row">
+                <span className="info-row-label">User ID</span>
+                <div className="info-row-value-wrap">
+                  <span className="info-row-value info-row-mono">
+                    {user?.id ? `${user.id.substring(0, 8)}...` : '—'}
+                  </span>
+                  <button className="copy-btn" onClick={copyId} title="Copy full ID">
+                    {copied ? (
+                      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                        <path d="M2 7l3.5 3.5L12 4" stroke="#22c55e" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    ) : (
+                      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                        <rect x="5" y="5" width="7" height="7" rx="1.5" stroke="currentColor" strokeWidth="1.4" />
+                        <path d="M9 5V3.5A1.5 1.5 0 007.5 2h-4A1.5 1.5 0 002 3.5v4A1.5 1.5 0 003.5 9H5" stroke="currentColor" strokeWidth="1.4" />
+                      </svg>
+                    )}
+                  </button>
+                </div>
+              </div>
+
+              <div className="info-row">
+                <span className="info-row-label">Email address</span>
+                <span className="info-row-value">{user?.email}</span>
+              </div>
+
+              <div className="info-row">
+                <span className="info-row-label">Role</span>
+                <span className={`info-badge ${user?.role === 'Lecturer' ? 'badge--lecturer' : 'badge--student'}`}>
+                  {user?.role}
+                </span>
+              </div>
+
+              <div className="info-row info-row--last">
+                <span className="info-row-label">Member since</span>
+                <span className="info-row-value">2026</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Banner */}
+          {bannerVisible && (
+            <div className="welcome-banner">
+              <div className="banner-content">
+                <div className="banner-icon">🚀</div>
+                <div>
+                  <p className="banner-title">You're all set, {user?.email?.split('@')[0]}!</p>
+                  <p className="banner-sub">Sprint 1 authentication is fully operational. Stay tuned for upcoming features.</p>
+                </div>
+              </div>
+              <button className="banner-close" onClick={() => setBannerVisible(false)}>
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+                </svg>
+              </button>
+            </div>
+          )}
+
+        </main>
+      </div>
     </div>
   );
 }
