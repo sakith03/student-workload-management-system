@@ -1,8 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "B9iZeDuXfy4=",
+  "dgSpecHash": "eRW8bn/z9Vw=",
   "success": true,
   "projectFilePath": "C:\\Y3S1\\CSP\\CSP Project\\student-workload-management-system\\backend\\src\\StudentWorkload.Application\\StudentWorkload.Application.csproj",
-  "expectedPackageFiles": [],
+  "expectedPackageFiles": [
+    "C:\\Users\\ACER\\.nuget\\packages\\bcrypt.net-next\\4.1.0\\bcrypt.net-next.4.1.0.nupkg.sha512"
+  ],
   "logs": []
 }
