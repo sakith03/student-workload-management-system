@@ -1,0 +1,66 @@
+version: '3.9'
+ 
+services:
+ 
+  # ─── MySQL Database ──────────────────────────
+  mysql:
+    image: mysql:8.0
+    container_name: studentworkload_mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root123
+      MYSQL_DATABASE: StudentWorkloadDb
+      MYSQL_USER: appuser
+      MYSQL_PASSWORD: apppass123
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql   # Persist data between restarts
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - app_network
+ 
+  # ─── .NET API Backend ────────────────────────
+  api:
+    build:
+      context: ./backend
+      dockerfile: src/StudentWorkload.API/Dockerfile
+    container_name: studentworkload_api
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      DB_PASSWORD: "apppass123"
+      JWT_SECRET: "YourSuperSecretKeyThatIsAtLeast32CharactersLong!"
+      JwtSettings__Secret: "YourSuperSecretKeyThatIsAtLeast32CharactersLong!"
+      JwtSettings__Issuer: StudentWorkloadAPI
+      JwtSettings__Audience: StudentWorkloadClient
+      JwtSettings__ExpirationMinutes: "60"
+    ports:
+      - "5000:8080"
+    depends_on:
+      mysql:
+        condition: service_healthy  # Wait for MySQL to be ready
+    networks:
+      - app_network
+ 
+  # ─── React Frontend ──────────────────────────
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: studentworkload_frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - api
+    networks:
+      - app_network
+   
+volumes:
+  mysql_data:  # Named volume for MySQL persistence
+ 
+networks:
+  app_network:
+    driver: bridge
