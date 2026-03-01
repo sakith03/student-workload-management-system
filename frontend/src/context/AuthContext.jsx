@@ -1,79 +1,65 @@
-
-import { createContext, useContext, useState, useEffect } from 'react';
- 
-const AuthContext = createContext(null);
- 
-export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null);
-  const [token, setToken] = useState(localStorage.getItem('jwt_token'));
-
-import { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback, useMemo } from "react";
 
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
+  const [token, setToken] = useState(() => localStorage.getItem("jwt_token"));
   const [user, setUser] = useState(null);
-  const [token, setToken] = useState(localStorage.getItem('jwt_token'));
   const [loading, setLoading] = useState(true);
 
-
+  // Decode token -> user
   useEffect(() => {
-    if (token) {
-      // Decode JWT to get user info (without verification — server verifies)
-      try {
-        const payload = JSON.parse(atob(token.split('.')[1]));
-        setUser({ email: payload.email, role: payload.role, id: payload.sub });
-      } catch {
-
-        logout();
-      }
-    }
-  }, [token]);
- 
-  const login = (jwtToken) => {
-    localStorage.setItem('jwt_token', jwtToken);
-    setToken(jwtToken);
-  };
- 
-  const logout = () => {
-    localStorage.removeItem('jwt_token');
-    setToken(null);
-    setUser(null);
-  };
- 
-  return (
-    <AuthContext.Provider value={{ user, token, login, logout, isAuthenticated: !!token }}>
-
-        // Bad token — clear it directly without calling logout() to avoid
-        // re-triggering this same effect (logout mutates token → infinite loop)
-        localStorage.removeItem('jwt_token');
-        setToken(null);
-        setUser(null);
-      }
-    } else {
+    if (!token) {
       setUser(null);
+      setLoading(false);
+      return;
     }
-    setLoading(false);
+
+    try {
+      const payload = JSON.parse(atob(token.split(".")[1]));
+      setUser({
+        id: payload.sub,
+        email: payload.email,
+        role: payload.role,
+      });
+    } catch (err) {
+      // Bad token -> clear it
+      localStorage.removeItem("jwt_token");
+      setToken(null);
+      setUser(null);
+    } finally {
+      setLoading(false);
+    }
   }, [token]);
 
   const login = useCallback((jwtToken) => {
-    localStorage.setItem('jwt_token', jwtToken);
+    localStorage.setItem("jwt_token", jwtToken);
     setToken(jwtToken);
   }, []);
 
   const logout = useCallback(() => {
-    localStorage.removeItem('jwt_token');
+    localStorage.removeItem("jwt_token");
     setToken(null);
     setUser(null);
   }, []);
 
-  return (
-    <AuthContext.Provider value={{ user, token, login, logout, loading, isAuthenticated: !!token }}>
-      {children}
-    </AuthContext.Provider>
+  const value = useMemo(
+    () => ({
+      user,
+      token,
+      loading,
+      isAuthenticated: !!token,
+      login,
+      logout,
+    }),
+    [user, token, loading, login, logout]
   );
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
- 
-
-export const useAuth = () => useContext(AuthContext);
+export function useAuth() {
+  const ctx = useContext(AuthContext);
+  if (!ctx) throw new Error("useAuth must be used within AuthProvider");
+  return ctx;
+}

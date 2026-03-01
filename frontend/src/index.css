@@ -1,22 +1,14 @@
-<<<<<<< HEAD
-*, *::before, *::after {
-=======
 *,
 *::before,
 *::after {
->>>>>>> origin/develop
   box-sizing: border-box;
   margin: 0;
   padding: 0;
 }
 
-<<<<<<< HEAD
-html, body, #root {
-=======
 html,
 body,
 #root {
->>>>>>> origin/develop
   height: 100%;
   width: 100%;
 }
