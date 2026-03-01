@@ -31,7 +31,7 @@ services:
     container_name: studentworkload_api
     environment:
       ASPNETCORE_ENVIRONMENT: Development
-      DB_PASSWORD: ${DB_PASSWORD}
+      DB_PASSWORD: ${MYSQL_PASSWORD}
       JWT_SECRET: ${JWT_SECRET}
       JwtSettings__Secret: "YourSuperSecretKeyThatIsAtLeast32CharactersLong!"
       JwtSettings__Issuer: StudentWorkloadAPI
