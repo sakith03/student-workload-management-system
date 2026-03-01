@@ -1,3 +1,0 @@
-﻿<Project>
-  <Import Project="..\build\StudentWorkload.API.props" />
-</Project>
