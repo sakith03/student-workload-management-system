@@ -1,4 +1,8 @@
 import { useState } from 'react';
+import {
+  LogOut, LayoutDashboard, Plus, Clock, Target, Calendar,
+  BarChart2, Calculator, Settings, BookOpen
+} from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import '../styles/dashboard.css';
@@ -15,6 +19,7 @@ const NAV_ITEMS = [
     ),
     label: 'Dashboard',
     active: true,
+    path: '/dashboard'
   },
   {
     icon: (
@@ -24,6 +29,7 @@ const NAV_ITEMS = [
     ),
     label: 'My Courses',
     active: false,
+    path: '/my-courses'
   },
   {
     icon: (
@@ -120,16 +126,23 @@ export default function Dashboard() {
 
         <nav className="sidebar-nav">
           <p className="sidebar-section-label">Menu</p>
-          {NAV_ITEMS.map((item) => (
-            <div
-              key={item.label}
-              className={`sidebar-item ${item.active ? 'sidebar-item--active' : 'sidebar-item--disabled'}`}
-            >
-              <span className="sidebar-item-icon">{item.icon}</span>
-              <span className="sidebar-item-label">{item.label}</span>
-              {!item.active && <span className="sidebar-soon">Soon</span>}
-            </div>
-          ))}
+          {NAV_ITEMS.map((item) => {
+            const isActive = window.location.pathname === item.path || (!item.path && item.active);
+            const content = (
+              <div className={`sidebar-item ${isActive ? 'sidebar-item--active' : 'sidebar-item--disabled'}`}>
+                <span className="sidebar-item-icon">{item.icon}</span>
+                <span className="sidebar-item-label">{item.label}</span>
+                {!isActive && !item.path && <span className="sidebar-soon">Soon</span>}
+              </div>
+            );
+            return item.path ? (
+              <a href={item.path} key={item.label} style={{ textDecoration: 'none', color: 'inherit' }}>
+                {content}
+              </a>
+            ) : (
+              <div key={item.label}>{content}</div>
+            );
+          })}
         </nav>
 
         <div className="sidebar-footer">

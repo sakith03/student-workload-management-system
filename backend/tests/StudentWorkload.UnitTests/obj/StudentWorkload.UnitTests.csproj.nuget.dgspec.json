@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Y3S1\\CSP\\CSP Project\\student-workload-management-system\\backend\\tests\\StudentWorkload.UnitTests\\StudentWorkload.UnitTests.csproj": {}
+    "D:\\Year 03 sem 01\\CSP\\csp\\student-workload-management-system\\backend\\tests\\StudentWorkload.UnitTests\\StudentWorkload.UnitTests.csproj": {}
   },
   "projects": {
-    "C:\\Y3S1\\CSP\\CSP Project\\student-workload-management-system\\backend\\src\\StudentWorkload.Application\\StudentWorkload.Application.csproj": {
+    "D:\\Year 03 sem 01\\CSP\\csp\\student-workload-management-system\\backend\\src\\StudentWorkload.Application\\StudentWorkload.Application.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Y3S1\\CSP\\CSP Project\\student-workload-management-system\\backend\\src\\StudentWorkload.Application\\StudentWorkload.Application.csproj",
+        "projectUniqueName": "D:\\Year 03 sem 01\\CSP\\csp\\student-workload-management-system\\backend\\src\\StudentWorkload.Application\\StudentWorkload.Application.csproj",
         "projectName": "StudentWorkload.Application",
-        "projectPath": "C:\\Y3S1\\CSP\\CSP Project\\student-workload-management-system\\backend\\src\\StudentWorkload.Application\\StudentWorkload.Application.csproj",
-        "packagesPath": "C:\\Users\\ACER\\.nuget\\packages\\",
-        "outputPath": "C:\\Y3S1\\CSP\\CSP Project\\student-workload-management-system\\backend\\src\\StudentWorkload.Application\\obj\\",
+        "projectPath": "D:\\Year 03 sem 01\\CSP\\csp\\student-workload-management-system\\backend\\src\\StudentWorkload.Application\\StudentWorkload.Application.csproj",
+        "packagesPath": "C:\\Users\\user\\.nuget\\packages\\",
+        "outputPath": "D:\\Year 03 sem 01\\CSP\\csp\\student-workload-management-system\\backend\\src\\StudentWorkload.Application\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\ACER\\AppData\\Roaming\\NuGet\\NuGet.Config"
+          "C:\\Users\\user\\AppData\\Roaming\\NuGet\\NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net8.0"
@@ -26,8 +26,8 @@
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "C:\\Y3S1\\CSP\\CSP Project\\student-workload-management-system\\backend\\src\\StudentWorkload.Domain\\StudentWorkload.Domain.csproj": {
-                "projectPath": "C:\\Y3S1\\CSP\\CSP Project\\student-workload-management-system\\backend\\src\\StudentWorkload.Domain\\StudentWorkload.Domain.csproj"
+              "D:\\Year 03 sem 01\\CSP\\csp\\student-workload-management-system\\backend\\src\\StudentWorkload.Domain\\StudentWorkload.Domain.csproj": {
+                "projectPath": "D:\\Year 03 sem 01\\CSP\\csp\\student-workload-management-system\\backend\\src\\StudentWorkload.Domain\\StudentWorkload.Domain.csproj"
               }
             }
           }
@@ -41,7 +41,8 @@
           "enableAudit": "true",
           "auditLevel": "low",
           "auditMode": "direct"
-        }
+        },
+        "SdkAnalysisLevel": "10.0.100"
       },
       "frameworks": {
         "net8.0": {
@@ -63,26 +64,40 @@
           ],
           "assetTargetFallback": true,
           "warn": true,
+          "downloadDependencies": [
+            {
+              "name": "Microsoft.AspNetCore.App.Ref",
+              "version": "[8.0.24, 8.0.24]"
+            },
+            {
+              "name": "Microsoft.NETCore.App.Ref",
+              "version": "[8.0.24, 8.0.24]"
+            },
+            {
+              "name": "Microsoft.WindowsDesktop.App.Ref",
+              "version": "[8.0.24, 8.0.24]"
+            }
+          ],
           "frameworkReferences": {
             "Microsoft.NETCore.App": {
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.418/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.103/PortableRuntimeIdentifierGraph.json"
         }
       }
     },
-    "C:\\Y3S1\\CSP\\CSP Project\\student-workload-management-system\\backend\\src\\StudentWorkload.Domain\\StudentWorkload.Domain.csproj": {
+    "D:\\Year 03 sem 01\\CSP\\csp\\student-workload-management-system\\backend\\src\\StudentWorkload.Domain\\StudentWorkload.Domain.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Y3S1\\CSP\\CSP Project\\student-workload-management-system\\backend\\src\\StudentWorkload.Domain\\StudentWorkload.Domain.csproj",
+        "projectUniqueName": "D:\\Year 03 sem 01\\CSP\\csp\\student-workload-management-system\\backend\\src\\StudentWorkload.Domain\\StudentWorkload.Domain.csproj",
         "projectName": "StudentWorkload.Domain",
-        "projectPath": "C:\\Y3S1\\CSP\\CSP Project\\student-workload-management-system\\backend\\src\\StudentWorkload.Domain\\StudentWorkload.Domain.csproj",
-        "packagesPath": "C:\\Users\\ACER\\.nuget\\packages\\",
-        "outputPath": "C:\\Y3S1\\CSP\\CSP Project\\student-workload-management-system\\backend\\src\\StudentWorkload.Domain\\obj\\",
+        "projectPath": "D:\\Year 03 sem 01\\CSP\\csp\\student-workload-management-system\\backend\\src\\StudentWorkload.Domain\\StudentWorkload.Domain.csproj",
+        "packagesPath": "C:\\Users\\user\\.nuget\\packages\\",
+        "outputPath": "D:\\Year 03 sem 01\\CSP\\csp\\student-workload-management-system\\backend\\src\\StudentWorkload.Domain\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\ACER\\AppData\\Roaming\\NuGet\\NuGet.Config"
+          "C:\\Users\\user\\AppData\\Roaming\\NuGet\\NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net8.0"
@@ -105,7 +120,8 @@
           "enableAudit": "true",
           "auditLevel": "low",
           "auditMode": "direct"
-        }
+        },
+        "SdkAnalysisLevel": "10.0.100"
       },
       "frameworks": {
         "net8.0": {
@@ -121,26 +137,40 @@
           ],
           "assetTargetFallback": true,
           "warn": true,
+          "downloadDependencies": [
+            {
+              "name": "Microsoft.AspNetCore.App.Ref",
+              "version": "[8.0.24, 8.0.24]"
+            },
+            {
+              "name": "Microsoft.NETCore.App.Ref",
+              "version": "[8.0.24, 8.0.24]"
+            },
+            {
+              "name": "Microsoft.WindowsDesktop.App.Ref",
+              "version": "[8.0.24, 8.0.24]"
+            }
+          ],
           "frameworkReferences": {
             "Microsoft.NETCore.App": {
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.418/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.103/PortableRuntimeIdentifierGraph.json"
         }
       }
     },
-    "C:\\Y3S1\\CSP\\CSP Project\\student-workload-management-system\\backend\\tests\\StudentWorkload.UnitTests\\StudentWorkload.UnitTests.csproj": {
+    "D:\\Year 03 sem 01\\CSP\\csp\\student-workload-management-system\\backend\\tests\\StudentWorkload.UnitTests\\StudentWorkload.UnitTests.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Y3S1\\CSP\\CSP Project\\student-workload-management-system\\backend\\tests\\StudentWorkload.UnitTests\\StudentWorkload.UnitTests.csproj",
+        "projectUniqueName": "D:\\Year 03 sem 01\\CSP\\csp\\student-workload-management-system\\backend\\tests\\StudentWorkload.UnitTests\\StudentWorkload.UnitTests.csproj",
         "projectName": "StudentWorkload.UnitTests",
-        "projectPath": "C:\\Y3S1\\CSP\\CSP Project\\student-workload-management-system\\backend\\tests\\StudentWorkload.UnitTests\\StudentWorkload.UnitTests.csproj",
-        "packagesPath": "C:\\Users\\ACER\\.nuget\\packages\\",
-        "outputPath": "C:\\Y3S1\\CSP\\CSP Project\\student-workload-management-system\\backend\\tests\\StudentWorkload.UnitTests\\obj\\",
+        "projectPath": "D:\\Year 03 sem 01\\CSP\\csp\\student-workload-management-system\\backend\\tests\\StudentWorkload.UnitTests\\StudentWorkload.UnitTests.csproj",
+        "packagesPath": "C:\\Users\\user\\.nuget\\packages\\",
+        "outputPath": "D:\\Year 03 sem 01\\CSP\\csp\\student-workload-management-system\\backend\\tests\\StudentWorkload.UnitTests\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\ACER\\AppData\\Roaming\\NuGet\\NuGet.Config"
+          "C:\\Users\\user\\AppData\\Roaming\\NuGet\\NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net8.0"
@@ -152,11 +182,11 @@
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "C:\\Y3S1\\CSP\\CSP Project\\student-workload-management-system\\backend\\src\\StudentWorkload.Application\\StudentWorkload.Application.csproj": {
-                "projectPath": "C:\\Y3S1\\CSP\\CSP Project\\student-workload-management-system\\backend\\src\\StudentWorkload.Application\\StudentWorkload.Application.csproj"
+              "D:\\Year 03 sem 01\\CSP\\csp\\student-workload-management-system\\backend\\src\\StudentWorkload.Application\\StudentWorkload.Application.csproj": {
+                "projectPath": "D:\\Year 03 sem 01\\CSP\\csp\\student-workload-management-system\\backend\\src\\StudentWorkload.Application\\StudentWorkload.Application.csproj"
               },
-              "C:\\Y3S1\\CSP\\CSP Project\\student-workload-management-system\\backend\\src\\StudentWorkload.Domain\\StudentWorkload.Domain.csproj": {
-                "projectPath": "C:\\Y3S1\\CSP\\CSP Project\\student-workload-management-system\\backend\\src\\StudentWorkload.Domain\\StudentWorkload.Domain.csproj"
+              "D:\\Year 03 sem 01\\CSP\\csp\\student-workload-management-system\\backend\\src\\StudentWorkload.Domain\\StudentWorkload.Domain.csproj": {
+                "projectPath": "D:\\Year 03 sem 01\\CSP\\csp\\student-workload-management-system\\backend\\src\\StudentWorkload.Domain\\StudentWorkload.Domain.csproj"
               }
             }
           }
@@ -170,7 +200,8 @@
           "enableAudit": "true",
           "auditLevel": "low",
           "auditMode": "direct"
-        }
+        },
+        "SdkAnalysisLevel": "10.0.100"
       },
       "frameworks": {
         "net8.0": {
@@ -212,12 +243,26 @@
           ],
           "assetTargetFallback": true,
           "warn": true,
+          "downloadDependencies": [
+            {
+              "name": "Microsoft.AspNetCore.App.Ref",
+              "version": "[8.0.24, 8.0.24]"
+            },
+            {
+              "name": "Microsoft.NETCore.App.Ref",
+              "version": "[8.0.24, 8.0.24]"
+            },
+            {
+              "name": "Microsoft.WindowsDesktop.App.Ref",
+              "version": "[8.0.24, 8.0.24]"
+            }
+          ],
           "frameworkReferences": {
             "Microsoft.NETCore.App": {
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.418/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.103/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

@@ -1,10 +1,13 @@
 {
   "version": 2,
-  "dgSpecHash": "eRW8bn/z9Vw=",
+  "dgSpecHash": "f/f2jz7z/iQ=",
   "success": true,
-  "projectFilePath": "C:\\Y3S1\\CSP\\CSP Project\\student-workload-management-system\\backend\\src\\StudentWorkload.Application\\StudentWorkload.Application.csproj",
+  "projectFilePath": "D:\\Year 03 sem 01\\CSP\\csp\\student-workload-management-system\\backend\\src\\StudentWorkload.Application\\StudentWorkload.Application.csproj",
   "expectedPackageFiles": [
-    "C:\\Users\\ACER\\.nuget\\packages\\bcrypt.net-next\\4.1.0\\bcrypt.net-next.4.1.0.nupkg.sha512"
+    "C:\\Users\\user\\.nuget\\packages\\bcrypt.net-next\\4.1.0\\bcrypt.net-next.4.1.0.nupkg.sha512",
+    "C:\\Users\\user\\.nuget\\packages\\microsoft.netcore.app.ref\\8.0.24\\microsoft.netcore.app.ref.8.0.24.nupkg.sha512",
+    "C:\\Users\\user\\.nuget\\packages\\microsoft.windowsdesktop.app.ref\\8.0.24\\microsoft.windowsdesktop.app.ref.8.0.24.nupkg.sha512",
+    "C:\\Users\\user\\.nuget\\packages\\microsoft.aspnetcore.app.ref\\8.0.24\\microsoft.aspnetcore.app.ref.8.0.24.nupkg.sha512"
   ],
   "logs": []
 }

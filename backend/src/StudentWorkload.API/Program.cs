@@ -2,6 +2,9 @@ using Microsoft.EntityFrameworkCore;
 using StudentWorkload.Infrastructure.Data;
 using StudentWorkload.Domain.Modules.Users.Repositories;
 using StudentWorkload.Infrastructure.Modules.Users;
+using StudentWorkload.Domain.Modules.CourseModules.Repositories;
+using StudentWorkload.Infrastructure.Modules.CourseModules;
+using StudentWorkload.Application.Modules.CourseModules.Services;
 using StudentWorkload.Application.Common.Interfaces;
 using StudentWorkload.Infrastructure.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -21,6 +24,8 @@ builder.Services.AddDbContext<AppDbContext>(options =>
  
 // ─── Dependency Injection ────────────────────────
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<ICourseModuleRepository, CourseModuleRepository>();
+builder.Services.AddScoped<ICourseModuleService, CourseModuleService>();
 builder.Services.AddScoped<IJwtService, JwtService>();
  
 // ─── JWT Authentication ──────────────────────────

@@ -4,7 +4,8 @@ import ProtectedRoute from './components/ProtectedRoute';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
- 
+import MyCoursesPage from './pages/MyCoursesPage';
+
 export default function App() {
   return (
     <AuthProvider>
@@ -14,6 +15,9 @@ export default function App() {
           <Route path='/register' element={<Register />} />
           <Route path='/dashboard' element={
             <ProtectedRoute><Dashboard /></ProtectedRoute>
+          } />
+          <Route path='/my-courses' element={
+            <ProtectedRoute><MyCoursesPage /></ProtectedRoute>
           } />
           <Route path='/' element={<Navigate to='/login' />} />
         </Routes>
