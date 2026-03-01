@@ -4,28 +4,28 @@ using Microsoft.EntityFrameworkCore;
 using StudentWorkload.Domain.Modules.Users.Entities;
 using StudentWorkload.Domain.Modules.Users.Enums;
 using StudentWorkload.Domain.Modules.Users.ValueObjects;
-<<<<<<< HEAD
+
 using StudentWorkload.Domain.Modules.CourseModules.Entities;
-=======
+
 using StudentWorkload.Domain.Modules.Academic.Entities;
 using StudentWorkload.Domain.Modules.Subjects.Entities;
 using StudentWorkload.Domain.Modules.Groups.Entities;
 
->>>>>>> origin/develop
+
  
 public class AppDbContext : DbContext
 {
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
  
     public DbSet<User> Users { get; set; }
-<<<<<<< HEAD
+
     public DbSet<CourseModule> CourseModules { get; set; }
-=======
+
     public DbSet<AcademicProfile> AcademicProfiles { get; set; }
     public DbSet<Subject> Subjects { get; set; }
     public DbSet<Group> Groups { get; set; }
     public DbSet<GroupMember> GroupMembers { get; set; }
->>>>>>> origin/develop
+
  
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -53,7 +53,7 @@ public class AppDbContext : DbContext
             entity.Property(u => u.Role).HasConversion<int>(); // Store enum as int
             entity.Property(u => u.CreatedAt).IsRequired();
             entity.Property(u => u.IsActive).IsRequired().HasDefaultValue(true);
-<<<<<<< HEAD
+
 
             entity.ToTable("Users");
         });
@@ -81,7 +81,7 @@ public class AppDbContext : DbContext
 
             entity.ToTable("modules");
         });
-=======
+
  
             entity.ToTable("Users");
         });
@@ -138,6 +138,6 @@ public class AppDbContext : DbContext
             entity.ToTable("GroupMembers");
         });
 
->>>>>>> origin/develop
+
     }
 }

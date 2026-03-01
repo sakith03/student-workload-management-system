@@ -1,6 +1,6 @@
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-<<<<<<< HEAD
+
  
 export default function ProtectedRoute({ children, requiredRole }) {
   const { isAuthenticated, user } = useAuth();
@@ -13,8 +13,6 @@ export default function ProtectedRoute({ children, requiredRole }) {
     return <Navigate to='/dashboard' replace />;
   }
  
-=======
-
 export default function ProtectedRoute({ children, requiredRole }) {
   const { isAuthenticated, user, loading } = useAuth();
 
@@ -31,6 +29,5 @@ export default function ProtectedRoute({ children, requiredRole }) {
     return <Navigate to='/dashboard' replace />;
   }
 
->>>>>>> origin/develop
   return children;
 }

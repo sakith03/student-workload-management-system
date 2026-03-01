@@ -22,8 +22,8 @@ namespace StudentWorkload.Infrastructure.Migrations
 
             MySqlModelBuilderExtensions.AutoIncrementColumns(modelBuilder);
 
-<<<<<<< HEAD
-=======
+
+
             modelBuilder.Entity("StudentWorkload.Domain.Modules.Academic.Entities.AcademicProfile", b =>
                 {
                     b.Property<Guid>("Id")
@@ -172,7 +172,7 @@ namespace StudentWorkload.Infrastructure.Migrations
                     b.ToTable("Subjects", (string)null);
                 });
 
->>>>>>> origin/develop
+
             modelBuilder.Entity("StudentWorkload.Domain.Modules.Users.Entities.User", b =>
                 {
                     b.Property<Guid>("Id")
@@ -216,7 +216,7 @@ namespace StudentWorkload.Infrastructure.Migrations
 
                     b.ToTable("Users", (string)null);
                 });
-<<<<<<< HEAD
+
 
             modelBuilder.Entity("StudentWorkload.Domain.Modules.CourseModules.Entities.CourseModule", b =>
                 {
@@ -271,8 +271,7 @@ namespace StudentWorkload.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
-=======
->>>>>>> origin/develop
+
 #pragma warning restore 612, 618
         }
     }
