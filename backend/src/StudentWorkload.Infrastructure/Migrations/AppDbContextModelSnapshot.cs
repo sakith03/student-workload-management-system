@@ -22,6 +22,8 @@ namespace StudentWorkload.Infrastructure.Migrations
 
             MySqlModelBuilderExtensions.AutoIncrementColumns(modelBuilder);
 
+
+
             modelBuilder.Entity("StudentWorkload.Domain.Modules.Academic.Entities.AcademicProfile", b =>
                 {
                     b.Property<Guid>("Id")
@@ -170,6 +172,7 @@ namespace StudentWorkload.Infrastructure.Migrations
                     b.ToTable("Subjects", (string)null);
                 });
 
+
             modelBuilder.Entity("StudentWorkload.Domain.Modules.Users.Entities.User", b =>
                 {
                     b.Property<Guid>("Id")
@@ -213,6 +216,62 @@ namespace StudentWorkload.Infrastructure.Migrations
 
                     b.ToTable("Users", (string)null);
                 });
+
+
+            modelBuilder.Entity("StudentWorkload.Domain.Modules.CourseModules.Entities.CourseModule", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("ColorTag")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("varchar(120)");
+
+                    b.Property<string>("Semester")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
+
+                    b.Property<decimal>("TargetHoursPerWeek")
+                        .HasPrecision(5, 2)
+                        .HasColumnType("decimal(5,2)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("char(36)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("modules", (string)null);
+                });
+
+            modelBuilder.Entity("StudentWorkload.Domain.Modules.CourseModules.Entities.CourseModule", b =>
+                {
+                    b.HasOne("StudentWorkload.Domain.Modules.Users.Entities.User", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
 #pragma warning restore 612, 618
         }
     }

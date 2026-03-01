@@ -1,4 +1,8 @@
 import { useState } from 'react';
+import {
+  LogOut, LayoutDashboard, Plus, Clock, Target, Calendar,
+  BarChart2, Calculator, Settings, BookOpen
+} from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate, useLocation } from 'react-router-dom';
 import '../styles/dashboard.css';
@@ -15,6 +19,15 @@ const NAV_ITEMS = [
     ),
     label: 'Dashboard',
     path: '/dashboard',
+  },
+  {
+    icon: (
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+        <path d="M4 6h12M4 10h8M4 14h10" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+      </svg>
+    ),
+    label: 'My Courses',
+    path: '/my-courses',
   },
   {
     icon: (
@@ -125,9 +138,7 @@ export default function Dashboard() {
           {NAV_ITEMS.map((item) => (
             <div
               key={item.label}
-              className={`sidebar-item ${location.pathname === item.path ? 'sidebar-item--active' : ''
-                } ${!item.path ? 'sidebar-item--disabled' : ''
-                }`}
+              className={`sidebar-item ${location.pathname === item.path ? 'sidebar-item--active' : ''} ${!item.path ? 'sidebar-item--disabled' : ''}`}
               onClick={() => item.path && navigate(item.path)}
             >
               <span className="sidebar-item-icon">{item.icon}</span>
@@ -247,6 +258,21 @@ export default function Dashboard() {
 
           {/* Quick Nav Cards */}
           <div className="quick-nav-grid">
+            <div className="quick-nav-card" onClick={() => navigate('/my-courses')}>
+              <div className="quick-nav-icon quick-nav-icon--blue">
+                <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+                  <path d="M4 6h14M4 11h10M4 16h12" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+                </svg>
+              </div>
+              <div className="quick-nav-text">
+                <p className="quick-nav-title">My Courses</p>
+                <p className="quick-nav-sub">View and manage your modules</p>
+              </div>
+              <svg className="quick-nav-arrow" width="18" height="18" viewBox="0 0 18 18" fill="none">
+                <path d="M4 9h10M9 4l5 5-5 5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </div>
+
             <div className="quick-nav-card" onClick={() => navigate('/setup')}>
               <div className="quick-nav-icon quick-nav-icon--blue">
                 <svg width="22" height="22" viewBox="0 0 22 22" fill="none">

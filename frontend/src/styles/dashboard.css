@@ -396,6 +396,11 @@
   flex-shrink: 0;
 }
 
+
+.stat-card--blue .stat-card-icon { background: #dbeafe; color: #1d4ed8; }
+.stat-card--green .stat-card-icon { background: #d1fae5; color: #065f46; }
+.stat-card--purple .stat-card-icon { background: #ede9fe; color: #5b21b6; }
+
 .stat-card--blue .stat-card-icon {
   background: #dbeafe;
   color: #1d4ed8;
@@ -410,6 +415,7 @@
   background: #ede9fe;
   color: #5b21b6;
 }
+
 
 .stat-card-content {
   flex: 1;
@@ -449,6 +455,10 @@
   opacity: 0.06;
 }
 
+
+.stat-card--blue .stat-card-glow { background: #2563eb; }
+.stat-card--green .stat-card-glow { background: #059669; }
+.stat-card--purple .stat-card-glow { background: #7c3aed; }
 .stat-card--blue .stat-card-glow {
   background: #2563eb;
 }
@@ -460,6 +470,7 @@
 .stat-card--purple .stat-card-glow {
   background: #7c3aed;
 }
+
 
 /* ─── Account Info Card ─────────────────────────────────── */
 .info-card {
@@ -614,6 +625,10 @@
 
 /* ─── Animations ────────────────────────────────────────── */
 @keyframes fadeSlideUp {
+
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+
   from {
     opacity: 0;
     transform: translateY(16px);
@@ -623,6 +638,7 @@
     opacity: 1;
     transform: translateY(0);
   }
+
 }
 
 /* ─── Responsive ────────────────────────────────────────── */
@@ -630,6 +646,7 @@
   .stats-grid {
     grid-template-columns: repeat(2, 1fr);
   }
+
 
   .nav-date {
     display: none;
@@ -640,6 +657,29 @@
   .sidebar {
     transform: translateX(-100%);
   }
+
+  .sidebar--open {
+    transform: translateX(0);
+  }
+  .sidebar-overlay {
+    display: block;
+  }
+  .dash-main {
+    margin-left: 0;
+  }
+  .hamburger {
+    display: flex;
+  }
+  .dash-content {
+    padding: 24px 16px;
+  }
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+  .nav-user-info {
+    display: none;
+  }
+
 
   .sidebar--open {
     transform: translateX(0);
@@ -669,6 +709,7 @@
     display: none;
   }
 
+
   .nav-date {
     display: none;
   }
@@ -678,6 +719,14 @@
   .dash-nav {
     padding: 0 16px;
   }
+
+  .logout-btn span {
+    display: none;
+  }
+  .greeting-title {
+    font-size: 1.4rem;
+  }
+
 
   .logout-btn span {
     display: none;
@@ -772,4 +821,5 @@
   .quick-nav-grid {
     grid-template-columns: 1fr;
   }
+
 }
