@@ -1,12 +1,24 @@
-D:\Year 03 sem 01\CSP\csp\student-workload-management-system\backend\src\StudentWorkload.Domain\bin\Debug\net8.0\StudentWorkload.Domain.deps.json
-D:\Year 03 sem 01\CSP\csp\student-workload-management-system\backend\src\StudentWorkload.Domain\bin\Debug\net8.0\StudentWorkload.Domain.dll
-D:\Year 03 sem 01\CSP\csp\student-workload-management-system\backend\src\StudentWorkload.Domain\bin\Debug\net8.0\StudentWorkload.Domain.pdb
-D:\Year 03 sem 01\CSP\csp\student-workload-management-system\backend\src\StudentWorkload.Domain\obj\Debug\net8.0\StudentWorkload.Domain.GeneratedMSBuildEditorConfig.editorconfig
-D:\Year 03 sem 01\CSP\csp\student-workload-management-system\backend\src\StudentWorkload.Domain\obj\Debug\net8.0\StudentWorkload.Domain.AssemblyInfoInputs.cache
-D:\Year 03 sem 01\CSP\csp\student-workload-management-system\backend\src\StudentWorkload.Domain\obj\Debug\net8.0\StudentWorkload.Domain.AssemblyInfo.cs
-D:\Year 03 sem 01\CSP\csp\student-workload-management-system\backend\src\StudentWorkload.Domain\obj\Debug\net8.0\StudentWorkload.Domain.csproj.CoreCompileInputs.cache
-D:\Year 03 sem 01\CSP\csp\student-workload-management-system\backend\src\StudentWorkload.Domain\obj\Debug\net8.0\StudentWorkload.Domain.sourcelink.json
-D:\Year 03 sem 01\CSP\csp\student-workload-management-system\backend\src\StudentWorkload.Domain\obj\Debug\net8.0\StudentWorkload.Domain.dll
-D:\Year 03 sem 01\CSP\csp\student-workload-management-system\backend\src\StudentWorkload.Domain\obj\Debug\net8.0\refint\StudentWorkload.Domain.dll
-D:\Year 03 sem 01\CSP\csp\student-workload-management-system\backend\src\StudentWorkload.Domain\obj\Debug\net8.0\StudentWorkload.Domain.pdb
-D:\Year 03 sem 01\CSP\csp\student-workload-management-system\backend\src\StudentWorkload.Domain\obj\Debug\net8.0\ref\StudentWorkload.Domain.dll
+D:/Year 03 sem 01/CSP/csp/student-workload-management-system/backend/src/StudentWorkload.Domain/bin/Debug/net8.0/StudentWorkload.Domain.deps.json
+D:/Year 03 sem 01/CSP/csp/student-workload-management-system/backend/src/StudentWorkload.Domain/bin/Debug/net8.0/StudentWorkload.Domain.dll
+D:/Year 03 sem 01/CSP/csp/student-workload-management-system/backend/src/StudentWorkload.Domain/bin/Debug/net8.0/StudentWorkload.Domain.pdb
+D:/Year 03 sem 01/CSP/csp/student-workload-management-system/backend/src/StudentWorkload.Domain/obj/Debug/net8.0/StudentWorkload.Domain.GeneratedMSBuildEditorConfig.editorconfig
+D:/Year 03 sem 01/CSP/csp/student-workload-management-system/backend/src/StudentWorkload.Domain/obj/Debug/net8.0/StudentWorkload.Domain.AssemblyInfoInputs.cache
+D:/Year 03 sem 01/CSP/csp/student-workload-management-system/backend/src/StudentWorkload.Domain/obj/Debug/net8.0/StudentWorkload.Domain.AssemblyInfo.cs
+D:/Year 03 sem 01/CSP/csp/student-workload-management-system/backend/src/StudentWorkload.Domain/obj/Debug/net8.0/StudentWorkload.Domain.csproj.CoreCompileInputs.cache
+D:/Year 03 sem 01/CSP/csp/student-workload-management-system/backend/src/StudentWorkload.Domain/obj/Debug/net8.0/StudentWorkload.Domain.sourcelink.json
+D:/Year 03 sem 01/CSP/csp/student-workload-management-system/backend/src/StudentWorkload.Domain/obj/Debug/net8.0/StudentWorkload.Domain.dll
+D:/Year 03 sem 01/CSP/csp/student-workload-management-system/backend/src/StudentWorkload.Domain/obj/Debug/net8.0/refint/StudentWorkload.Domain.dll
+D:/Year 03 sem 01/CSP/csp/student-workload-management-system/backend/src/StudentWorkload.Domain/obj/Debug/net8.0/StudentWorkload.Domain.pdb
+D:/Year 03 sem 01/CSP/csp/student-workload-management-system/backend/src/StudentWorkload.Domain/obj/Debug/net8.0/ref/StudentWorkload.Domain.dll
+/src/backend/src/StudentWorkload.Domain/bin/Debug/net8.0/StudentWorkload.Domain.deps.json
+/src/backend/src/StudentWorkload.Domain/bin/Debug/net8.0/StudentWorkload.Domain.dll
+/src/backend/src/StudentWorkload.Domain/bin/Debug/net8.0/StudentWorkload.Domain.pdb
+/src/backend/src/StudentWorkload.Domain/obj/Debug/net8.0/StudentWorkload.Domain.GeneratedMSBuildEditorConfig.editorconfig
+/src/backend/src/StudentWorkload.Domain/obj/Debug/net8.0/StudentWorkload.Domain.AssemblyInfoInputs.cache
+/src/backend/src/StudentWorkload.Domain/obj/Debug/net8.0/StudentWorkload.Domain.AssemblyInfo.cs
+/src/backend/src/StudentWorkload.Domain/obj/Debug/net8.0/StudentWorkload.Domain.csproj.CoreCompileInputs.cache
+/src/backend/src/StudentWorkload.Domain/obj/Debug/net8.0/StudentWorkload.Domain.sourcelink.json
+/src/backend/src/StudentWorkload.Domain/obj/Debug/net8.0/StudentWorkload.Domain.dll
+/src/backend/src/StudentWorkload.Domain/obj/Debug/net8.0/refint/StudentWorkload.Domain.dll
+/src/backend/src/StudentWorkload.Domain/obj/Debug/net8.0/StudentWorkload.Domain.pdb
+/src/backend/src/StudentWorkload.Domain/obj/Debug/net8.0/ref/StudentWorkload.Domain.dll

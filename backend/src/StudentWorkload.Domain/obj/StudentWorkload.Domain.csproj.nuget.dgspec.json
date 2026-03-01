@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "D:\\Year 03 sem 01\\CSP\\csp\\student-workload-management-system\\backend\\src\\StudentWorkload.Domain\\StudentWorkload.Domain.csproj": {}
+    "/src/backend/src/StudentWorkload.Domain/StudentWorkload.Domain.csproj": {}
   },
   "projects": {
-    "D:\\Year 03 sem 01\\CSP\\csp\\student-workload-management-system\\backend\\src\\StudentWorkload.Domain\\StudentWorkload.Domain.csproj": {
+    "/src/backend/src/StudentWorkload.Domain/StudentWorkload.Domain.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\Year 03 sem 01\\CSP\\csp\\student-workload-management-system\\backend\\src\\StudentWorkload.Domain\\StudentWorkload.Domain.csproj",
+        "projectUniqueName": "/src/backend/src/StudentWorkload.Domain/StudentWorkload.Domain.csproj",
         "projectName": "StudentWorkload.Domain",
-        "projectPath": "D:\\Year 03 sem 01\\CSP\\csp\\student-workload-management-system\\backend\\src\\StudentWorkload.Domain\\StudentWorkload.Domain.csproj",
-        "packagesPath": "C:\\Users\\user\\.nuget\\packages\\",
-        "outputPath": "D:\\Year 03 sem 01\\CSP\\csp\\student-workload-management-system\\backend\\src\\StudentWorkload.Domain\\obj\\",
+        "projectPath": "/src/backend/src/StudentWorkload.Domain/StudentWorkload.Domain.csproj",
+        "packagesPath": "/root/.nuget/packages/",
+        "outputPath": "/src/backend/src/StudentWorkload.Domain/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\user\\AppData\\Roaming\\NuGet\\NuGet.Config"
+          "/root/.nuget/NuGet/NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net8.0"
@@ -37,8 +37,7 @@
           "enableAudit": "true",
           "auditLevel": "low",
           "auditMode": "direct"
-        },
-        "SdkAnalysisLevel": "10.0.100"
+        }
       },
       "frameworks": {
         "net8.0": {
@@ -54,26 +53,12 @@
           ],
           "assetTargetFallback": true,
           "warn": true,
-          "downloadDependencies": [
-            {
-              "name": "Microsoft.AspNetCore.App.Ref",
-              "version": "[8.0.24, 8.0.24]"
-            },
-            {
-              "name": "Microsoft.NETCore.App.Ref",
-              "version": "[8.0.24, 8.0.24]"
-            },
-            {
-              "name": "Microsoft.WindowsDesktop.App.Ref",
-              "version": "[8.0.24, 8.0.24]"
-            }
-          ],
           "frameworkReferences": {
             "Microsoft.NETCore.App": {
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.103/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/8.0.418/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

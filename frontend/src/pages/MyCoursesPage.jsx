@@ -355,12 +355,17 @@ export default function MyCoursesPage() {
                     {/* Form Modal */}
                     {isFormOpen && (
                         <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50, padding: '1rem' }}>
-                            <div style={{ backgroundColor: 'white', borderRadius: '0.75rem', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)', width: '100%', maxWidth: '28rem', overflow: 'hidden' }}>
-                                <div style={{ padding: '1rem 1.5rem', borderBottom: '1px solid #f3f4f6', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                    <h2 style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#111827', margin: 0 }}>
-                                        {currentModule ? 'Edit Course Module' : 'Create New Course'}
-                                    </h2>
-                                    <button onClick={() => setIsFormOpen(false)} style={{ color: '#9ca3af', fontSize: '1.5rem', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>&times;</button>
+                            <div style={{ backgroundColor: 'white', borderRadius: '0.75rem', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)', width: '100%', maxWidth: '32rem', overflow: 'hidden' }}>
+                                <div style={{ padding: '1.25rem 1.5rem', borderBottom: '1px solid #f3f4f6', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'linear-gradient(135deg, #f8faff 0%, #eef2ff 100%)' }}>
+                                    <div>
+                                        <h2 style={{ fontSize: '1.125rem', fontWeight: '700', color: '#111827', margin: 0 }}>
+                                            {currentModule ? '✏️ Edit Course Module' : '📚 Create New Course'}
+                                        </h2>
+                                        <p style={{ fontSize: '0.75rem', color: '#6b7280', margin: '0.2rem 0 0 0' }}>
+                                            {currentModule ? 'Update your module details below' : 'Add a new module to your course list'}
+                                        </p>
+                                    </div>
+                                    <button onClick={() => setIsFormOpen(false)} style={{ color: '#9ca3af', fontSize: '1.5rem', background: 'none', border: 'none', cursor: 'pointer', padding: '0.25rem', lineHeight: 1 }}>&times;</button>
                                 </div>
 
                                 <form onSubmit={handleSaveModule} style={{ padding: '1.5rem' }}>
@@ -372,7 +377,7 @@ export default function MyCoursesPage() {
                                                 name="name"
                                                 value={formData.name}
                                                 onChange={handleFormChange}
-                                                style={{ width: '100%', padding: '0.5rem 0.75rem', border: `1px solid ${formErrors.name ? '#ef4444' : '#d1d5db'}`, borderRadius: '0.5rem', outline: 'none', boxSizing: 'border-box' }}
+                                                style={{ width: '100%', padding: '0.625rem 0.75rem', border: `1.5px solid ${formErrors.name ? '#ef4444' : '#e5e7eb'}`, borderRadius: '0.5rem', outline: 'none', boxSizing: 'border-box', fontSize: '0.9375rem' }}
                                                 placeholder="e.g. Data Structures and Algorithms"
                                                 maxLength={120}
                                             />
@@ -386,8 +391,8 @@ export default function MyCoursesPage() {
                                                 name="semester"
                                                 value={formData.semester}
                                                 onChange={handleFormChange}
-                                                style={{ width: '100%', padding: '0.5rem 0.75rem', border: `1px solid ${formErrors.semester ? '#ef4444' : '#d1d5db'}`, borderRadius: '0.5rem', outline: 'none', boxSizing: 'border-box' }}
-                                                placeholder="e.g. Y2S1"
+                                                style={{ width: '100%', padding: '0.625rem 0.75rem', border: `1.5px solid ${formErrors.semester ? '#ef4444' : '#e5e7eb'}`, borderRadius: '0.5rem', outline: 'none', boxSizing: 'border-box', fontSize: '0.9375rem' }}
+                                                placeholder="e.g. Y3S1"
                                             />
                                             {formErrors.semester && <p style={{ color: '#ef4444', fontSize: '0.75rem', margin: '0.25rem 0 0 0' }}>{formErrors.semester}</p>}
                                         </div>
@@ -403,7 +408,7 @@ export default function MyCoursesPage() {
                                                     name="targetHoursPerWeek"
                                                     value={formData.targetHoursPerWeek}
                                                     onChange={handleFormChange}
-                                                    style={{ width: '100%', padding: '0.5rem 0.75rem', border: `1px solid ${formErrors.targetHoursPerWeek ? '#ef4444' : '#d1d5db'}`, borderRadius: '0.5rem', outline: 'none', boxSizing: 'border-box' }}
+                                                    style={{ width: '100%', padding: '0.625rem 0.75rem', border: `1.5px solid ${formErrors.targetHoursPerWeek ? '#ef4444' : '#e5e7eb'}`, borderRadius: '0.5rem', outline: 'none', boxSizing: 'border-box', fontSize: '0.9375rem' }}
                                                 />
                                                 {formErrors.targetHoursPerWeek && <p style={{ color: '#ef4444', fontSize: '0.75rem', margin: '0.25rem 0 0 0' }}>{formErrors.targetHoursPerWeek}</p>}
                                             </div>
@@ -413,13 +418,13 @@ export default function MyCoursesPage() {
                                                     name="colorTag"
                                                     value={formData.colorTag}
                                                     onChange={handleFormChange}
-                                                    style={{ width: '100%', padding: '0.5rem 0.75rem', border: '1px solid #d1d5db', borderRadius: '0.5rem', outline: 'none', backgroundColor: 'white', boxSizing: 'border-box' }}
+                                                    style={{ width: '100%', padding: '0.625rem 0.75rem', border: '1.5px solid #e5e7eb', borderRadius: '0.5rem', outline: 'none', backgroundColor: 'white', boxSizing: 'border-box', fontSize: '0.9375rem', cursor: 'pointer' }}
                                                 >
-                                                    <option value="Blue">Blue</option>
-                                                    <option value="Green">Green</option>
-                                                    <option value="Purple">Purple</option>
-                                                    <option value="Red">Red</option>
-                                                    <option value="Gray">Gray</option>
+                                                    <option value="Blue">🔵 Blue</option>
+                                                    <option value="Green">🟢 Green</option>
+                                                    <option value="Purple">🟣 Purple</option>
+                                                    <option value="Red">🔴 Red</option>
+                                                    <option value="Gray">⚫ Gray</option>
                                                 </select>
                                             </div>
                                         </div>
@@ -431,8 +436,8 @@ export default function MyCoursesPage() {
                                                 value={formData.description}
                                                 onChange={handleFormChange}
                                                 rows="3"
-                                                style={{ width: '100%', padding: '0.5rem 0.75rem', border: '1px solid #d1d5db', borderRadius: '0.5rem', outline: 'none', boxSizing: 'border-box', fontFamily: 'inherit', resize: 'vertical' }}
-                                                placeholder="Brief description of the module..."
+                                                style={{ width: '100%', padding: '0.625rem 0.75rem', border: '1.5px solid #e5e7eb', borderRadius: '0.5rem', outline: 'none', boxSizing: 'border-box', fontFamily: 'inherit', resize: 'vertical', fontSize: '0.9375rem', lineHeight: 1.5 }}
+                                                placeholder="Brief description of what this module covers..."
                                             ></textarea>
                                         </div>
                                     </div>
@@ -441,15 +446,15 @@ export default function MyCoursesPage() {
                                         <button
                                             type="button"
                                             onClick={() => setIsFormOpen(false)}
-                                            style={{ padding: '0.5rem 1rem', color: '#374151', backgroundColor: '#f3f4f6', border: 'none', borderRadius: '0.5rem', fontWeight: '500', cursor: 'pointer' }}
+                                            style={{ padding: '0.625rem 1.25rem', color: '#374151', backgroundColor: '#f9fafb', border: '1.5px solid #e5e7eb', borderRadius: '0.5rem', fontWeight: '500', cursor: 'pointer', fontSize: '0.875rem' }}
                                         >
                                             Cancel
                                         </button>
                                         <button
                                             type="submit"
-                                            style={{ padding: '0.5rem 1rem', color: 'white', backgroundColor: '#4f46e5', border: 'none', borderRadius: '0.5rem', fontWeight: '500', cursor: 'pointer' }}
+                                            style={{ padding: '0.625rem 1.5rem', color: 'white', backgroundColor: '#4f46e5', border: 'none', borderRadius: '0.5rem', fontWeight: '600', cursor: 'pointer', fontSize: '0.875rem', boxShadow: '0 1px 3px rgba(79,70,229,0.35)' }}
                                         >
-                                            {currentModule ? 'Save Changes' : 'Create Course'}
+                                            {currentModule ? '💾 Save Changes' : '✅ Create Course'}
                                         </button>
                                     </div>
                                 </form>

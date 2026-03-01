@@ -108,18 +108,16 @@ namespace StudentWorkload.Infrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("CourseModules", (string)null);
+                    b.ToTable("modules", (string)null);
                 });
 
             modelBuilder.Entity("StudentWorkload.Domain.Modules.CourseModules.Entities.CourseModule", b =>
                 {
-                    b.HasOne("StudentWorkload.Domain.Modules.Users.Entities.User", "User")
+                    b.HasOne("StudentWorkload.Domain.Modules.Users.Entities.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("User");
                 });
 #pragma warning restore 612, 618
         }

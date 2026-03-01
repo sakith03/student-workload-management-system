@@ -64,7 +64,7 @@ public class AppDbContext : DbContext
                   .HasForeignKey(m => m.UserId)
                   .OnDelete(DeleteBehavior.Cascade);
 
-            entity.ToTable("CourseModules");
+            entity.ToTable("modules");
         });
     }
 }
