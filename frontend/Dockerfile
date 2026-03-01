@@ -4,7 +4,7 @@ WORKDIR /app
  
 # Copy package files first (for Docker caching)
 COPY package.json package-lock.json ./
-RUN npm ci --silent
+RUN npm ci 
  
 # Copy source and build
 COPY . .
