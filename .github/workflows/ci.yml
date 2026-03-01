@@ -69,7 +69,7 @@ jobs:
       - name: Build & Push Backend Image
         run: |
           docker build -t ${{ secrets.DOCKER_USERNAME }}/myapp-backend:latest \
-                       -t ${{ secrets.DOCKER_USERNAME }}/myapp-backend:${{ github.sha }} ./backend
+                       -t ${{ secrets.DOCKER_USERNAME }}/myapp-backend:${{ github.sha }} ./backend/srs/StudentWorkload.API
           docker push ${{ secrets.DOCKER_USERNAME }}/myapp-backend:latest
           docker push ${{ secrets.DOCKER_USERNAME }}/myapp-backend:${{ github.sha }}
 
