@@ -68,10 +68,13 @@ jobs:
       # 3️⃣ Build & push backend image
       - name: Build & Push Backend Image
         run: |
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/myapp-backend:latest \
-                       -t ${{ secrets.DOCKER_USERNAME }}/myapp-backend:${{ github.sha }} ./backend/src/StudentWorkload.API
-          docker push ${{ secrets.DOCKER_USERNAME }}/myapp-backend:latest
-          docker push ${{ secrets.DOCKER_USERNAME }}/myapp-backend:${{ github.sha }}
+           docker build \
+              -f ./backend/src/StudentWorkload.API/Dockerfile \
+              -t ${{ secrets.DOCKER_USERNAME }}/myapp-backend:latest \
+              -t ${{ secrets.DOCKER_USERNAME }}/myapp-backend:${{ github.sha }} \
+              ./backend
+            docker push ${{ secrets.DOCKER_USERNAME }}/myapp-backend:latest
+            docker push ${{ secrets.DOCKER_USERNAME }}/myapp-backend:${{ github.sha }}
 
       # 4️⃣ Build & push frontend image
       - name: Build & Push Frontend Image
