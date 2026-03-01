@@ -1,6 +1,6 @@
 # ─── .NET ──────────────────────────────────────────
-backend/*/bin/
-backend/*/obj/
+backend/**/bin/
+backend/**/obj/
 backend/*.user
 backend/.vs/
 backend/**/.vs/
