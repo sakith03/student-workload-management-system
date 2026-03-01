@@ -1,0 +1,48 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Pull your code into the runner machine
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # 2. Build your docker images
+      - name: Build Docker Images
+        run: docker compose build
+
+      - name: Create .env file
+        run: |
+          echo "MYSQL_ROOT_PASSWORD=${{ secrets.MYSQL_ROOT_PASSWORD }}" >> .env
+          echo "MYSQL_PASSWORD=${{ secrets.MYSQL_PASSWORD }}" >> .env
+          echo "MYSQL_USER=${{ secrets.MYSQL_USER }}" >> .env
+          echo "MYSQL_DATABASE=${{ secrets.MYSQL_DATABASE }}" >> .env
+          echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env  
+
+      # 3. Run your containers
+      - name: Start Services
+        run: docker compose up -d
+
+      # 4. Wait for services to be healthy
+      - name: Wait for services
+        run: sleep 15
+
+      # 5. Basic health check (adjust URL to your backend)
+      - name: Health Check
+        run: curl --fail http://localhost:3000/health || exit 1
+
+      # 6. Run tests (add your test command here)
+      # - name: Run Tests
+      #   run: docker compose exec backend npm test
+
+      # 7. Tear down
+      - name: Stop Services
+        run: docker compose down
