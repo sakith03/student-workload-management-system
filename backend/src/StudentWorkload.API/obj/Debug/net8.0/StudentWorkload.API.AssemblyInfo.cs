@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("StudentWorkload.API")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c8d15d4b01bfbf06a3ffb5f7691b4c112c009e6b")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+cb1602c8a9f1ea9c176a138660779a1592bb62bf")]
 [assembly: System.Reflection.AssemblyProductAttribute("StudentWorkload.API")]
 [assembly: System.Reflection.AssemblyTitleAttribute("StudentWorkload.API")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -4,12 +4,20 @@ using Microsoft.EntityFrameworkCore;
 using StudentWorkload.Domain.Modules.Users.Entities;
 using StudentWorkload.Domain.Modules.Users.Enums;
 using StudentWorkload.Domain.Modules.Users.ValueObjects;
+using StudentWorkload.Domain.Modules.Academic.Entities;
+using StudentWorkload.Domain.Modules.Subjects.Entities;
+using StudentWorkload.Domain.Modules.Groups.Entities;
+
  
 public class AppDbContext : DbContext
 {
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
  
     public DbSet<User> Users { get; set; }
+    public DbSet<AcademicProfile> AcademicProfiles { get; set; }
+    public DbSet<Subject> Subjects { get; set; }
+    public DbSet<Group> Groups { get; set; }
+    public DbSet<GroupMember> GroupMembers { get; set; }
  
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -40,5 +48,58 @@ public class AppDbContext : DbContext
  
             entity.ToTable("Users");
         });
+
+        // ── AcademicProfile ──────────────────────────────────────────────
+        modelBuilder.Entity<AcademicProfile>(entity =>
+        {
+            entity.HasKey(a => a.Id);
+            entity.Property(a => a.UserId).IsRequired();
+            entity.HasIndex(a => a.UserId).IsUnique(); // One profile per user
+            entity.Property(a => a.AcademicYear).IsRequired();
+            entity.Property(a => a.Semester).IsRequired();
+            entity.Property(a => a.IsSetupComplete).HasDefaultValue(false);
+            entity.ToTable("AcademicProfiles");
+        });
+
+        // ── Subject ─────────────────────────────────────────────────────────
+        modelBuilder.Entity<Subject>(entity =>
+        {
+            entity.HasKey(m => m.Id);
+            entity.Property(m => m.UserId).IsRequired();
+            entity.Property(m => m.Code).IsRequired().HasMaxLength(20);
+            entity.Property(m => m.Name).IsRequired().HasMaxLength(200);
+            entity.Property(m => m.CreditHours).IsRequired();
+            entity.Property(m => m.Color).HasMaxLength(10);
+            entity.Property(m => m.IsActive).HasDefaultValue(true);
+            entity.ToTable("Subjects");
+        });
+        
+        // ── Group ──────────────────────────────────────────────────────────
+        modelBuilder.Entity<Group>(entity =>
+        {
+            entity.HasKey(g => g.Id);
+            entity.Property(g => g.SubjectId).IsRequired();
+            entity.Property(g => g.CreatedByUserId).IsRequired();
+            entity.Property(g => g.Name).IsRequired().HasMaxLength(100);
+            entity.Property(g => g.Description).HasMaxLength(500);
+            entity.Property(g => g.InviteCode).IsRequired().HasMaxLength(10);
+            entity.HasIndex(g => g.InviteCode).IsUnique();
+            entity.Property(g => g.MaxMembers).HasDefaultValue(6);
+            entity.Property(g => g.IsActive).HasDefaultValue(true);
+            entity.ToTable("Groups");
+        });
+        
+        // ── GroupMember ────────────────────────────────────────────────────
+        modelBuilder.Entity<GroupMember>(entity =>
+        {
+            entity.HasKey(gm => gm.Id);
+            entity.Property(gm => gm.GroupId).IsRequired();
+            entity.Property(gm => gm.UserId).IsRequired();
+            entity.Property(gm => gm.Role).HasConversion<int>();
+            // Prevent duplicate membership
+            entity.HasIndex(gm => new { gm.GroupId, gm.UserId }).IsUnique();
+            entity.ToTable("GroupMembers");
+        });
+
     }
 }
