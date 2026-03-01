@@ -19,6 +19,14 @@ jobs:
       - name: Build Docker Images
         run: docker compose build
 
+      - name: Create .env file
+        run: |
+          echo "MYSQL_ROOT_PASSWORD=${{ secrets.MYSQL_ROOT_PASSWORD }}" >> .env
+          echo "MYSQL_PASSWORD=${{ secrets.MYSQL_PASSWORD }}" >> .env
+          echo "MYSQL_USER=${{ secrets.MYSQL_USER }}" >> .env
+          echo "MYSQL_DATABASE=${{ secrets.MYSQL_DATABASE }}" >> .env
+          echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env  
+
       # 3. Run your containers
       - name: Start Services
         run: docker compose up -d
