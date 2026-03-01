@@ -7,6 +7,13 @@ using StudentWorkload.Infrastructure.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using StudentWorkload.Domain.Modules.Academic.Repositories;
+using StudentWorkload.Domain.Modules.Subjects.Repositories;
+using StudentWorkload.Domain.Modules.Groups.Repositories;
+using StudentWorkload.Infrastructure.Modules.Academic;
+using StudentWorkload.Infrastructure.Modules.Subjects;
+using StudentWorkload.Infrastructure.Modules.Groups;
+
  
 var builder = WebApplication.CreateBuilder(args);
  
@@ -22,6 +29,10 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 // ─── Dependency Injection ────────────────────────
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IJwtService, JwtService>();
+builder.Services.AddScoped<IAcademicProfileRepository, AcademicProfileRepository>();
+builder.Services.AddScoped<ISubjectRepository, SubjectRepository>();
+builder.Services.AddScoped<IGroupRepository, GroupRepository>();
+
  
 // ─── JWT Authentication ──────────────────────────
 var jwtSecret = Environment.GetEnvironmentVariable("JWT_SECRET") 
