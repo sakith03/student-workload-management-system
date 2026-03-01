@@ -10,8 +10,8 @@ COPY src/StudentWorkload.Domain/StudentWorkload.Domain.csproj src/StudentWorkloa
 COPY src/StudentWorkload.Application/StudentWorkload.Application.csproj src/StudentWorkload.Application/
 COPY src/StudentWorkload.Infrastructure/StudentWorkload.Infrastructure.csproj src/StudentWorkload.Infrastructure/
 COPY src/StudentWorkload.API/StudentWorkload.API.csproj src/StudentWorkload.API/
-COPY tests/StudentWorkload.UnitTests/ tests/StudentWorkload.UnitTests/
-COPY tests/StudentWorkload.IntegrationTests/ tests/StudentWorkload.IntegrationTests/
+# COPY tests/StudentWorkload.UnitTests/ tests/StudentWorkload.UnitTests/
+# COPY tests/StudentWorkload.IntegrationTests/ tests/StudentWorkload.IntegrationTests/
 
 # Restore dependencies
 RUN dotnet restore
