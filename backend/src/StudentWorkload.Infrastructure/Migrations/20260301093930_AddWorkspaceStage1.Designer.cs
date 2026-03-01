@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using StudentWorkload.Infrastructure.Data;
 
@@ -11,9 +12,11 @@ using StudentWorkload.Infrastructure.Data;
 namespace StudentWorkload.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260301093930_AddWorkspaceStage1")]
+    partial class AddWorkspaceStage1
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -22,8 +25,6 @@ namespace StudentWorkload.Infrastructure.Migrations
 
             MySqlModelBuilderExtensions.AutoIncrementColumns(modelBuilder);
 
-<<<<<<< HEAD
-=======
             modelBuilder.Entity("StudentWorkload.Domain.Modules.Academic.Entities.AcademicProfile", b =>
                 {
                     b.Property<Guid>("Id")
@@ -84,10 +85,7 @@ namespace StudentWorkload.Infrastructure.Migrations
                         .HasColumnType("int")
                         .HasDefaultValue(6);
 
-                    b.Property<Guid>("SubjectId")
-                        .HasColumnType("char(36)");
-
-                    b.Property<Guid>("CreatedByUserId")
+                    b.Property<Guid>("ModuleId")
                         .HasColumnType("char(36)");
 
                     b.Property<string>("Name")
@@ -172,7 +170,6 @@ namespace StudentWorkload.Infrastructure.Migrations
                     b.ToTable("Subjects", (string)null);
                 });
 
->>>>>>> origin/develop
             modelBuilder.Entity("StudentWorkload.Domain.Modules.Users.Entities.User", b =>
                 {
                     b.Property<Guid>("Id")
@@ -216,63 +213,6 @@ namespace StudentWorkload.Infrastructure.Migrations
 
                     b.ToTable("Users", (string)null);
                 });
-<<<<<<< HEAD
-
-            modelBuilder.Entity("StudentWorkload.Domain.Modules.CourseModules.Entities.CourseModule", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("char(36)");
-
-                    b.Property<string>("ColorTag")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("varchar(20)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<string>("Description")
-                        .HasMaxLength(500)
-                        .HasColumnType("varchar(500)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(120)
-                        .HasColumnType("varchar(120)");
-
-                    b.Property<string>("Semester")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("varchar(50)");
-
-                    b.Property<decimal>("TargetHoursPerWeek")
-                        .HasPrecision(5, 2)
-                        .HasColumnType("decimal(5,2)");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("char(36)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("modules", (string)null);
-                });
-
-            modelBuilder.Entity("StudentWorkload.Domain.Modules.CourseModules.Entities.CourseModule", b =>
-                {
-                    b.HasOne("StudentWorkload.Domain.Modules.Users.Entities.User", null)
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-=======
->>>>>>> origin/develop
 #pragma warning restore 612, 618
         }
     }

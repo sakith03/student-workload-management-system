@@ -33,4 +33,8 @@ Thumbs.db
 # ─── IDE ─────────────────────────────────────────────
 .vscode/settings.json
 .idea/
+<<<<<<< HEAD
 *.swp
+=======
+*.swp
+>>>>>>> origin/develop

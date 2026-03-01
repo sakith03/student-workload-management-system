@@ -4,7 +4,7 @@ import {
   BarChart2, Calculator, Settings, BookOpen
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import '../styles/dashboard.css';
 
 const NAV_ITEMS = [
@@ -18,8 +18,7 @@ const NAV_ITEMS = [
       </svg>
     ),
     label: 'Dashboard',
-    active: true,
-    path: '/dashboard'
+    path: '/dashboard',
   },
   {
     icon: (
@@ -28,8 +27,17 @@ const NAV_ITEMS = [
       </svg>
     ),
     label: 'My Courses',
-    active: false,
-    path: '/my-courses'
+    path: '/my-courses',
+  },
+  {
+    icon: (
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+        <circle cx="10" cy="6" r="3" stroke="currentColor" strokeWidth="1.6" />
+        <path d="M3 17c0-3.314 2.686-6 7-6s7 2.686 7 6" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+      </svg>
+    ),
+    label: 'Academic Setup',
+    path: '/setup',
   },
   {
     icon: (
@@ -38,18 +46,17 @@ const NAV_ITEMS = [
         <path d="M7 2v4M13 2v4M3 9h14" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
       </svg>
     ),
-    label: 'Assignments',
-    active: false,
+    label: 'My Subjects',
+    path: '/subjects',
   },
   {
     icon: (
       <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
         <path d="M17 11.5C17 14.538 14.314 17 11 17c-.98 0-1.904-.224-2.714-.622L4 17.5l1.3-3.8A5.44 5.44 0 013 11.5C3 8.462 5.686 6 9 6s8 2.462 8 5.5z" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
-        <path d="M7 3.5C7.87 2.578 9.147 2 10.5 2C13.538 2 16 4.238 16 7c0 .69-.148 1.346-.413 1.94" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
       </svg>
     ),
-    label: 'Collaboration',
-    active: false,
+    label: 'Workspaces',
+    path: '/workspaces',
   },
   {
     icon: (
@@ -59,7 +66,7 @@ const NAV_ITEMS = [
       </svg>
     ),
     label: 'Settings',
-    active: false,
+    path: null,
   },
 ];
 
@@ -84,6 +91,8 @@ function getInitials(email) {
 export default function Dashboard() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+
   const [bannerVisible, setBannerVisible] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -126,23 +135,17 @@ export default function Dashboard() {
 
         <nav className="sidebar-nav">
           <p className="sidebar-section-label">Menu</p>
-          {NAV_ITEMS.map((item) => {
-            const isActive = window.location.pathname === item.path || (!item.path && item.active);
-            const content = (
-              <div className={`sidebar-item ${isActive ? 'sidebar-item--active' : 'sidebar-item--disabled'}`}>
-                <span className="sidebar-item-icon">{item.icon}</span>
-                <span className="sidebar-item-label">{item.label}</span>
-                {!isActive && !item.path && <span className="sidebar-soon">Soon</span>}
-              </div>
-            );
-            return item.path ? (
-              <a href={item.path} key={item.label} style={{ textDecoration: 'none', color: 'inherit' }}>
-                {content}
-              </a>
-            ) : (
-              <div key={item.label}>{content}</div>
-            );
-          })}
+          {NAV_ITEMS.map((item) => (
+            <div
+              key={item.label}
+              className={`sidebar-item ${location.pathname === item.path ? 'sidebar-item--active' : ''} ${!item.path ? 'sidebar-item--disabled' : ''}`}
+              onClick={() => item.path && navigate(item.path)}
+            >
+              <span className="sidebar-item-icon">{item.icon}</span>
+              <span className="sidebar-item-label">{item.label}</span>
+              {!item.path && <span className="sidebar-soon">Soon</span>}
+            </div>
+          ))}
         </nav>
 
         <div className="sidebar-footer">
@@ -151,7 +154,7 @@ export default function Dashboard() {
               <circle cx="6" cy="6" r="5" stroke="currentColor" strokeWidth="1.5" />
               <path d="M6 3v3l2 1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
             </svg>
-            Sprint 1 — Authentication
+            Sprint 2 — Workspace
           </div>
         </div>
       </aside>
@@ -246,10 +249,75 @@ export default function Dashboard() {
               </div>
               <div className="stat-card-content">
                 <p className="stat-label">Current Sprint</p>
-                <p className="stat-value">Sprint 1</p>
-                <p className="stat-desc">Authentication system</p>
+                <p className="stat-value">Sprint 2</p>
+                <p className="stat-desc">Workspace system</p>
               </div>
               <div className="stat-card-glow" />
+            </div>
+          </div>
+
+          {/* Quick Nav Cards */}
+          <div className="quick-nav-grid">
+            <div className="quick-nav-card" onClick={() => navigate('/my-courses')}>
+              <div className="quick-nav-icon quick-nav-icon--blue">
+                <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+                  <path d="M4 6h14M4 11h10M4 16h12" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+                </svg>
+              </div>
+              <div className="quick-nav-text">
+                <p className="quick-nav-title">My Courses</p>
+                <p className="quick-nav-sub">View and manage your modules</p>
+              </div>
+              <svg className="quick-nav-arrow" width="18" height="18" viewBox="0 0 18 18" fill="none">
+                <path d="M4 9h10M9 4l5 5-5 5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </div>
+
+            <div className="quick-nav-card" onClick={() => navigate('/setup')}>
+              <div className="quick-nav-icon quick-nav-icon--blue">
+                <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+                  <circle cx="11" cy="7" r="4" stroke="currentColor" strokeWidth="1.8" />
+                  <path d="M3 20c0-4.418 3.582-8 8-8s8 3.582 8 8" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+                </svg>
+              </div>
+              <div className="quick-nav-text">
+                <p className="quick-nav-title">Academic Setup</p>
+                <p className="quick-nav-sub">Set your year &amp; semester</p>
+              </div>
+              <svg className="quick-nav-arrow" width="18" height="18" viewBox="0 0 18 18" fill="none">
+                <path d="M4 9h10M9 4l5 5-5 5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </div>
+
+            <div className="quick-nav-card" onClick={() => navigate('/subjects')}>
+              <div className="quick-nav-icon quick-nav-icon--purple">
+                <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+                  <rect x="3" y="4" width="16" height="15" rx="2" stroke="currentColor" strokeWidth="1.8" />
+                  <path d="M7 2v4M15 2v4M3 10h16" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+                </svg>
+              </div>
+              <div className="quick-nav-text">
+                <p className="quick-nav-title">My Subjects</p>
+                <p className="quick-nav-sub">Manage semester subjects</p>
+              </div>
+              <svg className="quick-nav-arrow" width="18" height="18" viewBox="0 0 18 18" fill="none">
+                <path d="M4 9h10M9 4l5 5-5 5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </div>
+
+            <div className="quick-nav-card" onClick={() => navigate('/workspaces')}>
+              <div className="quick-nav-icon quick-nav-icon--green">
+                <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+                  <path d="M19 13.5C19 16.538 16.314 19 13 19c-.98 0-1.904-.224-2.714-.622L5 19.5l1.3-3.8A5.44 5.44 0 014 13.5C4 10.462 6.686 8 10 8s9 2.462 9 5.5z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" />
+                </svg>
+              </div>
+              <div className="quick-nav-text">
+                <p className="quick-nav-title">Workspaces</p>
+                <p className="quick-nav-sub">View your group workspaces</p>
+              </div>
+              <svg className="quick-nav-arrow" width="18" height="18" viewBox="0 0 18 18" fill="none">
+                <path d="M4 9h10M9 4l5 5-5 5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
             </div>
           </div>
 
@@ -313,7 +381,7 @@ export default function Dashboard() {
                 <div className="banner-icon">🚀</div>
                 <div>
                   <p className="banner-title">You're all set, {user?.email?.split('@')[0]}!</p>
-                  <p className="banner-sub">Sprint 1 authentication is fully operational. Stay tuned for upcoming features.</p>
+                  <p className="banner-sub">Sprint 2 workspace features are ready. Set up your academic profile to get started.</p>
                 </div>
               </div>
               <button className="banner-close" onClick={() => setBannerVisible(false)}>

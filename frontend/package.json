@@ -11,7 +11,10 @@
   },
   "dependencies": {
     "axios": "^1.13.6",
+<<<<<<< HEAD
     "lucide-react": "^0.575.0",
+=======
+>>>>>>> origin/develop
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-router-dom": "^7.13.1"
