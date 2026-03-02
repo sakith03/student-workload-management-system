@@ -18,11 +18,11 @@ export default function Goals() {
     const [editingGoal, setEditingGoal] = useState(null);
 
     const [form, setForm] = useState({
-        title: '',
+        name: '',
         description: '',
-        dueDate: '',
-        importance: 'Medium',
-        status: 'Planned'
+        semester: 'Y3S1', // Should ideally come from profile
+        targetHoursPerWeek: 2,
+        colorTag: 'Blue'
     });
 
     useEffect(() => {
@@ -38,7 +38,7 @@ export default function Goals() {
         if (selectedModuleId) {
             setFetching(true);
             moduleService.getModules(selectedModuleId)
-                .then(r => setGoals(r.data))
+                .then(r => setGoals(r))
                 .catch(() => setGoals([]))
                 .finally(() => setFetching(false));
         }
@@ -48,17 +48,16 @@ export default function Goals() {
         e.preventDefault();
         setLoading(true);
         try {
+            const payload = {
+                ...form,
+                subjectId: selectedModuleId
+            };
+
             if (editingGoal) {
-                const { data } = await moduleService.updateModule(editingGoal.id, {
-                    ...form,
-                    moduleId: selectedModuleId
-                });
+                const data = await moduleService.updateModule(editingGoal.id, payload);
                 setGoals(prev => prev.map(g => g.id === data.id ? data : g));
             } else {
-                const { data } = await moduleService.createModule({
-                    ...form,
-                    moduleId: selectedModuleId
-                });
+                const data = await moduleService.createModule(payload);
                 setGoals(prev => [...prev, data]);
             }
             resetForm();
@@ -72,11 +71,11 @@ export default function Goals() {
     const handleEdit = (goal) => {
         setEditingGoal(goal);
         setForm({
-            title: goal.title,
-            description: goal.description,
-            dueDate: goal.dueDate ? goal.dueDate.split('T')[0] : '',
-            importance: goal.importance,
-            status: goal.status
+            name: goal.name,
+            description: goal.description || '',
+            semester: goal.semester,
+            targetHoursPerWeek: goal.targetHoursPerWeek,
+            colorTag: goal.colorTag || 'Blue'
         });
         setShowForm(true);
     };
@@ -92,7 +91,7 @@ export default function Goals() {
     };
 
     const resetForm = () => {
-        setForm({ title: '', description: '', dueDate: '', importance: 'Medium', status: 'Planned' });
+        setForm({ name: '', description: '', semester: 'Y3S1', targetHoursPerWeek: 2, colorTag: 'Blue' });
         setEditingGoal(null);
         setShowForm(false);
     };
@@ -127,49 +126,50 @@ export default function Goals() {
                     <form onSubmit={handleSubmit} className="subjects-form">
                         <div className="subjects-form-row">
                             <div className="subjects-field" style={{ flex: 2 }}>
-                                <label className="subjects-label">Goal Title</label>
+                                <label className="subjects-label">Goal/Task Name</label>
                                 <input
                                     required
                                     className="subjects-input"
-                                    value={form.title}
-                                    onChange={e => setForm({ ...form, title: e.target.value })}
+                                    value={form.name}
+                                    onChange={e => setForm({ ...form, name: e.target.value })}
                                     placeholder="e.g. Complete Lab 1"
                                 />
                             </div>
                             <div className="subjects-field">
-                                <label className="subjects-label">Due Date</label>
+                                <label className="subjects-label">Estimated Hours</label>
                                 <input
-                                    type="date"
+                                    type="number"
+                                    step="0.5"
                                     required
                                     className="subjects-input"
-                                    value={form.dueDate}
-                                    onChange={e => setForm({ ...form, dueDate: e.target.value })}
+                                    value={form.targetHoursPerWeek}
+                                    onChange={e => setForm({ ...form, targetHoursPerWeek: e.target.value })}
                                 />
                             </div>
                         </div>
                         <div className="subjects-form-row">
                             <div className="subjects-field">
-                                <label className="subjects-label">Importance</label>
-                                <select
+                                <label className="subjects-label">Semester/Tag</label>
+                                <input
+                                    required
                                     className="subjects-input"
-                                    value={form.importance}
-                                    onChange={e => setForm({ ...form, importance: e.target.value })}
-                                >
-                                    <option>Low</option>
-                                    <option>Medium</option>
-                                    <option>High</option>
-                                </select>
+                                    value={form.semester}
+                                    onChange={e => setForm({ ...form, semester: e.target.value })}
+                                    placeholder="e.g. Y3S1"
+                                />
                             </div>
                             <div className="subjects-field">
-                                <label className="subjects-label">Status</label>
+                                <label className="subjects-label">Color Tag</label>
                                 <select
                                     className="subjects-input"
-                                    value={form.status}
-                                    onChange={e => setForm({ ...form, status: e.target.value })}
+                                    value={form.colorTag}
+                                    onChange={e => setForm({ ...form, colorTag: e.target.value })}
                                 >
-                                    <option>Planned</option>
-                                    <option>In Progress</option>
-                                    <option>Completed</option>
+                                    <option>Blue</option>
+                                    <option>Green</option>
+                                    <option>Purple</option>
+                                    <option>Red</option>
+                                    <option>Gray</option>
                                 </select>
                             </div>
                         </div>
@@ -220,27 +220,21 @@ export default function Goals() {
                             <div style={{ padding: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                                 <div>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '4px' }}>
-                                        <h4 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 700, color: '#1a3a6e' }}>{goal.title}</h4>
-                                        <span className={`info-badge ${goal.status === 'Completed' ? 'badge--student' : 'badge--lecturer'}`} style={{
-                                            background: goal.status === 'Completed' ? '#d1fae5' : goal.status === 'In Progress' ? '#fff7ed' : '#f1f5f9',
-                                            color: goal.status === 'Completed' ? '#065f46' : goal.status === 'In Progress' ? '#c2410c' : '#475569'
+                                        <h4 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 700, color: '#1a3a6e' }}>{goal.name}</h4>
+                                        <span className="info-badge badge--student" style={{
+                                            background: '#eef2ff',
+                                            color: '#4338ca'
                                         }}>
-                                            {goal.status}
+                                            {goal.semester}
                                         </span>
                                     </div>
                                     <p style={{ margin: '0 0 12px 0', fontSize: '0.875rem', color: '#64748b' }}>{goal.description || 'No description provided.'}</p>
                                     <div style={{ display: 'flex', gap: '20px', fontSize: '0.8rem', color: '#94a3b8', fontWeight: 500 }}>
                                         <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line>
+                                                <circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline>
                                             </svg>
-                                            Due: {goal.dueDate ? new Date(goal.dueDate).toLocaleDateString() : 'No date'}
-                                        </span>
-                                        <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                                <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"></path>
-                                            </svg>
-                                            {goal.importance} Importance
+                                            Target: {goal.targetHoursPerWeek} hrs/week
                                         </span>
                                     </div>
                                 </div>
