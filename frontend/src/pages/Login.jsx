@@ -4,6 +4,8 @@ import { useAuth } from '../context/AuthContext';
 import { academicApi } from '../api/academicApi';
 import api from '../api/axiosConfig';
 import '../styles/auth.css';
+import { invitationsApi } from '../api/invitationsApi';
+
 
 export default function Login() {
   const [form, setForm] = useState({ email: '', password: '' });
@@ -21,19 +23,24 @@ export default function Login() {
     setLoading(true);
     try {
       const { data } = await api.post('/auth/login', form);
+      // Use AuthContext login so token is stored as `jwt_token` and context updates
       login(data.token);
-      try {
-        await academicApi.getProfile();
-        navigate('/dashboard');
-      } catch (err) {
-        if (err.response?.status === 404) {
-          navigate('/onboarding');
-        } else {
-          navigate('/dashboard');
+
+      // ✚ Handle pending invitation
+      const pendingToken = sessionStorage.getItem('pendingInviteToken');
+      if (pendingToken) {
+        sessionStorage.removeItem('pendingInviteToken');
+        try {
+          const { data: inviteData } = await invitationsApi.acceptInvitation(pendingToken);
+          navigate(`/workspace/${inviteData.groupId}`);
+        } catch {
+          navigate('/workspaces');
         }
+      } else {
+        navigate('/dashboard');
       }
     } catch (err) {
-      setError(err.response?.data?.message || 'Login failed. Check credentials.');
+      setError(err.response?.data?.message || 'Login failed.');
     } finally {
       setLoading(false);
     }

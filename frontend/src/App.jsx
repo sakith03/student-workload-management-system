@@ -11,6 +11,8 @@ import Goals from './pages/Goals';
 import Settings from './pages/Settings';
 import WorkspaceList from './pages/workspace/WorkspaceList';
 import WorkspaceDetail from './pages/workspace/WorkspaceDetail';
+import InvitePage from './pages/InvitePage';
+
 
 
 export default function App() {
@@ -20,6 +22,8 @@ export default function App() {
         <Routes>
           <Route path='/login' element={<Login />} />
           <Route path='/register' element={<Register />} />
+          <Route path='/invite/:token' element={<InvitePage />} />
+
           <Route path='/onboarding' element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
 
           <Route path='/dashboard' element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
