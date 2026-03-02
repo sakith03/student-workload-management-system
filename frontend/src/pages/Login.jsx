@@ -26,6 +26,20 @@ export default function Login() {
       // Use AuthContext login so token is stored as `jwt_token` and context updates
       login(data.token);
 
+      // Check for academic profile setup
+      let hasProfile = false;
+      try {
+        await academicApi.getProfile();
+        hasProfile = true;
+      } catch (err) {
+        if (err.response?.status === 404) {
+          hasProfile = false;
+        } else {
+          // Some other error, default to dashboard
+          hasProfile = true;
+        }
+      }
+
       // ✚ Handle pending invitation
       const pendingToken = sessionStorage.getItem('pendingInviteToken');
       if (pendingToken) {
@@ -34,10 +48,10 @@ export default function Login() {
           const { data: inviteData } = await invitationsApi.acceptInvitation(pendingToken);
           navigate(`/workspace/${inviteData.groupId}`);
         } catch {
-          navigate('/workspaces');
+          navigate(hasProfile ? '/workspaces' : '/onboarding');
         }
       } else {
-        navigate('/dashboard');
+        navigate(hasProfile ? '/dashboard' : '/onboarding');
       }
     } catch (err) {
       setError(err.response?.data?.message || 'Login failed.');

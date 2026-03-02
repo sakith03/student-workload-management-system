@@ -52,13 +52,20 @@ public class InvitationsController : ControllerBase
         var handler = new SendInvitationCommandHandler(
             _groupRepo, _invitationRepo, _userRepo, _emailService, frontendUrl);
 
-        var result = await handler.HandleAsync(
-            new SendInvitationCommand(request.GroupId, GetUserId(), request.Email));
+        try
+        {
+            var result = await handler.HandleAsync(
+                new SendInvitationCommand(request.GroupId, GetUserId(), request.Email));
 
-        if (!result.IsSuccess)
-            return BadRequest(new { message = result.Error });
+            if (!result.IsSuccess)
+                return BadRequest(new { message = result.Error });
 
-        return Ok(new { message = "Invitation sent successfully." });
+            return Ok(new { message = "Invitation sent successfully." });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "An error occurred while sending the invitation.", error = ex.Message });
+        }
     }
 
     // ─── GET api/invitations/preview/{token}  ───────────────────────────

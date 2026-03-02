@@ -51,7 +51,15 @@ public class EmailService : IEmailService
         };
         mail.To.Add(toEmail);
 
-        await client.SendMailAsync(mail, ct);
+        try
+        {
+            await client.SendMailAsync(mail, ct);
+        }
+        catch (Exception ex)
+        {
+            // Log or wrap the exception to avoid a 500
+            throw new Exception($"Failed to send invitation email: {ex.Message}", ex);
+        }
     }
 
     private static string BuildEmailBody(string inviterName, string groupName, string inviteLink)

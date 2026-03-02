@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import api from '../api/axiosConfig';
 import '../styles/auth.css';
 import { invitationsApi } from '../api/invitationsApi';
@@ -11,6 +12,7 @@ export default function Register() {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [passwordStrength, setPasswordStrength] = useState(0);
+  const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -44,7 +46,9 @@ export default function Register() {
         email: form.email,
         password: form.password
       });
-      localStorage.setItem('token', data.token);
+
+      // Use AuthContext login for correct token key and state update
+      login(data.token);
 
       // ✚ Check for pending invite
       const pendingToken = sessionStorage.getItem('pendingInviteToken');
