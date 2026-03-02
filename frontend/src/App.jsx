@@ -5,10 +5,10 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 
-import MyCoursesPage from './pages/MyCoursesPage';
-
-import Setup from './pages/Setup';
-import Subjects from './pages/Subjects';
+import Onboarding from './pages/Onboarding';
+import Modules from './pages/Modules';
+import Goals from './pages/Goals';
+import Settings from './pages/Settings';
 import WorkspaceList from './pages/workspace/WorkspaceList';
 import WorkspaceDetail from './pages/workspace/WorkspaceDetail';
 
@@ -20,13 +20,14 @@ export default function App() {
         <Routes>
           <Route path='/login' element={<Login />} />
           <Route path='/register' element={<Register />} />
+          <Route path='/onboarding' element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
 
           <Route path='/dashboard' element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-          <Route path='/my-courses' element={<ProtectedRoute><MyCoursesPage /></ProtectedRoute>} />
-          <Route path='/setup' element={<ProtectedRoute><Setup /></ProtectedRoute>} />
-          <Route path='/subjects' element={<ProtectedRoute><Subjects /></ProtectedRoute>} />
+          <Route path='/modules' element={<ProtectedRoute><Modules /></ProtectedRoute>} />
+          <Route path='/goals' element={<ProtectedRoute><Goals /></ProtectedRoute>} />
           <Route path='/workspaces' element={<ProtectedRoute><WorkspaceList /></ProtectedRoute>} />
           <Route path='/workspace/:groupId' element={<ProtectedRoute><WorkspaceDetail /></ProtectedRoute>} />
+          <Route path='/settings' element={<ProtectedRoute><Settings /></ProtectedRoute>} />
 
           <Route path='/' element={<Navigate to='/dashboard' />} />
           <Route path='*' element={<Navigate to='/dashboard' />} />

@@ -8,6 +8,7 @@ public class CourseModuleDto
     public string ColorTag { get; set; } = string.Empty;
     public decimal TargetHoursPerWeek { get; set; }
     public string Semester { get; set; } = string.Empty;
+    public Guid? SubjectId { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime? UpdatedAt { get; set; }
 }

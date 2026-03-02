@@ -61,8 +61,10 @@ public class AppDbContext : DbContext
             entity.Property(m => m.ColorTag).IsRequired().HasDefaultValue("Blue").HasMaxLength(50);
             entity.Property(m => m.TargetHoursPerWeek).HasColumnType("decimal(5,2)").IsRequired();
             entity.Property(m => m.Semester).IsRequired().HasMaxLength(20);
+            entity.Property(m => m.SubjectId).IsRequired(false);
 
             entity.HasIndex(m => m.UserId);
+            entity.HasIndex(m => m.SubjectId);
 
             entity.HasOne<User>()
                   .WithMany()

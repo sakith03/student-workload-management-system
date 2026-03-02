@@ -1,28 +1,31 @@
 import api from './axiosConfig';
 
-const ModuleService = {
-  getModules: async () => {
-    const response = await api.get('/modules');
-    return response.data;
+const moduleService = {
+  getModules: async (moduleId) => {
+    const response = await api.get(moduleId ? `/modules?moduleId=${moduleId}` : '/modules');
+    return response; // Goals.jsx does .then(r => setGoals(r.data))
   },
 
   getModuleById: async (id) => {
     const response = await api.get(`/modules/${id}`);
-    return response.data;
+    return response;
   },
 
   createModule: async (moduleData) => {
     const response = await api.post('/modules', moduleData);
-    return response.data;
+    return response;
   },
 
   updateModule: async (id, moduleData) => {
-    await api.put(`/modules/${id}`, moduleData);
+    const response = await api.put(`/modules/${id}`, moduleData);
+    return response;
   },
 
   deleteModule: async (id) => {
-    await api.delete(`/modules/${id}`);
+    const response = await api.delete(`/modules/${id}`);
+    return response;
   }
 };
 
-export default ModuleService;
+export { moduleService };
+export default moduleService;

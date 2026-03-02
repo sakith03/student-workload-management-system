@@ -29,10 +29,10 @@ public class ModulesController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetModules(CancellationToken cancellationToken)
+    public async Task<IActionResult> GetModules([FromQuery] Guid? moduleId, CancellationToken cancellationToken)
     {
         var userId = GetUserId();
-        var modules = await _courseModuleService.GetModulesAsync(userId, cancellationToken);
+        var modules = await _courseModuleService.GetModulesAsync(userId, moduleId, cancellationToken);
         return Ok(modules);
     }
 

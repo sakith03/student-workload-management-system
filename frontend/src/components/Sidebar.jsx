@@ -17,31 +17,12 @@ const NAV_ITEMS = [
     {
         icon: (
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                <path d="M4 6h12M4 10h8M4 14h10" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
-            </svg>
-        ),
-        label: 'My Courses',
-        path: '/my-courses',
-    },
-    {
-        icon: (
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                <circle cx="10" cy="6" r="3" stroke="currentColor" strokeWidth="1.6" />
-                <path d="M3 17c0-3.314 2.686-6 7-6s7 2.686 7 6" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
-            </svg>
-        ),
-        label: 'Academic Setup',
-        path: '/setup',
-    },
-    {
-        icon: (
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
                 <rect x="3" y="4" width="14" height="13" rx="2" stroke="currentColor" strokeWidth="1.6" />
                 <path d="M7 2v4M13 2v4M3 9h14" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
             </svg>
         ),
-        label: 'My Subjects',
-        path: '/subjects',
+        label: 'My Modules',
+        path: '/modules',
     },
     {
         icon: (
@@ -55,12 +36,24 @@ const NAV_ITEMS = [
     {
         icon: (
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                <circle cx="10" cy="10" r="7" stroke="currentColor" strokeWidth="1.6" />
+                <circle cx="10" cy="10" r="3" stroke="currentColor" strokeWidth="1.6" />
+                <path d="M10 3v2M10 15v2M3 10h2M15 10h2"
+                    stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+            </svg>
+        ),
+        label: 'My Goals',
+        path: '/goals',
+    },
+    {
+        icon: (
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
                 <circle cx="10" cy="10" r="3" stroke="currentColor" strokeWidth="1.6" />
                 <path d="M10 2v2M10 16v2M2 10h2M16 10h2M4.22 4.22l1.42 1.42M14.36 14.36l1.42 1.42M4.22 15.78l1.42-1.42M14.36 5.64l1.42-1.42" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
             </svg>
         ),
         label: 'Settings',
-        path: null,
+        path: '/settings',
     },
 ];
 
@@ -94,17 +87,14 @@ export default function Sidebar({ isOpen, onClose }) {
                     {NAV_ITEMS.map((item) => (
                         <div
                             key={item.label}
-                            className={`sidebar-item ${location.pathname.startsWith(item.path) && item.path !== null ? 'sidebar-item--active' : ''} ${!item.path ? 'sidebar-item--disabled' : ''}`}
+                            className={`sidebar-item ${location.pathname.startsWith(item.path) ? 'sidebar-item--active' : ''}`}
                             onClick={() => {
-                                if (item.path) {
-                                    navigate(item.path);
-                                    onClose();
-                                }
+                                navigate(item.path);
+                                onClose();
                             }}
                         >
                             <span className="sidebar-item-icon">{item.icon}</span>
                             <span className="sidebar-item-label">{item.label}</span>
-                            {!item.path && <span className="sidebar-soon">Soon</span>}
                         </div>
                     ))}
                 </nav>

@@ -256,9 +256,14 @@ namespace StudentWorkload.Infrastructure.Migrations
                     b.Property<Guid>("UserId")
                         .HasColumnType("char(36)");
 
+                    b.Property<Guid?>("SubjectId")
+                        .HasColumnType("char(36)");
+
                     b.HasKey("Id");
 
                     b.HasIndex("UserId");
+
+                    b.HasIndex("SubjectId");
 
                     b.ToTable("modules", (string)null);
                 });

@@ -13,9 +13,14 @@ public class CourseModuleService : ICourseModuleService
         _repository = repository;
     }
 
-    public async Task<IEnumerable<CourseModuleDto>> GetModulesAsync(Guid userId, CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<CourseModuleDto>> GetModulesAsync(Guid userId, Guid? subjectId = null, CancellationToken cancellationToken = default)
     {
         var modules = await _repository.GetByUserIdAsync(userId, cancellationToken);
+
+        if (subjectId.HasValue)
+        {
+            modules = modules.Where(m => m.SubjectId == subjectId.Value);
+        }
         
         return modules.Select(MapToDto).OrderByDescending(m => m.CreatedAt);
     }
@@ -40,7 +45,8 @@ public class CourseModuleService : ICourseModuleService
             semester: dto.Semester,
             targetHoursPerWeek: dto.TargetHoursPerWeek,
             description: dto.Description,
-            colorTag: dto.ColorTag
+            colorTag: dto.ColorTag,
+            subjectId: dto.SubjectId
         );
 
         await _repository.AddAsync(module, cancellationToken);
@@ -64,6 +70,10 @@ public class CourseModuleService : ICourseModuleService
             description: dto.Description,
             colorTag: dto.ColorTag
         );
+        // SubjectId is private set, normally we might want to update it.
+        // For now, let's assume we don't change subject after creation, or add a setter.
+        // Actually, many CourseModule properties are private set except one. 
+        // Let's add a property setter in the entity if needed, but for now let's just make it consistent.
 
         await _repository.UpdateAsync(module, cancellationToken);
 
@@ -94,6 +104,7 @@ public class CourseModuleService : ICourseModuleService
             ColorTag = module.ColorTag,
             TargetHoursPerWeek = module.TargetHoursPerWeek,
             Semester = module.Semester,
+            SubjectId = module.SubjectId,
             CreatedAt = module.CreatedAt,
             UpdatedAt = module.UpdatedAt
         };

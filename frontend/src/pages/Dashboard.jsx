@@ -90,38 +90,7 @@ export default function Dashboard() {
 
       {/* Quick Nav Cards */}
       <div className="quick-nav-grid">
-        <div className="quick-nav-card" onClick={() => navigate('/my-courses')}>
-          <div className="quick-nav-icon quick-nav-icon--blue">
-            <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
-              <path d="M4 6h14M4 11h10M4 16h12" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-            </svg>
-          </div>
-          <div className="quick-nav-text">
-            <p className="quick-nav-title">My Courses</p>
-            <p className="quick-nav-sub">View and manage your modules</p>
-          </div>
-          <svg className="quick-nav-arrow" width="18" height="18" viewBox="0 0 18 18" fill="none">
-            <path d="M4 9h10M9 4l5 5-5 5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-        </div>
-
-        <div className="quick-nav-card" onClick={() => navigate('/setup')}>
-          <div className="quick-nav-icon quick-nav-icon--blue">
-            <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
-              <circle cx="11" cy="7" r="4" stroke="currentColor" strokeWidth="1.8" />
-              <path d="M3 20c0-4.418 3.582-8 8-8s8 3.582 8 8" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-            </svg>
-          </div>
-          <div className="quick-nav-text">
-            <p className="quick-nav-title">Academic Setup</p>
-            <p className="quick-nav-sub">Set your year &amp; semester</p>
-          </div>
-          <svg className="quick-nav-arrow" width="18" height="18" viewBox="0 0 18 18" fill="none">
-            <path d="M4 9h10M9 4l5 5-5 5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-        </div>
-
-        <div className="quick-nav-card" onClick={() => navigate('/subjects')}>
+        <div className="quick-nav-card" onClick={() => navigate('/modules')}>
           <div className="quick-nav-icon quick-nav-icon--purple">
             <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
               <rect x="3" y="4" width="16" height="15" rx="2" stroke="currentColor" strokeWidth="1.8" />
@@ -129,8 +98,8 @@ export default function Dashboard() {
             </svg>
           </div>
           <div className="quick-nav-text">
-            <p className="quick-nav-title">My Subjects</p>
-            <p className="quick-nav-sub">Manage semester subjects</p>
+            <p className="quick-nav-title">My Modules</p>
+            <p className="quick-nav-sub">Manage your semester modules</p>
           </div>
           <svg className="quick-nav-arrow" width="18" height="18" viewBox="0 0 18 18" fill="none">
             <path d="M4 9h10M9 4l5 5-5 5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
@@ -146,6 +115,24 @@ export default function Dashboard() {
           <div className="quick-nav-text">
             <p className="quick-nav-title">Workspaces</p>
             <p className="quick-nav-sub">View your group workspaces</p>
+          </div>
+          <svg className="quick-nav-arrow" width="18" height="18" viewBox="0 0 18 18" fill="none">
+            <path d="M4 9h10M9 4l5 5-5 5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </div>
+
+        <div className="quick-nav-card" onClick={() => navigate('/goals')}>
+          <div className="quick-nav-icon quick-nav-icon--blue">
+            <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+              <circle cx="11" cy="11" r="8" stroke="currentColor" strokeWidth="1.8" />
+              <circle cx="11" cy="11" r="3" stroke="currentColor" strokeWidth="1.8" />
+              <path d="M11 3v2M11 17v2M3 11h2M17 11h2"
+                stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+            </svg>
+          </div>
+          <div className="quick-nav-text">
+            <p className="quick-nav-title">My Goals</p>
+            <p className="quick-nav-sub">Track goals for each module</p>
           </div>
           <svg className="quick-nav-arrow" width="18" height="18" viewBox="0 0 18 18" fill="none">
             <path d="M4 9h10M9 4l5 5-5 5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
@@ -213,7 +200,7 @@ export default function Dashboard() {
             <div className="banner-icon">🚀</div>
             <div>
               <p className="banner-title">You're all set, {user?.email?.split('@')[0]}!</p>
-              <p className="banner-sub">Sprint 2 workspace features are ready. Set up your academic profile to get started.</p>
+              <p className="banner-sub">Your modules are ready. Explore workspaces and set goals for each module.</p>
             </div>
           </div>
           <button className="banner-close" onClick={() => setBannerVisible(false)}>

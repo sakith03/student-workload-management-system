@@ -4,6 +4,7 @@ public class CourseModule
 {
     public Guid Id { get; private set; }
     public Guid UserId { get; private set; }
+    public Guid? SubjectId { get; private set; }
     public string Name { get; private set; }
     public string? Description { get; private set; }
     public string ColorTag { get; private set; }
@@ -20,7 +21,8 @@ public class CourseModule
         string semester,
         decimal targetHoursPerWeek,
         string? description = null,
-        string colorTag = "Blue")
+        string colorTag = "Blue",
+        Guid? subjectId = null)
     {
         ArgumentException.ThrowIfNullOrEmpty(name, nameof(name));
         ArgumentException.ThrowIfNullOrEmpty(semester, nameof(semester));
@@ -31,6 +33,7 @@ public class CourseModule
         {
             Id = Guid.NewGuid(),
             UserId = userId,
+            SubjectId = subjectId,
             Name = name.Trim(),
             Semester = semester.Trim(),
             TargetHoursPerWeek = targetHoursPerWeek,

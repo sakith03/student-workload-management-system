@@ -18,4 +18,6 @@ public class CreateCourseModuleDto
 
     [Required]
     public string Semester { get; set; } = string.Empty;
+
+    public Guid? SubjectId { get; set; }
 }

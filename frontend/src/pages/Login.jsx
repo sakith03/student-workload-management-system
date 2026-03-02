@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { academicApi } from '../api/academicApi';
 import api from '../api/axiosConfig';
 import '../styles/auth.css';
 
@@ -21,7 +22,16 @@ export default function Login() {
     try {
       const { data } = await api.post('/auth/login', form);
       login(data.token);
-      navigate('/dashboard');
+      try {
+        await academicApi.getProfile();
+        navigate('/dashboard');
+      } catch (err) {
+        if (err.response?.status === 404) {
+          navigate('/onboarding');
+        } else {
+          navigate('/dashboard');
+        }
+      }
     } catch (err) {
       setError(err.response?.data?.message || 'Login failed. Check credentials.');
     } finally {

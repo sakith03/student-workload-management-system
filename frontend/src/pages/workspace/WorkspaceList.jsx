@@ -10,27 +10,45 @@ export default function WorkspaceList() {
   const [subjects, setSubjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showCreate, setShowCreate] = useState(false);
-  const [createForm, setCreateForm] = useState({ subjectId: '', name: '', description: '', maxMembers: 6 });
+  const [params] = useSearchParams();
+  const moduleParam = params.get('module');
+
+  const [createForm, setCreateForm] = useState({
+    subjectId: moduleParam || '',
+    name: '',
+    description: '',
+    maxMembers: 6
+  });
   const [error, setError] = useState('');
   const navigate = useNavigate();
-  const [params] = useSearchParams();
 
   useEffect(() => {
     Promise.all([groupsApi.getMyGroups(), academicApi.getSubjects()])
       .then(([g, s]) => { setGroups(g.data); setSubjects(s.data); })
       .finally(() => setLoading(false));
-    if (params.get('subject'))
-      setCreateForm(p => ({ ...p, subjectId: params.get('subject') }));
-  }, [params]);
+
+    if (moduleParam) {
+      setCreateForm(p => ({ ...p, subjectId: moduleParam }));
+      setShowCreate(true);
+    }
+  }, [moduleParam]);
 
   const handleCreate = async (e) => {
     e.preventDefault();
     setError('');
+
+    // Check if workspace already exists for this subject
+    const exist = groups.find(g => String(g.subjectId) === String(createForm.subjectId));
+    if (exist) {
+      setError(`A workspace for this module (ID: ${createForm.subjectId}) already exists.`);
+      return;
+    }
+
     try {
       const { data } = await groupsApi.createGroup({
         ...createForm, maxMembers: Number(createForm.maxMembers)
       });
-      navigate(`/workspace/${data.groupId}`);
+      navigate(`/workspace/${data.id || data.groupId}`);
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to create group.');
     }
