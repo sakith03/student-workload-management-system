@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import api from '../api/axiosConfig';
 import '../styles/auth.css';
 
@@ -9,6 +10,7 @@ export default function Register() {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [passwordStrength, setPasswordStrength] = useState(0);
+  const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -34,7 +36,15 @@ export default function Register() {
     setLoading(true);
     try {
       await api.post('/auth/register', form);
-      navigate('/login');
+
+      // Auto-login
+      const { data } = await api.post('/auth/login', {
+        email: form.email,
+        password: form.password
+      });
+
+      login(data.token);
+      navigate('/onboarding');
     } catch (err) {
       setError(err.response?.data?.message || 'Registration failed.');
     } finally {

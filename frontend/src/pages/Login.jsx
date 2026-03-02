@@ -22,16 +22,22 @@ export default function Login() {
     try {
       const { data } = await api.post('/auth/login', form);
       login(data.token);
+
+      // Check for academic profile setup
+      let hasProfile = false;
       try {
         await academicApi.getProfile();
-        navigate('/dashboard');
+        hasProfile = true;
       } catch (err) {
         if (err.response?.status === 404) {
-          navigate('/onboarding');
+          hasProfile = false;
         } else {
-          navigate('/dashboard');
+          // If some other error occurs, default to dashboard but ideally onboarding
+          hasProfile = true;
         }
       }
+
+      navigate(hasProfile ? '/dashboard' : '/onboarding');
     } catch (err) {
       setError(err.response?.data?.message || 'Login failed. Check credentials.');
     } finally {
