@@ -9,6 +9,8 @@ using StudentWorkload.Domain.Modules.Academic.Entities;
 using StudentWorkload.Domain.Modules.Subjects.Entities;
 using StudentWorkload.Domain.Modules.Groups.Entities;
 
+
+
 public class AppDbContext : DbContext
 {
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
@@ -19,6 +21,7 @@ public class AppDbContext : DbContext
     public DbSet<Subject> Subjects { get; set; } = default!;
     public DbSet<Group> Groups { get; set; } = default!;
     public DbSet<GroupMember> GroupMembers { get; set; } = default!;
+    public DbSet<GroupInvitation> GroupInvitations { get; set; } = default!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -135,6 +138,26 @@ public class AppDbContext : DbContext
             entity.HasIndex(gm => new { gm.GroupId, gm.UserId }).IsUnique();
 
             entity.ToTable("GroupMembers");
+        });
+
+
+        // ── GroupInvitation ───────────────────────────────────────────────
+         modelBuilder.Entity<GroupInvitation>(entity =>
+        {
+            entity.HasKey(i => i.Id);
+
+            entity.Property(i => i.GroupId).IsRequired();
+            entity.Property(i => i.InvitedByUserId).IsRequired();
+            entity.Property(i => i.InvitedEmail).IsRequired().HasMaxLength(255);
+            entity.Property(i => i.Token).IsRequired().HasMaxLength(64);
+            entity.Property(i => i.Status).HasConversion<int>();
+            entity.Property(i => i.ExpiresAt).IsRequired();
+            entity.Property(i => i.CreatedAt).IsRequired();
+
+            entity.HasIndex(i => i.Token).IsUnique();
+            entity.HasIndex(i => new { i.GroupId, i.InvitedEmail });
+
+            entity.ToTable("GroupInvitations");
         });
     }
 }
