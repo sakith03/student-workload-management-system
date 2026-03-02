@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { groupsApi } from '../../api/groupsApi';
 import { academicApi } from '../../api/academicApi';
+import MainLayout from '../../components/MainLayout';
 import '../../styles/workspace.css';
 
 export default function WorkspaceList() {
@@ -20,7 +21,7 @@ export default function WorkspaceList() {
       .finally(() => setLoading(false));
     if (params.get('subject'))
       setCreateForm(p => ({ ...p, subjectId: params.get('subject') }));
-  }, []);
+  }, [params]);
 
   const handleCreate = async (e) => {
     e.preventDefault();
@@ -36,10 +37,9 @@ export default function WorkspaceList() {
   };
 
   return (
-    <div className="ws-root">
+    <MainLayout title="Workspaces">
       <div className="ws-header">
         <div>
-          <h1 className="ws-title">My Workspaces</h1>
           <p className="ws-sub">Group workspaces across all your subjects</p>
         </div>
         <button className="ws-btn" onClick={() => setShowCreate(p => !p)}>
@@ -118,6 +118,6 @@ export default function WorkspaceList() {
           })}
         </div>
       )}
-    </div>
+    </MainLayout>
   );
 }

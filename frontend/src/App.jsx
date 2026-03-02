@@ -21,21 +21,15 @@ export default function App() {
           <Route path='/login' element={<Login />} />
           <Route path='/register' element={<Register />} />
 
-          <Route path='/dashboard' element={
-            <ProtectedRoute><Dashboard /></ProtectedRoute>
-          } />
-          <Route path='/my-courses' element={
-            <ProtectedRoute><MyCoursesPage /></ProtectedRoute>
-          } />
-          <Route path='/' element={<Navigate to='/login' />} />
-
           <Route path='/dashboard' element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+          <Route path='/my-courses' element={<ProtectedRoute><MyCoursesPage /></ProtectedRoute>} />
           <Route path='/setup' element={<ProtectedRoute><Setup /></ProtectedRoute>} />
           <Route path='/subjects' element={<ProtectedRoute><Subjects /></ProtectedRoute>} />
           <Route path='/workspaces' element={<ProtectedRoute><WorkspaceList /></ProtectedRoute>} />
           <Route path='/workspace/:groupId' element={<ProtectedRoute><WorkspaceDetail /></ProtectedRoute>} />
-          <Route path='/' element={<Navigate to='/dashboard' />} />
 
+          <Route path='/' element={<Navigate to='/dashboard' />} />
+          <Route path='*' element={<Navigate to='/dashboard' />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>
