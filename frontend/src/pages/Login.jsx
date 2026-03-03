@@ -35,18 +35,11 @@ export default function Login() {
         if (err.response?.status === 404) {
           hasProfile = false;
         } else {
-<<<<<<< HEAD
           // If some other error occurs, default to dashboard but ideally onboarding
-=======
-          // Some other error, default to dashboard
->>>>>>> 93ea15873d0f5d554e9a22d1c91332c6e3ad28fb
           hasProfile = true;
         }
       }
 
-<<<<<<< HEAD
-      navigate(hasProfile ? '/dashboard' : '/onboarding');
-=======
       // ✚ Handle pending invitation
       const pendingToken = sessionStorage.getItem('pendingInviteToken');
       if (pendingToken) {
@@ -60,7 +53,6 @@ export default function Login() {
       } else {
         navigate(hasProfile ? '/dashboard' : '/onboarding');
       }
->>>>>>> 93ea15873d0f5d554e9a22d1c91332c6e3ad28fb
     } catch (err) {
       setError(err.response?.data?.message || 'Login failed.');
     } finally {

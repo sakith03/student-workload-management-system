@@ -41,20 +41,12 @@ export default function Register() {
       // Register
       await api.post('/auth/register', form);
 
-<<<<<<< HEAD
-      // Auto-login
-=======
       // Auto-login after registration
->>>>>>> 93ea15873d0f5d554e9a22d1c91332c6e3ad28fb
       const { data } = await api.post('/auth/login', {
         email: form.email,
         password: form.password
       });
 
-<<<<<<< HEAD
-      login(data.token);
-      navigate('/onboarding');
-=======
       // Use AuthContext login for correct token key and state update
       login(data.token);
 
@@ -71,7 +63,6 @@ export default function Register() {
       } else {
         navigate('/onboarding');
       }
->>>>>>> 93ea15873d0f5d554e9a22d1c91332c6e3ad28fb
     } catch (err) {
       setError(err.response?.data?.message || 'Registration failed.');
     } finally {
