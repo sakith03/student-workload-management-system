@@ -4,6 +4,8 @@ import { useAuth } from '../context/AuthContext';
 import { academicApi } from '../api/academicApi';
 import api from '../api/axiosConfig';
 import '../styles/auth.css';
+import { invitationsApi } from '../api/invitationsApi';
+
 
 export default function Login() {
   const [form, setForm] = useState({ email: '', password: '' });
@@ -21,6 +23,7 @@ export default function Login() {
     setLoading(true);
     try {
       const { data } = await api.post('/auth/login', form);
+      // Use AuthContext login so token is stored as `jwt_token` and context updates
       login(data.token);
 
       // Check for academic profile setup
@@ -32,14 +35,34 @@ export default function Login() {
         if (err.response?.status === 404) {
           hasProfile = false;
         } else {
+<<<<<<< HEAD
           // If some other error occurs, default to dashboard but ideally onboarding
+=======
+          // Some other error, default to dashboard
+>>>>>>> 93ea15873d0f5d554e9a22d1c91332c6e3ad28fb
           hasProfile = true;
         }
       }
 
+<<<<<<< HEAD
       navigate(hasProfile ? '/dashboard' : '/onboarding');
+=======
+      // ✚ Handle pending invitation
+      const pendingToken = sessionStorage.getItem('pendingInviteToken');
+      if (pendingToken) {
+        sessionStorage.removeItem('pendingInviteToken');
+        try {
+          const { data: inviteData } = await invitationsApi.acceptInvitation(pendingToken);
+          navigate(`/workspace/${inviteData.groupId}`);
+        } catch {
+          navigate(hasProfile ? '/workspaces' : '/onboarding');
+        }
+      } else {
+        navigate(hasProfile ? '/dashboard' : '/onboarding');
+      }
+>>>>>>> 93ea15873d0f5d554e9a22d1c91332c6e3ad28fb
     } catch (err) {
-      setError(err.response?.data?.message || 'Login failed. Check credentials.');
+      setError(err.response?.data?.message || 'Login failed.');
     } finally {
       setLoading(false);
     }

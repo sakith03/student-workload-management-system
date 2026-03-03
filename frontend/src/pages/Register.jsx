@@ -3,6 +3,8 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../api/axiosConfig';
 import '../styles/auth.css';
+import { invitationsApi } from '../api/invitationsApi';
+
 
 export default function Register() {
   const [form, setForm] = useState({ firstName: '', lastName: '', email: '', password: '', role: 'Student' });
@@ -30,27 +32,54 @@ export default function Register() {
     setForm(prev => ({ ...prev, role }));
   };
 
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setLoading(true);
     try {
+      // Register
       await api.post('/auth/register', form);
 
+<<<<<<< HEAD
       // Auto-login
+=======
+      // Auto-login after registration
+>>>>>>> 93ea15873d0f5d554e9a22d1c91332c6e3ad28fb
       const { data } = await api.post('/auth/login', {
         email: form.email,
         password: form.password
       });
 
+<<<<<<< HEAD
       login(data.token);
       navigate('/onboarding');
+=======
+      // Use AuthContext login for correct token key and state update
+      login(data.token);
+
+      // ✚ Check for pending invite
+      const pendingToken = sessionStorage.getItem('pendingInviteToken');
+      if (pendingToken) {
+        sessionStorage.removeItem('pendingInviteToken');
+        try {
+          const { data: inviteData } = await invitationsApi.acceptInvitation(pendingToken);
+          navigate(`/workspace/${inviteData.groupId}`);
+        } catch {
+          navigate('/onboarding');
+        }
+      } else {
+        navigate('/onboarding');
+      }
+>>>>>>> 93ea15873d0f5d554e9a22d1c91332c6e3ad28fb
     } catch (err) {
       setError(err.response?.data?.message || 'Registration failed.');
     } finally {
       setLoading(false);
     }
   };
+
+
 
   const strengthLabels = ['', 'Weak', 'Fair', 'Good', 'Strong'];
   const strengthColors = ['', '#ef4444', '#f97316', '#eab308', '#22c55e'];

@@ -37,6 +37,12 @@ services:
       JwtSettings__Issuer: StudentWorkloadAPI
       JwtSettings__Audience: StudentWorkloadClient
       JwtSettings__ExpirationMinutes: "60"
+      EmailSettings__Host: "smtp.gmail.com"
+      EmailSettings__Port: "587"
+      EmailSettings__Username: ${EMAIL_USERNAME}
+      EmailSettings__Password: "${EMAIL_PASSWORD}"
+      EmailSettings__From: ${EMAIL_FROM}
+      EmailSettings__EnableSsl: "true"
     ports:
       - "5000:8080"
     depends_on:

@@ -23,6 +23,8 @@ var builder = WebApplication.CreateBuilder(args);
 var dbPassword = Environment.GetEnvironmentVariable("DB_PASSWORD")
                  ?? throw new Exception("DB_PASSWORD not set");
 
+// var dbPassword = Environment.GetEnvironmentVariable("DB_PASSWORD") ?? "";
+
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
                       ?? throw new Exception("ConnectionStrings:DefaultConnection not set");
 
@@ -41,6 +43,9 @@ builder.Services.AddScoped<ICourseModuleService, CourseModuleService>();
 builder.Services.AddScoped<IAcademicProfileRepository, AcademicProfileRepository>();
 builder.Services.AddScoped<ISubjectRepository, SubjectRepository>();
 builder.Services.AddScoped<IGroupRepository, GroupRepository>();
+
+builder.Services.AddScoped<IGroupInvitationRepository, GroupInvitationRepository>();
+builder.Services.AddScoped<IEmailService, EmailService>();
 
 builder.Services.AddScoped<IJwtService, JwtService>();
 
