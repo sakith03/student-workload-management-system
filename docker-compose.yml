@@ -55,6 +55,8 @@ services:
     container_name: studentworkload_frontend
     ports:
       - "3000:80"
+    environment:
+      - API_URL=http://api:8080   # 👈 only line added
     depends_on:
       - api
     networks:
@@ -66,7 +68,3 @@ volumes:
 networks:
   app_network:
     driver: bridge
-
-
-
-
