@@ -7,14 +7,17 @@ server {
     index index.html;
 
     location / {
-        try_files $uri $uri/ /index.html;
+        try_files $uri $uri/ =404;
     }
 
     location /api/ {
-        proxy_pass ${API_URL};          # <-- env var substitution
+        proxy_pass ${API_URL};
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
     }
+
+    # SPA fallback — handle React Router routes
+    error_page 404 /index.html;
 
     location ~* \.(js|css|png|jpg|ico|svg)$ {
         expires 1y;
