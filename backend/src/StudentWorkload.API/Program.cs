@@ -19,11 +19,10 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// ─── Database ────────────────────────────────────
+// ─── Database Configuration (SQL Server Only) ─────────────────────────
+
 var dbPassword = Environment.GetEnvironmentVariable("DB_PASSWORD")
                  ?? throw new Exception("DB_PASSWORD not set");
-
-// var dbPassword = Environment.GetEnvironmentVariable("DB_PASSWORD") ?? "";
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
                       ?? throw new Exception("ConnectionStrings:DefaultConnection not set");
@@ -31,22 +30,19 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 connectionString = connectionString.Replace("${DB_PASSWORD}", dbPassword);
 
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString))
-);
+{
+    options.UseSqlServer(connectionString);
+});
 
 // ─── Dependency Injection ────────────────────────
 builder.Services.AddScoped<IUserRepository, UserRepository>();
-
 builder.Services.AddScoped<ICourseModuleRepository, CourseModuleRepository>();
 builder.Services.AddScoped<ICourseModuleService, CourseModuleService>();
-
 builder.Services.AddScoped<IAcademicProfileRepository, AcademicProfileRepository>();
 builder.Services.AddScoped<ISubjectRepository, SubjectRepository>();
 builder.Services.AddScoped<IGroupRepository, GroupRepository>();
-
 builder.Services.AddScoped<IGroupInvitationRepository, GroupInvitationRepository>();
 builder.Services.AddScoped<IEmailService, EmailService>();
-
 builder.Services.AddScoped<IJwtService, JwtService>();
 
 // ─── JWT Authentication ──────────────────────────
@@ -62,10 +58,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateAudience = true,
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
-
             ValidIssuer = jwtSection["Issuer"],
             ValidAudience = jwtSection["Audience"],
-
             IssuerSigningKey = new SymmetricSecurityKey(
                 Encoding.UTF8.GetBytes(jwtSecretKey)
             )
@@ -73,12 +67,11 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     });
 
 builder.Services.AddAuthorization();
-
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// ─── CORS for React Frontend ─────────────────────
+// ─── CORS ─────────────────────────
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
@@ -96,18 +89,16 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseCors("AllowFrontend");
-
 app.UseAuthentication();
 app.UseAuthorization();
-
 app.MapControllers();
 
-// Auto-migrate on startup (Development only)
-if (app.Environment.IsDevelopment())
+// 🔥 Auto migrate in all environments
+using (var scope = app.Services.CreateScope())
 {
-    using var scope = app.Services.CreateScope();
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     db.Database.Migrate();
 }
 
 app.Run();
+
