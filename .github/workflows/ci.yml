@@ -76,6 +76,7 @@ jobs:
       - name: Build & Push Frontend Image
         run: |
           docker build \
+            --build-arg VITE_API_URL=${{ secrets.VITE_API_URL }} \
             -t ${{ secrets.DOCKER_USERNAME }}/myapp-frontend:latest \
             -t ${{ secrets.DOCKER_USERNAME }}/myapp-frontend:${{ github.sha }} \
             ./frontend
