@@ -38,7 +38,9 @@ jobs:
 
       # 6️⃣ Basic health check (backend API, not frontend)
       - name: Health Check Backend
-        run: curl --fail http://localhost:5000/health || exit 1
+        run: |
+          # swagger endpoint serves if API is running
+          curl --fail http://localhost:5000/swagger/index.html || exit 1
 
       # 7️⃣ Tear down
       - name: Stop Services
