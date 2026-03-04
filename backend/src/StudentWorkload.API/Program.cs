@@ -78,7 +78,7 @@ builder.Services.AddCors(options =>
         policy.WithOrigins(
             "http://localhost:5173",
             "http://localhost:3000",
-            "https://frontend-loadmate.azurewebsites.net"  // ← add this
+            "https://frontend-loadmate-h5h2gghtascvcnay.centralindia-01.azurewebsites.net" 
         )
         .AllowAnyHeader()
         .AllowAnyMethod());
