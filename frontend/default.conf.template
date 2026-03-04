@@ -21,4 +21,8 @@ server {
         add_header Cache-Control "public, immutable";
     }
 }
+```
 
+**Step 2** — Set the Azure environment variable correctly:
+```
+API_URL = https://backend-loadmate-b3ezg2behsgyerbw.centralindia-01.azurewebsites.net
