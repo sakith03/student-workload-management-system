@@ -56,7 +56,7 @@ services:
     ports:
       - "3000:80"
     environment:
-      - API_URL=http://api:8080   # 👈 only line added
+      API_URL: http://api:8080
     depends_on:
       - api
     networks:

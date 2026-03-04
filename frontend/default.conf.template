@@ -1,13 +1,12 @@
-# /etc/nginx/templates/default.conf.template
-
 server {
     listen 80;
     server_name localhost;
+
     root /usr/share/nginx/html;
     index index.html;
 
     location / {
-    try_files $uri $uri/ /index.html;
+        try_files $uri $uri/ /index.html;
     }
 
     location /api/ {
@@ -18,13 +17,8 @@ server {
         proxy_set_header X-Forwarded-Proto $scheme;
     }
 
-    location ~* \.(js|css|png|jpg|ico|svg)$ {
+    location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg)$ {
         expires 1y;
         add_header Cache-Control "public, immutable";
     }
 }
-```
-
-**Step 2** — Set the Azure environment variable correctly:
-```
-API_URL = https://backend-loadmate-b3ezg2behsgyerbw.centralindia-01.azurewebsites.net
