@@ -5,11 +5,12 @@ WORKDIR /app
 # Copy package files first (for Docker caching)
 COPY package.json package-lock.json ./
 RUN npm ci --silent
+
+ARG VITE_API_URL
+ENV VITE_API_URL=${VITE_API_URL:-http://localhost:5000}
  
 # Copy source and build
 COPY . .
-ARG VITE_API_URL
-ENV VITE_API_URL=${VITE_API_URL:-http://localhost:5000}
 RUN npm run build
  
 # ─── STAGE 2: Serve with Nginx ────────────────────────
