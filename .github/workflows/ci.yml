@@ -2,9 +2,9 @@ name: CI Pipeline
 
 on:
   push:
-    branches: [deployment]
+    branches: [depolyment]
   pull_request:
-    branches: [deployment]
+    branches: [depolyment]
 
 jobs:
   build-and-test:
@@ -51,7 +51,7 @@ jobs:
   push-image:
     runs-on: ubuntu-latest
     needs: build-and-test               # ← Only runs if build-and-test passes
-    if: github.ref == 'refs/heads/deployment'                        # ← Only run on main branch
+    if: github.ref == 'refs/heads/depolyment'                        # ← Only run on main branch
 
     steps:
       # 1️⃣ Checkout repository
