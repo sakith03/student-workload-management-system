@@ -5,13 +5,13 @@ server {
     index index.html;
 
     location / {
-        try_files $$uri $$uri/ /index.html;
+        try_files \$uri \$uri/ /index.html;
     }
 
     location /api/ {
         proxy_pass ${API_URL};
-        proxy_set_header Host $$host;
-        proxy_set_header X-Real-IP $$remote_addr;
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
     }
 
     location ~* \.(js|css|png|jpg|ico|svg)$ {
