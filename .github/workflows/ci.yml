@@ -39,8 +39,17 @@ jobs:
       # 6️⃣ Basic health check (backend API, not frontend)
       - name: Health Check Backend
         run: |
-          # swagger endpoint serves if API is running
-          curl --fail http://localhost:5000/swagger/index.html || exit 1
+          # wait until backend responds (retry for up to 60 seconds)
+          for i in {1..12}; do
+            if curl --fail http://localhost:5000/swagger/index.html; then
+              echo "backend ready";
+              exit 0;
+            fi
+            echo "waiting for api...";
+            sleep 5;
+          done
+          echo "backend did not become ready";
+          exit 1
 
       # 7️⃣ Tear down
       - name: Stop Services
