@@ -19,19 +19,19 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// ─── Database Configuration (SQL Server Only) ─────────────────────────
-
-var dbPassword = Environment.GetEnvironmentVariable("DB_PASSWORD")
-                 ?? throw new Exception("DB_PASSWORD not set");
-
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
-                      ?? throw new Exception("ConnectionStrings:DefaultConnection not set");
-
-connectionString = connectionString.Replace("${DB_PASSWORD}", dbPassword);
+// ─── Database Configuration ─────────────────────────
+var connectionString =
+    Environment.GetEnvironmentVariable("ConnectionStrings__DefaultConnection")
+    ?? builder.Configuration.GetConnectionString("DefaultConnection")
+    ?? throw new Exception("ConnectionStrings:DefaultConnection not set");
 
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
-    options.UseSqlServer(connectionString);
+    options.UseSqlServer(connectionString,
+        sqlOptions => sqlOptions.EnableRetryOnFailure(
+            maxRetryCount: 5,
+            maxRetryDelay: TimeSpan.FromSeconds(30),
+            errorNumbersToAdd: null));
 });
 
 // ─── Dependency Injection ────────────────────────
@@ -78,7 +78,7 @@ builder.Services.AddCors(options =>
         policy.WithOrigins(
             "http://localhost:5173",
             "http://localhost:3000",
-            "https://frontend-loadmate-h5h2gghtascvcnay.centralindia-01.azurewebsites.net" 
+            "https://frontend-loadmate-h5h2gghtascvcnay.centralindia-01.azurewebsites.net" // ✅ your Azure frontend
         )
         .AllowAnyHeader()
         .AllowAnyMethod());
@@ -97,11 +97,19 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 
-// 🔥 Auto migrate in all environments
+// ─── Auto Migrate ─────────────────────────
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    db.Database.Migrate();
+    try
+    {
+        db.Database.Migrate();
+    }
+    catch (Exception ex)
+    {
+        var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "Migration failed — app will still start");
+    }
 }
 
 app.Run();
