@@ -32,26 +32,31 @@ jobs:
       - name: Start Services
         run: docker compose up -d
 
-      # 5️⃣ Wait for services to be ready
+      # 5️⃣ Wait for MSSQL + API to be ready (MSSQL needs ~30s cold start)
       - name: Wait for services
-        run: sleep 20
+        run: sleep 40
 
-      # 6️⃣ Basic health check (backend API, not frontend)
+      # 6️⃣ Show logs before health check (helps debug if it fails)
+      - name: Show container logs
+        run: docker compose logs
+
+      # 7️⃣ Health check backend API
       - name: Health Check Backend
         run: |
-          # wait until backend responds (retry for up to 60 seconds)
           for i in {1..12}; do
             if curl --fail http://localhost:5000/swagger/index.html; then
               echo "backend ready";
               exit 0;
             fi
             echo "waiting for api...";
+            docker compose ps
             sleep 5;
           done
           echo "backend did not become ready";
+          docker compose logs --tail=100
           exit 1
 
-      # 7️⃣ Tear down
+      # 8️⃣ Tear down
       - name: Stop Services
         run: docker compose down
 
