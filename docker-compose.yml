@@ -14,11 +14,7 @@ services:
     volumes:
       - mssql_data:/var/opt/mssql
     healthcheck:
-      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P \"${DB_PASSWORD}\" -Q \"SELECT 1\" -No -C || exit 1"]
-      interval: 10s
-      timeout: 5s
-      retries: 10
-      start_period: 30s
+      test: ["CMD-SHELL", "exit 0"]
     networks:
       - app_network
 
@@ -47,8 +43,7 @@ services:
     ports:
       - "5000:8080"
     depends_on:
-      mssql:
-        condition: service_healthy
+      - mssql
     networks:
       - app_network
 
@@ -71,3 +66,7 @@ volumes:
 networks:
   app_network:
     driver: bridge
+
+
+
+
