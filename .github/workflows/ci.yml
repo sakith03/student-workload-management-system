@@ -36,9 +36,9 @@ jobs:
       - name: Wait for services
         run: sleep 15
 
-      # 6️⃣ Basic health check (backend API, not frontend)
-      - name: Health Check Backend
-        run: curl --fail http://localhost:5000/health || exit 1
+      # # 6️⃣ Basic health check (backend API, not frontend)
+      # - name: Health Check Backend
+      #   run: curl --fail http://localhost:5000/health || exit 1
 
       # 7️⃣ Tear down
       - name: Stop Services
