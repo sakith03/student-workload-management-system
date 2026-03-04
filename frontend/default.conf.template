@@ -1,24 +1,28 @@
+# /etc/nginx/templates/default.conf.template
+
 server {
     listen 80;
     server_name localhost;
     root /usr/share/nginx/html;
     index index.html;
- 
-    # SPA fallback — all routes serve index.html (React Router handles routing)
+
     location / {
         try_files $uri $uri/ /index.html;
     }
- 
-    # Proxy API calls to backend (in Docker environment)
+
     location /api/ {
-        proxy_pass http://api:8080;
+        proxy_pass ${API_URL};          # <-- env var substitution
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
     }
- 
-    # Cache static assets
+
     location ~* \.(js|css|png|jpg|ico|svg)$ {
         expires 1y;
         add_header Cache-Control "public, immutable";
     }
 }
+```
+
+**Step 2** — Set the Azure environment variable correctly:
+```
+API_URL = https://backend-loadmate-b3ezg2behsgyerbw.centralindia-01.azurewebsites.net
