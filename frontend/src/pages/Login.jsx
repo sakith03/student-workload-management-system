@@ -113,7 +113,7 @@ export default function Login() {
         <div className="auth-right">
           <div className="auth-card login-card">
             <div className="auth-card-header">
-              <h2 className="auth-title">Welcome back, Rivindu</h2>
+              <h2 className="auth-title">Welcome back, chathura</h2>
               <p className="auth-subtitle">Sign in to continue to LoadMate</p>
             </div>
 
