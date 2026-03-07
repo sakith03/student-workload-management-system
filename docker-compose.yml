@@ -27,6 +27,7 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       DB_PASSWORD: ${DB_PASSWORD}
+      ConnectionStrings__DefaultConnection: "Server=mssql,1433;Database=StudentWorkloadDb;User=sa;Password=${DB_PASSWORD};TrustServerCertificate=True;"
 
       JwtSettings__Secret: ${JWT_SECRET}
       JwtSettings__Issuer: StudentWorkloadAPI
