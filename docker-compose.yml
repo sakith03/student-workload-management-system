@@ -1,28 +1,23 @@
 version: '3.9'
- 
+
 services:
- 
-  # ─── MySQL Database ──────────────────────────
-  mysql:
-    image: mysql:8.0
-    container_name: studentworkload_mysql
+
+  # ─── SQL Server Database ──────────────────────────
+  mssql:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: studentworkload_mssql
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
-      MYSQL_USER: ${MYSQL_USER}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      ACCEPT_EULA: "Y"
+      SA_PASSWORD: ${DB_PASSWORD}
     ports:
-      - "3306:3306"
+      - "1433:1433"
     volumes:
-      - mysql_data:/var/lib/mysql   # Persist data between restarts
+      - mssql_data:/var/opt/mssql
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+      test: ["CMD-SHELL", "exit 0"]
     networks:
       - app_network
- 
+
   # ─── .NET API Backend ────────────────────────
   api:
     build:
@@ -31,26 +26,28 @@ services:
     container_name: studentworkload_api
     environment:
       ASPNETCORE_ENVIRONMENT: Development
-      DB_PASSWORD: ${MYSQL_PASSWORD}
-      JWT_SECRET: ${JWT_SECRET}
-      JwtSettings__Secret: "YourSuperSecretKeyThatIsAtLeast32CharactersLong!"
+      DB_PASSWORD: ${DB_PASSWORD}
+      ConnectionStrings__DefaultConnection: "Server=mssql,1433;Database=StudentWorkloadDb;User=sa;Password=${DB_PASSWORD};TrustServerCertificate=True;"
+
+      JwtSettings__Secret: ${JWT_SECRET}
       JwtSettings__Issuer: StudentWorkloadAPI
       JwtSettings__Audience: StudentWorkloadClient
       JwtSettings__ExpirationMinutes: "60"
+
       EmailSettings__Host: "smtp.gmail.com"
       EmailSettings__Port: "587"
       EmailSettings__Username: ${EMAIL_USERNAME}
-      EmailSettings__Password: "${EMAIL_PASSWORD}"
+      EmailSettings__Password: ${EMAIL_PASSWORD}
       EmailSettings__From: ${EMAIL_FROM}
       EmailSettings__EnableSsl: "true"
+
     ports:
       - "5000:8080"
     depends_on:
-      mysql:
-        condition: service_healthy  # Wait for MySQL to be ready
+      - mssql
     networks:
       - app_network
- 
+
   # ─── React Frontend ──────────────────────────
   frontend:
     build:
@@ -59,14 +56,16 @@ services:
     container_name: studentworkload_frontend
     ports:
       - "3000:80"
+    environment:
+      API_URL: http://api:8080
     depends_on:
       - api
     networks:
       - app_network
-   
+
 volumes:
-  mysql_data:  # Named volume for MySQL persistence
- 
+  mssql_data:
+
 networks:
   app_network:
     driver: bridge

@@ -1,23 +1,23 @@
 server {
     listen 80;
     server_name localhost;
+
     root /usr/share/nginx/html;
     index index.html;
- 
-    # SPA fallback — all routes serve index.html (React Router handles routing)
+
     location / {
         try_files $uri $uri/ /index.html;
     }
- 
-    # Proxy API calls to backend (in Docker environment)
+
     location /api/ {
-        proxy_pass http://api:8080;
+        proxy_pass ${API_URL};
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
     }
- 
-    # Cache static assets
-    location ~* \.(js|css|png|jpg|ico|svg)$ {
+
+    location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg)$ {
         expires 1y;
         add_header Cache-Control "public, immutable";
     }

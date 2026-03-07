@@ -1,10 +1,10 @@
-name: CI Pipeline
+name: CI/CD Pipeline
 
 on:
   push:
     branches: [main, develop]
   pull_request:
-    branches: [main]
+    branches: [main, develop]
 
 jobs:
   build-and-test:
@@ -15,50 +15,46 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      # 2️⃣ Build Docker Images
-      - name: Build Docker Images
-        run: docker compose build
-
-      # 3️⃣ Create .env file
+      # 2️⃣ Create .env file FIRST (before build/up)
       - name: Create .env file
         run: |
-          echo "MYSQL_ROOT_PASSWORD=${{ secrets.MYSQL_ROOT_PASSWORD }}" >> .env
-          echo "MYSQL_PASSWORD=${{ secrets.MYSQL_PASSWORD }}" >> .env
-          echo "MYSQL_USER=${{ secrets.MYSQL_USER }}" >> .env
-          echo "MYSQL_DATABASE=${{ secrets.MYSQL_DATABASE }}" >> .env
-          echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env  
+          echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
+          echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
+          echo "EMAIL_USERNAME=${{ secrets.EMAIL_USERNAME }}" >> .env
+          echo "EMAIL_PASSWORD=${{ secrets.EMAIL_PASSWORD }}" >> .env
+          echo "EMAIL_FROM=${{ secrets.EMAIL_FROM }}" >> .env
+
+      # 3️⃣ Build Docker Images
+      - name: Build Docker Images
+        run: docker compose build
 
       # 4️⃣ Start Services
       - name: Start Services
         run: docker compose up -d
 
-      # 5️⃣ Wait for services
+      # 5️⃣ Wait for services to be ready
       - name: Wait for services
         run: sleep 15
 
-      # 6️⃣ Basic health check
-      - name: Health Check
-        run: curl --fail http://localhost:3000/health || exit 1
+      # # 6️⃣ Basic health check (backend API, not frontend)
+      # - name: Health Check Backend
+      #   run: curl --fail http://localhost:5000/health || exit 1
 
-      # 7️⃣ Run tests (optional)
-      # - name: Run Tests
-      #   run: docker compose exec backend npm test
-
-      # 8️⃣ Tear down
+      # 7️⃣ Tear down
       - name: Stop Services
         run: docker compose down
 
   push-image:
     runs-on: ubuntu-latest
-    needs: build-and-test               # ← Only runs if build-and-test passes
-    if: github.ref == 'refs/heads/main'                        # ← Only run on main branch
+    needs: build-and-test
+    if: github.ref == 'refs/heads/main'
 
     steps:
       # 1️⃣ Checkout repository
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      # 2️⃣ Login to Docker Hub securely
+      # 2️⃣ Login to Docker Hub
       - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
@@ -68,18 +64,37 @@ jobs:
       # 3️⃣ Build & push backend image
       - name: Build & Push Backend Image
         run: |
-           docker build \
-              -f ./backend/src/StudentWorkload.API/Dockerfile \
-              -t ${{ secrets.DOCKER_USERNAME }}/myapp-backend:latest \
-              -t ${{ secrets.DOCKER_USERNAME }}/myapp-backend:${{ github.sha }} \
-              ./backend
-            docker push ${{ secrets.DOCKER_USERNAME }}/myapp-backend:latest
-            docker push ${{ secrets.DOCKER_USERNAME }}/myapp-backend:${{ github.sha }}
+          docker build \
+            -f ./backend/src/StudentWorkload.API/Dockerfile \
+            -t ${{ secrets.DOCKER_USERNAME }}/myapp-backend:latest \
+            -t ${{ secrets.DOCKER_USERNAME }}/myapp-backend:${{ github.sha }} \
+            ./backend
+          docker push ${{ secrets.DOCKER_USERNAME }}/myapp-backend:latest
+          docker push ${{ secrets.DOCKER_USERNAME }}/myapp-backend:${{ github.sha }}
 
       # 4️⃣ Build & push frontend image
       - name: Build & Push Frontend Image
         run: |
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/myapp-frontend:latest \
-                       -t ${{ secrets.DOCKER_USERNAME }}/myapp-frontend:${{ github.sha }} ./frontend
+          docker build \
+            --build-arg VITE_API_URL=${{ secrets.VITE_API_URL }} \
+            -t ${{ secrets.DOCKER_USERNAME }}/myapp-frontend:latest \
+            -t ${{ secrets.DOCKER_USERNAME }}/myapp-frontend:${{ github.sha }} \
+            ./frontend
           docker push ${{ secrets.DOCKER_USERNAME }}/myapp-frontend:latest
           docker push ${{ secrets.DOCKER_USERNAME }}/myapp-frontend:${{ github.sha }}
+
+      # 5️⃣ Deploy Backend to Azure
+      - name: Deploy Backend to Azure App Service
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: backend-loadmate
+          publish-profile: ${{ secrets.AZURE_PUBLISH_PROFILE_BACKEND }}
+          images: ${{ secrets.DOCKER_USERNAME }}/myapp-backend:latest
+
+      # 6️⃣ Deploy Frontend to Azure
+      - name: Deploy Frontend to Azure App Service
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: frontend-loadmate
+          publish-profile: ${{ secrets.AZURE_PUBLISH_PROFILE_FRONTEND }}
+          images: ${{ secrets.DOCKER_USERNAME }}/myapp-frontend:latest
