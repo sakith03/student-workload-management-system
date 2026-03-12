@@ -1,0 +1,1 @@
+docker run --rm -v ${PWD}:/src -w /src/backend mcr.microsoft.com/dotnet/sdk:8.0 dotnet test ./tests/StudentWorkload.UnitTests/StudentWorkload.UnitTests.csproj

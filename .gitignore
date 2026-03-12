@@ -1,0 +1,36 @@
+# ─── .NET ──────────────────────────────────────────
+backend/**/bin/
+backend/**/obj/
+backend/*.user
+backend/.vs/
+backend/**/.vs/
+*.suo
+*.user
+ 
+# ─── React / Node ───────────────────────────────────
+frontend/node_modules/
+frontend/dist/
+frontend/build/
+frontend/.env.local
+frontend/.env.production
+ 
+# ─── Secrets & Config ───────────────────────────────
+appsettings.Production.json
+**/appsettings.*.json
+!**/appsettings.json
+!**/appsettings.Development.json
+.env
+*.pem
+*.key
+ 
+# ─── Docker ─────────────────────────────────────────
+.dockerignore
+ 
+# ─── OS ─────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+ 
+# ─── IDE ─────────────────────────────────────────────
+.vscode/settings.json
+.idea/
+*.swp

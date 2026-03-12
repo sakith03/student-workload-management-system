@@ -1,0 +1,71 @@
+version: '3.9'
+
+services:
+
+  # ─── SQL Server Database ──────────────────────────
+  mssql:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: studentworkload_mssql
+    environment:
+      ACCEPT_EULA: "Y"
+      SA_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "1433:1433"
+    volumes:
+      - mssql_data:/var/opt/mssql
+    healthcheck:
+      test: ["CMD-SHELL", "exit 0"]
+    networks:
+      - app_network
+
+  # ─── .NET API Backend ────────────────────────
+  api:
+    build:
+      context: ./backend
+      dockerfile: src/StudentWorkload.API/Dockerfile
+    container_name: studentworkload_api
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      DB_PASSWORD: ${DB_PASSWORD}
+      ConnectionStrings__DefaultConnection: "Server=mssql,1433;Database=StudentWorkloadDb;User=sa;Password=${DB_PASSWORD};TrustServerCertificate=True;"
+
+      JwtSettings__Secret: ${JWT_SECRET}
+      JwtSettings__Issuer: StudentWorkloadAPI
+      JwtSettings__Audience: StudentWorkloadClient
+      JwtSettings__ExpirationMinutes: "60"
+
+      EmailSettings__Host: "smtp.gmail.com"
+      EmailSettings__Port: "587"
+      EmailSettings__Username: ${EMAIL_USERNAME}
+      EmailSettings__Password: ${EMAIL_PASSWORD}
+      EmailSettings__From: ${EMAIL_FROM}
+      EmailSettings__EnableSsl: "true"
+
+    ports:
+      - "5000:8080"
+    depends_on:
+      - mssql
+    networks:
+      - app_network
+
+  # ─── React Frontend ──────────────────────────
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: studentworkload_frontend
+    ports:
+      - "3000:80"
+    environment:
+      API_URL: http://api:8080
+    depends_on:
+      - api
+    networks:
+      - app_network
+
+volumes:
+  mssql_data:
+
+networks:
+  app_network:
+    driver: bridge

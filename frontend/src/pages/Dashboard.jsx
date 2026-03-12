@@ -1,0 +1,216 @@
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import MainLayout from '../components/MainLayout';
+import '../styles/dashboard.css';
+
+function getGreeting() {
+  const h = new Date().getHours();
+  if (h < 12) return 'Good morning';
+  if (h < 17) return 'Good afternoon';
+  return 'Good evening';
+}
+
+export default function Dashboard() {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+
+  const [bannerVisible, setBannerVisible] = useState(true);
+  const [copied, setCopied] = useState(false);
+
+  const copyId = () => {
+    if (user?.id) {
+      navigator.clipboard.writeText(user.id);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
+  return (
+    <MainLayout title="Dashboard">
+
+      {/* Greeting */}
+      <div className="dash-greeting">
+        <div>
+          <h1 className="greeting-title">
+            {getGreeting()}, <span className="greeting-name">{user?.email?.split('@')[0]}</span>
+          </h1>
+          <p className="greeting-sub">
+            Here's what's happening in your academic workspace today.
+          </p>
+        </div>
+      </div>
+
+      {/* Stats Cards */}
+      <div className="stats-grid">
+        <div className="stat-card stat-card--blue">
+          <div className="stat-card-icon">
+            <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+              <circle cx="11" cy="7" r="4" stroke="currentColor" strokeWidth="1.8" />
+              <path d="M3 20c0-4.418 3.582-8 8-8s8 3.582 8 8" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+            </svg>
+          </div>
+          <div className="stat-card-content">
+            <p className="stat-label">Your Role</p>
+            <p className="stat-value">{user?.role}</p>
+            <p className="stat-desc">Access level confirmed</p>
+          </div>
+          <div className="stat-card-glow" />
+        </div>
+
+        <div className="stat-card stat-card--green">
+          <div className="stat-card-icon">
+            <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+              <circle cx="11" cy="11" r="8" stroke="currentColor" strokeWidth="1.8" />
+              <path d="M7 11l3 3 5-5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </div>
+          <div className="stat-card-content">
+            <p className="stat-label">Account Status</p>
+            <p className="stat-value">Active</p>
+            <p className="stat-desc">Session authenticated</p>
+          </div>
+          <div className="stat-card-glow" />
+        </div>
+
+        <div className="stat-card stat-card--purple">
+          <div className="stat-card-icon">
+            <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+              <path d="M11 2l2.5 6H20l-5 3.5 2 6.5-6-4-6 4 2-6.5L2 8h6.5L11 2z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" />
+            </svg>
+          </div>
+          <div className="stat-card-content">
+            <p className="stat-label">Academic Level</p>
+            <p className="stat-value">Y2S2</p>
+            <p className="stat-desc">Workspace system</p>
+          </div>
+          <div className="stat-card-glow" />
+        </div>
+      </div>
+
+      {/* Quick Nav Cards */}
+      <div className="quick-nav-grid">
+        <div className="quick-nav-card" onClick={() => navigate('/modules')}>
+          <div className="quick-nav-icon quick-nav-icon--purple">
+            <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+              <rect x="3" y="4" width="16" height="15" rx="2" stroke="currentColor" strokeWidth="1.8" />
+              <path d="M7 2v4M15 2v4M3 10h16" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+            </svg>
+          </div>
+          <div className="quick-nav-text">
+            <p className="quick-nav-title">My Modules</p>
+            <p className="quick-nav-sub">Manage your semester modules</p>
+          </div>
+          <svg className="quick-nav-arrow" width="18" height="18" viewBox="0 0 18 18" fill="none">
+            <path d="M4 9h10M9 4l5 5-5 5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </div>
+
+        <div className="quick-nav-card" onClick={() => navigate('/workspaces')}>
+          <div className="quick-nav-icon quick-nav-icon--green">
+            <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+              <path d="M19 13.5C19 16.538 16.314 19 13 19c-.98 0-1.904-.224-2.714-.622L5 19.5l1.3-3.8A5.44 5.44 0 014 13.5C4 10.462 6.686 8 10 8s9 2.462 9 5.5z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" />
+            </svg>
+          </div>
+          <div className="quick-nav-text">
+            <p className="quick-nav-title">Workspaces</p>
+            <p className="quick-nav-sub">View your group workspaces</p>
+          </div>
+          <svg className="quick-nav-arrow" width="18" height="18" viewBox="0 0 18 18" fill="none">
+            <path d="M4 9h10M9 4l5 5-5 5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </div>
+
+        <div className="quick-nav-card" onClick={() => navigate('/goals')}>
+          <div className="quick-nav-icon quick-nav-icon--blue">
+            <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+              <circle cx="11" cy="11" r="8" stroke="currentColor" strokeWidth="1.8" />
+              <circle cx="11" cy="11" r="3" stroke="currentColor" strokeWidth="1.8" />
+              <path d="M11 3v2M11 17v2M3 11h2M17 11h2"
+                stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+            </svg>
+          </div>
+          <div className="quick-nav-text">
+            <p className="quick-nav-title">My Goals</p>
+            <p className="quick-nav-sub">Track goals for each module</p>
+          </div>
+          <svg className="quick-nav-arrow" width="18" height="18" viewBox="0 0 18 18" fill="none">
+            <path d="M4 9h10M9 4l5 5-5 5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </div>
+      </div>
+
+      {/* Account Info Card */}
+      <div className="info-card">
+        <div className="info-card-header">
+          <div className="info-card-title">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+              <circle cx="10" cy="7" r="3.5" stroke="currentColor" strokeWidth="1.6" />
+              <path d="M3 18c0-3.866 3.134-7 7-7s7 3.134 7 7" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+            </svg>
+            Account Information
+          </div>
+        </div>
+
+        <div className="info-rows">
+          <div className="info-row">
+            <span className="info-row-label">User ID</span>
+            <div className="info-row-value-wrap">
+              <span className="info-row-value info-row-mono">
+                {user?.id ? `${user.id.substring(0, 8)}...` : '—'}
+              </span>
+              <button className="copy-btn" onClick={copyId} title="Copy full ID">
+                {copied ? (
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                    <path d="M2 7l3.5 3.5L12 4" stroke="#22c55e" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                ) : (
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                    <rect x="5" y="5" width="7" height="7" rx="1.5" stroke="currentColor" strokeWidth="1.4" />
+                    <path d="M9 5V3.5A1.5 1.5 0 007.5 2h-4A1.5 1.5 0 002 3.5v4A1.5 1.5 0 003.5 9H5" stroke="currentColor" strokeWidth="1.4" />
+                  </svg>
+                )}
+              </button>
+            </div>
+          </div>
+
+          <div className="info-row">
+            <span className="info-row-label">Email address</span>
+            <span className="info-row-value">{user?.email}</span>
+          </div>
+
+          <div className="info-row">
+            <span className="info-row-label">Role</span>
+            <span className={`info-badge ${user?.role === 'Lecturer' ? 'badge--lecturer' : 'badge--student'}`}>
+              {user?.role}
+            </span>
+          </div>
+
+          <div className="info-row info-row--last">
+            <span className="info-row-label">Member since</span>
+            <span className="info-row-value">2026</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Banner */}
+      {bannerVisible && (
+        <div className="welcome-banner">
+          <div className="banner-content">
+            <div className="banner-icon">🚀</div>
+            <div>
+              <p className="banner-title">You're all set, {user?.email?.split('@')[0]}!</p>
+              <p className="banner-sub">Your modules are ready. Explore workspaces and set goals for each module.</p>
+            </div>
+          </div>
+          <button className="banner-close" onClick={() => setBannerVisible(false)}>
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+            </svg>
+          </button>
+        </div>
+      )}
+
+    </MainLayout>
+  );
+}

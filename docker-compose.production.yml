@@ -1,0 +1,39 @@
+version: '3.9'
+
+services:
+
+  # ─── .NET API Backend ────────────────────────
+  api:
+    image: riviyaaa/myapp-backend:latest
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+
+      # Database provider
+      DB_PROVIDER: sqlserver
+      DB_PASSWORD: ${DB_PASSWORD}
+
+      # JWT Settings
+      JWT_SECRET: ${JWT_SECRET}
+      JwtSettings__Secret: "YourSuperSecretKeyThatIsAtLeast32CharactersLong!"
+      JwtSettings__Issuer: StudentWorkloadAPI
+      JwtSettings__Audience: StudentWorkloadClient
+      JwtSettings__ExpirationMinutes: "60"
+
+      # Email settings
+      EmailSettings__Host: "smtp.gmail.com"
+      EmailSettings__Port: "587"
+      EmailSettings__Username: ${EMAIL_USERNAME}
+      EmailSettings__Password: ${EMAIL_PASSWORD}
+      EmailSettings__From: ${EMAIL_FROM}
+      EmailSettings__EnableSsl: "true"
+
+    ports:
+      - "8080:8080"
+
+  # ─── React Frontend ──────────────────────────
+  frontend:
+    image: riviyaaa/myapp-frontend:latest
+    ports:
+      - "80:80"
+    depends_on:
+      - api
