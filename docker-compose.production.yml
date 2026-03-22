@@ -21,7 +21,7 @@ services:
 
       # Email settings
       EmailSettings__Host: "smtp.gmail.com"
-      EmailSettings__Port: "587"
+      EmailSettings__Port: "
       EmailSettings__Username: ${EMAIL_USERNAME}
       EmailSettings__Password: ${EMAIL_PASSWORD}
       EmailSettings__From: ${EMAIL_FROM}
