@@ -25,6 +25,6 @@ public class AddSubjectCommandHandler
         await _subjectRepo.AddAsync(subject, ct);
         await _subjectRepo.SaveChangesAsync(ct);
 
-        return new AddSubjectResult(subject.Id, subject.Code, subject.Name, subject.Color);
+        return new AddSubjectResult(true, subject.Id, subject.Code, subject.Name, subject.Color);
     }
 }

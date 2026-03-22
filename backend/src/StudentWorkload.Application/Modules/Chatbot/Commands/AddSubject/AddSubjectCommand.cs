@@ -10,4 +10,4 @@ public record AddSubjectCommand(
     string? Color);
 
 // ── Result ───────────────────────────────────────────────────────────────────
-public record AddSubjectResult(Guid SubjectId, string Code, string Name, string Color);
+public record AddSubjectResult(bool IsSuccess, Guid SubjectId, string Code, string Name, string Color);
