@@ -1,3 +1,6 @@
+// FILE PATH:
+// backend/src/StudentWorkload.API/Controllers/GroupController.cs
+
 namespace StudentWorkload.API.Controllers;
  
 using Microsoft.AspNetCore.Authorization;
@@ -17,7 +20,7 @@ public class GroupsController : ControllerBase
     private Guid GetUserId() =>
         Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
  
-    // POST api/groups
+    // ─── POST api/groups ────────────────────────────────────────────────
     [HttpPost]
     public async Task<IActionResult> CreateGroup([FromBody] CreateGroupRequest request)
     {
@@ -32,25 +35,36 @@ public class GroupsController : ControllerBase
             new { groupId = result.GroupId, inviteCode = result.InviteCode });
     }
  
-    // GET api/groups/{id}
+    // ─── GET api/groups/{id} ────────────────────────────────────────────
+    // CHANGED: Previously this returned 403 for anyone who wasn't the creator.
+    // Now both the creator AND invited members can view the group detail page.
     [HttpGet("{id}")]
     public async Task<IActionResult> GetGroup(Guid id)
     {
         var group = await _groupRepo.GetByIdAsync(id);
         if (group is null) return NotFound();
- 
-        // Only creator can view their group workspace for now
-        if (group.CreatedByUserId != GetUserId()) return Forbid();
+
+        var userId = GetUserId();
+
+        // Allow the creator OR any group member to access
+        var isCreator = group.CreatedByUserId == userId;
+        var isMember  = !isCreator && await _groupRepo.IsUserMemberAsync(id, userId);
+
+        if (!isCreator && !isMember)
+            return Forbid();
  
         return Ok(new {
-            group.Id, group.Name, group.Description,
-            group.SubjectId, group.MaxMembers,
-            group.InviteCode,  // stored for teammate's join feature
+            group.Id,
+            group.Name,
+            group.Description,
+            group.SubjectId,
+            group.MaxMembers,
+            group.InviteCode,
             group.CreatedAt
         });
     }
  
-    // GET api/groups/subject/{subjectId}
+    // ─── GET api/groups/subject/{subjectId} ─────────────────────────────
     [HttpGet("subject/{subjectId}")]
     public async Task<IActionResult> GetGroupsBySubject(Guid subjectId)
     {
@@ -60,12 +74,28 @@ public class GroupsController : ControllerBase
         }));
     }
  
-    // GET api/groups/my
+    // ─── GET api/groups/my ──────────────────────────────────────────────
+    // CHANGED: Previously this only returned groups the user created.
+    // Now it returns groups they created PLUS groups they joined via invitation.
+    // We deduplicate using UnionBy in case of overlap (shouldn't happen, but
+    // defensive programming is good practice).
     [HttpGet("my")]
     public async Task<IActionResult> GetMyGroups()
     {
-        var groups = await _groupRepo.GetByCreatedUserIdAsync(GetUserId());
-        return Ok(groups.Select(g => new {
+        var userId = GetUserId();
+
+        // Groups this user created
+        var createdGroups = await _groupRepo.GetByCreatedUserIdAsync(userId);
+
+        // Groups this user joined as a member (via invitation)
+        var joinedGroups = await _groupRepo.GetByMemberUserIdAsync(userId);
+
+        // Combine and deduplicate by group ID
+        var allGroups = createdGroups
+            .UnionBy(joinedGroups, g => g.Id)
+            .ToList();
+
+        return Ok(allGroups.Select(g => new {
             g.Id, g.Name, g.SubjectId, g.CreatedAt
         }));
     }

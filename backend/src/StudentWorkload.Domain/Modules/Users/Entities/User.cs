@@ -7,10 +7,10 @@ public class User
 {
     // Private setters enforce encapsulation — only this class can change its state
     public Guid Id { get; private set; }
-    public Email Email { get; private set; }
-    public string PasswordHash { get; private set; }
-    public string FirstName { get; private set; }
-    public string LastName { get; private set; }
+    public Email Email { get; private set; } = null!;
+    public string PasswordHash { get; private set; } = null!;
+    public string FirstName { get; private set; } = null!;
+    public string LastName { get; private set; } = null!;
     public UserRole Role { get; private set; }
     public DateTime CreatedAt { get; private set; }
     public bool IsActive { get; private set; }
