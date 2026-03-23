@@ -6,6 +6,10 @@ backend/.vs/
 backend/**/.vs/
 *.suo
 *.user
+
+# Root-level build artifacts
+/obj/
+/src/obj/
  
 # ─── React / Node ───────────────────────────────────
 frontend/node_modules/
