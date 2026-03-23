@@ -3,8 +3,6 @@ name: CD Pipeline
 on:
   push:
     branches: [main, develop]
-  pull_request:
-    branches: [main, develop]
 
 jobs:
   deploy:
@@ -54,7 +52,7 @@ jobs:
         with:
           app-name: backend-loadmate
           publish-profile: ${{ secrets.AZURE_PUBLISH_PROFILE_BACKEND }}
-          images: ${{ secrets.DOCKER_USERNAME }}/myapp-backend:latest
+          images: ${{ secrets.DOCKER_USERNAME }}/myapp-backend:${{ github.sha }}
 
       # 7. Deploy Frontend
       - name: Deploy Frontend
@@ -62,4 +60,4 @@ jobs:
         with:
           app-name: frontend-loadmate
           publish-profile: ${{ secrets.AZURE_PUBLISH_PROFILE_FRONTEND }}
-          images: ${{ secrets.DOCKER_USERNAME }}/myapp-frontend:latest
+          images: ${{ secrets.DOCKER_USERNAME }}/myapp-frontend:${{ github.sha }}
