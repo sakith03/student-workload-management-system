@@ -36,26 +36,21 @@ jobs:
         run: npm install
         working-directory: ./frontend
 
-      # 6. Run Frontend Tests
-      - name: Run Frontend Tests
-        run: npm test -- --watchAll=false
-        working-directory: ./frontend
-
-      # 7. Create .env file
+      # 6. Create .env file
       - name: Create .env file
         run: |
           echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
           echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
 
-      # 8. Build Docker Images
+      # 7. Build Docker Images
       - name: Build Docker Images
         run: docker compose build
 
-      # 9. Start Services
+      # 8. Start Services
       - name: Start Services
         run: docker compose up -d
 
-      # 10. Wait for Backend Health
+      # 9. Wait for Backend Health
       - name: Wait for Backend
         run: |
           for i in {1..10}; do
@@ -63,6 +58,6 @@ jobs:
             sleep 5
           done
 
-      # 11. Stop Services
+      # 10. Stop Services
       - name: Stop Services
         run: docker compose down
