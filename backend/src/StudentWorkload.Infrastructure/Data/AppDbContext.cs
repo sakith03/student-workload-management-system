@@ -3,13 +3,10 @@ namespace StudentWorkload.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using StudentWorkload.Domain.Modules.Users.Entities;
 using StudentWorkload.Domain.Modules.Users.ValueObjects;
-
 using StudentWorkload.Domain.Modules.CourseModules.Entities;
 using StudentWorkload.Domain.Modules.Academic.Entities;
 using StudentWorkload.Domain.Modules.Subjects.Entities;
 using StudentWorkload.Domain.Modules.Groups.Entities;
-
-
 
 public class AppDbContext : DbContext
 {
@@ -36,8 +33,7 @@ public class AppDbContext : DbContext
             entity.Property(u => u.Email)
                 .HasConversion(
                     v => v.Value,
-                    v => Email.Create(v)
-                )
+                    v => Email.Create(v))
                 .HasMaxLength(255)
                 .IsRequired();
 
@@ -53,7 +49,63 @@ public class AppDbContext : DbContext
             entity.ToTable("Users");
         });
 
+        // ── AcademicProfile ───────────────────────────────────────────────
+        modelBuilder.Entity<AcademicProfile>(entity =>
+        {
+            entity.HasKey(a => a.Id);
+            entity.Property(a => a.UserId).IsRequired();
+
+            entity.HasIndex(a => a.UserId).IsUnique();
+
+            entity.Property(a => a.AcademicYear).IsRequired();
+            entity.Property(a => a.Semester).IsRequired();
+            entity.Property(a => a.IsSetupComplete).HasDefaultValue(false);
+
+            // ✅ NEW: Real FK constraint — profile is owned by exactly one user.
+            // Cascade: deleting a user removes their profile too.
+            entity.HasOne<User>()
+                .WithOne()
+                .HasForeignKey<AcademicProfile>(a => a.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.ToTable("AcademicProfiles");
+        });
+
+        // ── Subject ───────────────────────────────────────────────────────
+        modelBuilder.Entity<Subject>(entity =>
+        {
+            entity.HasKey(s => s.Id);
+            entity.Property(s => s.UserId).IsRequired();
+
+            entity.Property(s => s.Code).IsRequired().HasMaxLength(20);
+            entity.Property(s => s.Name).IsRequired().HasMaxLength(200);
+            entity.Property(s => s.CreditHours).IsRequired();
+            entity.Property(s => s.Color).HasMaxLength(10);
+            entity.Property(s => s.IsActive).HasDefaultValue(true);
+
+            // ✅ NEW: FK to AcademicProfile.
+            // Restrict: you cannot delete a profile that still has subjects.
+            // This protects the academic record from accidental data loss.
+            entity.HasOne<AcademicProfile>()
+                .WithMany()
+                .HasForeignKey(s => s.AcademicProfileId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // ✅ NEW: FK to User.
+            // Restrict (not Cascade) here to avoid the SQL Server "multiple cascade
+            // paths" error — User already cascades to AcademicProfile which cascades
+            // to Subject. Two cascade routes from the same parent table are rejected
+            // by SQL Server. Restrict is safe; user deletion is handled explicitly.
+            entity.HasOne<User>()
+                .WithMany()
+                .HasForeignKey(s => s.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.ToTable("Subjects");
+        });
+
         // ── CourseModule ──────────────────────────────────────────────────
+        // No changes here — FK to Users already existed in the original migration.
         modelBuilder.Entity<CourseModule>(entity =>
         {
             entity.HasKey(m => m.Id);
@@ -77,36 +129,6 @@ public class AppDbContext : DbContext
             entity.ToTable("modules");
         });
 
-        // ── AcademicProfile ───────────────────────────────────────────────
-        modelBuilder.Entity<AcademicProfile>(entity =>
-        {
-            entity.HasKey(a => a.Id);
-            entity.Property(a => a.UserId).IsRequired();
-
-            entity.HasIndex(a => a.UserId).IsUnique();
-
-            entity.Property(a => a.AcademicYear).IsRequired();
-            entity.Property(a => a.Semester).IsRequired();
-            entity.Property(a => a.IsSetupComplete).HasDefaultValue(false);
-
-            entity.ToTable("AcademicProfiles");
-        });
-
-        // ── Subject ───────────────────────────────────────────────────────
-        modelBuilder.Entity<Subject>(entity =>
-        {
-            entity.HasKey(s => s.Id);
-            entity.Property(s => s.UserId).IsRequired();
-
-            entity.Property(s => s.Code).IsRequired().HasMaxLength(20);
-            entity.Property(s => s.Name).IsRequired().HasMaxLength(200);
-            entity.Property(s => s.CreditHours).IsRequired();
-            entity.Property(s => s.Color).HasMaxLength(10);
-            entity.Property(s => s.IsActive).HasDefaultValue(true);
-
-            entity.ToTable("Subjects");
-        });
-
         // ── Group ─────────────────────────────────────────────────────────
         modelBuilder.Entity<Group>(entity =>
         {
@@ -120,8 +142,24 @@ public class AppDbContext : DbContext
 
             entity.HasIndex(g => g.InviteCode).IsUnique();
 
+            // ✅ NEW: Index on CreatedByUserId — used by GetMyGroups() on every
+            // workspaces page load. Without this it's a full table scan.
+            entity.HasIndex(g => g.CreatedByUserId);
+
             entity.Property(g => g.MaxMembers).HasDefaultValue(6);
             entity.Property(g => g.IsActive).HasDefaultValue(true);
+
+            // ✅ NEW: FK to Subject (Restrict — preserve group history if subject removed)
+            entity.HasOne<Subject>()
+                .WithMany()
+                .HasForeignKey(g => g.SubjectId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // ✅ NEW: FK to User as creator (Restrict — can't delete a user who owns groups)
+            entity.HasOne<User>()
+                .WithMany()
+                .HasForeignKey(g => g.CreatedByUserId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             entity.ToTable("Groups");
         });
@@ -137,12 +175,24 @@ public class AppDbContext : DbContext
 
             entity.HasIndex(gm => new { gm.GroupId, gm.UserId }).IsUnique();
 
+            // ✅ NEW: FK to Group (Cascade — remove memberships when a group is deleted)
+            entity.HasOne<Group>()
+                .WithMany()
+                .HasForeignKey(gm => gm.GroupId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // ✅ NEW: FK to User (Restrict — forces explicit membership cleanup before
+            // a user can be deleted. Prevents silent orphaned data.)
+            entity.HasOne<User>()
+                .WithMany()
+                .HasForeignKey(gm => gm.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
             entity.ToTable("GroupMembers");
         });
 
-
         // ── GroupInvitation ───────────────────────────────────────────────
-         modelBuilder.Entity<GroupInvitation>(entity =>
+        modelBuilder.Entity<GroupInvitation>(entity =>
         {
             entity.HasKey(i => i.Id);
 
@@ -156,6 +206,22 @@ public class AppDbContext : DbContext
 
             entity.HasIndex(i => i.Token).IsUnique();
             entity.HasIndex(i => new { i.GroupId, i.InvitedEmail });
+
+            // ✅ NEW: Standalone index on InvitedEmail — used by HasPendingInvitationAsync()
+            // which checks for duplicate invites on every send. This makes it fast.
+            entity.HasIndex(i => i.InvitedEmail);
+
+            // ✅ NEW: FK to Group (Cascade — invitations are cleaned up when group is deleted)
+            entity.HasOne<Group>()
+                .WithMany()
+                .HasForeignKey(i => i.GroupId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // ✅ NEW: FK to User as inviter (Restrict — preserves invitation audit trail)
+            entity.HasOne<User>()
+                .WithMany()
+                .HasForeignKey(i => i.InvitedByUserId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             entity.ToTable("GroupInvitations");
         });
