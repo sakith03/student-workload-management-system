@@ -12,10 +12,20 @@ public class CreateGroupCommandHandler
         CreateGroupCommand cmd, CancellationToken ct = default)
     {
         var group = Group.Create(
-            cmd.SubjectId, cmd.CreatedByUserId,
-            cmd.Name, cmd.Description, cmd.MaxMembers);
+            cmd.SubjectId, 
+            cmd.CreatedByUserId,
+            cmd.Name, 
+            cmd.Description,
+            cmd.MaxMembers);
+        
+        var member = GroupMember.Create(
+            group.Id, 
+            cmd.CreatedByUserId,
+            GroupRole.Owner);
+            
  
         await _repo.AddAsync(group, ct);
+        await _repo.AddMemberAsync(member, ct);
         await _repo.SaveChangesAsync(ct);
  
         // InviteCode is stored in DB — teammate's join feature will use it

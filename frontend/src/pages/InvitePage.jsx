@@ -22,7 +22,7 @@ export default function InvitePage() {
     const [status, setStatus] = useState('loading'); // loading | ready | error | accepting
     const [errorMsg, setErrorMsg] = useState('');
 
-    const isLoggedIn = !!localStorage.getItem('token');
+    const isLoggedIn = !!localStorage.getItem('jwt_token');
 
     useEffect(() => {
         invitationsApi.previewInvitation(token)
