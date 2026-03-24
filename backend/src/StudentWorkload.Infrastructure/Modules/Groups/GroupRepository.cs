@@ -44,4 +44,22 @@ public class GroupRepository : IGroupRepository
  
     public async Task SaveChangesAsync(CancellationToken ct = default)
         => await _context.SaveChangesAsync(ct);
+
+     // ── NEW ────────────────────────────────────────────────────────────────
+    // Gets all active groups where the user appears in the GroupMembers table.
+    // Note: Creators are NOT automatically added to GroupMembers, so this
+    // returns ONLY groups they joined via invitation.
+    public async Task<IEnumerable<Group>> GetByMemberUserIdAsync(Guid userId, CancellationToken ct = default)
+    {
+        // Step 1: Find all GroupIds the user belongs to as a member
+        var memberGroupIds = await _context.GroupMembers
+            .Where(gm => gm.UserId == userId)
+            .Select(gm => gm.GroupId)
+            .ToListAsync(ct);
+
+        // Step 2: Load the actual Group records, filtering inactive groups
+        return await _context.Groups
+            .Where(g => memberGroupIds.Contains(g.Id) && g.IsActive)
+            .ToListAsync(ct);
+    }
 }

@@ -9,7 +9,9 @@ using System.Security.Claims;
 using StudentWorkload.Application.Modules.Groups.Commands.SendInvitation;
 using StudentWorkload.Application.Modules.Groups.Commands.AcceptInvitation;
 using StudentWorkload.Application.Common.Interfaces;
+using StudentWorkload.Domain.Modules.Academic.Repositories;
 using StudentWorkload.Domain.Modules.Groups.Repositories;
+using StudentWorkload.Domain.Modules.Subjects.Repositories;
 using StudentWorkload.Domain.Modules.Users.Repositories;
 using Microsoft.Extensions.Configuration;
 
@@ -20,6 +22,8 @@ public class InvitationsController : ControllerBase
     private readonly IGroupRepository _groupRepo;
     private readonly IGroupInvitationRepository _invitationRepo;
     private readonly IUserRepository _userRepo;
+    private readonly ISubjectRepository _subjectRepo;         // ← NEW
+    private readonly IAcademicProfileRepository _profileRepo; // ← NEW
     private readonly IEmailService _emailService;
     private readonly IConfiguration _config;
 
@@ -27,12 +31,16 @@ public class InvitationsController : ControllerBase
         IGroupRepository groupRepo,
         IGroupInvitationRepository invitationRepo,
         IUserRepository userRepo,
+        ISubjectRepository subjectRepo,                       // ← NEW
+        IAcademicProfileRepository profileRepo,               // ← NEW
         IEmailService emailService,
         IConfiguration config)
     {
         _groupRepo = groupRepo;
         _invitationRepo = invitationRepo;
         _userRepo = userRepo;
+        _subjectRepo = subjectRepo;                           // ← NEW
+        _profileRepo = profileRepo;                           // ← NEW
         _emailService = emailService;
         _config = config;
     }
@@ -41,7 +49,6 @@ public class InvitationsController : ControllerBase
         Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
 
     // ─── POST api/invitations  ───────────────────────────────────────────
-    // Authenticated group member sends invitation to an email
     [HttpPost]
     [Authorize]
     public async Task<IActionResult> SendInvitation([FromBody] SendInvitationRequest request)
@@ -69,8 +76,6 @@ public class InvitationsController : ControllerBase
     }
 
     // ─── GET api/invitations/preview/{token}  ───────────────────────────
-    // Public endpoint — returns invitation info so the frontend can show a
-    // "You've been invited to X" banner without requiring login first.
     [HttpGet("preview/{token}")]
     [AllowAnonymous]
     public async Task<IActionResult> PreviewInvitation(string token)
@@ -85,20 +90,26 @@ public class InvitationsController : ControllerBase
 
         return Ok(new
         {
-            groupId = group.Id,
-            groupName = group.Name,
+            groupId      = group.Id,
+            groupName    = group.Name,
             invitedEmail = invitation.InvitedEmail,
-            expiresAt = invitation.ExpiresAt
+            expiresAt    = invitation.ExpiresAt
         });
     }
 
     // ─── POST api/invitations/accept/{token}  ───────────────────────────
-    // Authenticated endpoint — logged-in user accepts the invitation
     [HttpPost("accept/{token}")]
     [Authorize]
     public async Task<IActionResult> AcceptInvitation(string token)
     {
-        var handler = new AcceptInvitationCommandHandler(_invitationRepo, _groupRepo);
+        // ← NEW: pass subjectRepo and profileRepo so the handler can
+        //   clone the subject for the invited user if needed.
+        var handler = new AcceptInvitationCommandHandler(
+            _invitationRepo,
+            _groupRepo,
+            _subjectRepo,
+            _profileRepo);
+
         var result = await handler.HandleAsync(
             new AcceptInvitationCommand(token, GetUserId()));
 

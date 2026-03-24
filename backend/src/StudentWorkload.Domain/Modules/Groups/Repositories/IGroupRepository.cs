@@ -12,4 +12,5 @@ public interface IGroupRepository
     Task AddMemberAsync(GroupMember member, CancellationToken ct = default);
     Task<IEnumerable<GroupMember>> GetMembersAsync(Guid groupId, CancellationToken ct = default);
     Task SaveChangesAsync(CancellationToken ct = default);
+    Task<IEnumerable<Group>> GetByMemberUserIdAsync(Guid userId, CancellationToken ct = default);
 }
