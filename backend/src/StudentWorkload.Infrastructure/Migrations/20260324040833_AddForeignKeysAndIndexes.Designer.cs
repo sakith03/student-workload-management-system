@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using StudentWorkload.Infrastructure.Data;
 
@@ -11,9 +12,11 @@ using StudentWorkload.Infrastructure.Data;
 namespace StudentWorkload.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260324040833_AddForeignKeysAndIndexes")]
+    partial class AddForeignKeysAndIndexes
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -51,64 +54,6 @@ namespace StudentWorkload.Infrastructure.Migrations
                         .IsUnique();
 
                     b.ToTable("AcademicProfiles", (string)null);
-                });
-
-            modelBuilder.Entity("StudentWorkload.Domain.Modules.Chatbot.Entities.ChatMessage", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("MessageText")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Sender")
-                        .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)");
-
-                    b.Property<DateTime>("SentAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid>("SessionId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("SessionId");
-
-                    b.ToTable("ChatMessages", (string)null);
-                });
-
-            modelBuilder.Entity("StudentWorkload.Domain.Modules.Chatbot.Entities.ChatSession", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid>("GroupId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<bool>("IsActive")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(true);
-
-                    b.Property<string>("ModuleName")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("GroupId");
-
-                    b.ToTable("ChatSessions", (string)null);
                 });
 
             modelBuilder.Entity("StudentWorkload.Domain.Modules.CourseModules.Entities.CourseModule", b =>
@@ -377,20 +322,6 @@ namespace StudentWorkload.Infrastructure.Migrations
                     b.ToTable("Users", (string)null);
                 });
 
-            modelBuilder.Entity("StudentWorkload.Domain.Modules.Chatbot.Entities.ChatMessage", b =>
-                {
-                    b.HasOne("StudentWorkload.Domain.Modules.Chatbot.Entities.ChatSession", null)
-                        .WithMany()
-                        .HasForeignKey("SessionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("StudentWorkload.Domain.Modules.Chatbot.Entities.ChatSession", b =>
-                {
-                    b.HasOne("StudentWorkload.Domain.Modules.Groups.Entities.Group", null)
-                        .WithMany()
-                        .HasForeignKey("GroupId")
             modelBuilder.Entity("StudentWorkload.Domain.Modules.Academic.Entities.AcademicProfile", b =>
                 {
                     b.HasOne("StudentWorkload.Domain.Modules.Users.Entities.User", null)
