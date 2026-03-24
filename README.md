@@ -8,3 +8,6 @@
 
 ## Getting Started
 See /docs for setup instructions.
+
+## Deployed url
+https://frontend-loadmate-h5h2gghtascvcnay.centralindia-01.azurewebsites.net/login
