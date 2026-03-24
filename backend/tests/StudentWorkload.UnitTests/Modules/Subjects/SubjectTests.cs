@@ -35,7 +35,7 @@ public class AddSubjectCommandHandlerTests
         var result = await _handler.HandleAsync(command);
 
         result.IsSuccess.Should().BeTrue();
-        result.SubjectId.Should().NotBeNull();
+        result.SubjectId.Should().NotBeEmpty();
         result.Code.Should().Be("CSP6001");
         result.Name.Should().Be("Cloud Systems Programming");
         result.Color.Should().Be("#3b82f6");

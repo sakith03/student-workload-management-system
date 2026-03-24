@@ -5,10 +5,10 @@ public class Subject
     public Guid Id { get; private set; }
     public Guid UserId { get; private set; }         // Owner (student)
     public Guid AcademicProfileId { get; private set; }
-    public string Code { get; private set; }         // e.g. "CSP6001"
-    public string Name { get; private set; }         // e.g. "Cloud Systems Programming"
+    public string Code { get; private set; } = null!;         // e.g. "CSP6001"
+    public string Name { get; private set; } = null!;         // e.g. "Cloud Systems Programming"
     public int CreditHours { get; private set; }     // e.g. 3
-    public string Color { get; private set; }        // UI display color hex
+    public string Color { get; private set; } = null!;        // UI display color hex
     public DateTime CreatedAt { get; private set; }
     public bool IsActive { get; private set; }
  

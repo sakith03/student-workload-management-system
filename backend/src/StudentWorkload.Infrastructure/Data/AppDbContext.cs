@@ -7,6 +7,7 @@ using StudentWorkload.Domain.Modules.CourseModules.Entities;
 using StudentWorkload.Domain.Modules.Academic.Entities;
 using StudentWorkload.Domain.Modules.Subjects.Entities;
 using StudentWorkload.Domain.Modules.Groups.Entities;
+using StudentWorkload.Domain.Modules.Chatbot.Entities;
 
 public class AppDbContext : DbContext
 {
@@ -19,7 +20,8 @@ public class AppDbContext : DbContext
     public DbSet<Group> Groups { get; set; } = default!;
     public DbSet<GroupMember> GroupMembers { get; set; } = default!;
     public DbSet<GroupInvitation> GroupInvitations { get; set; } = default!;
-
+public DbSet<ChatSession> ChatSessions { get; set; } = default!;
+public DbSet<ChatMessage> ChatMessages { get; set; } = default!;
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -225,5 +227,46 @@ public class AppDbContext : DbContext
 
             entity.ToTable("GroupInvitations");
         });
+
+        modelBuilder.Entity<ChatSession>(entity =>
+{
+    entity.HasKey(s => s.Id);
+    entity.Property(s => s.Id).ValueGeneratedNever();
+ 
+    entity.Property(s => s.GroupId).IsRequired();
+    entity.Property(s => s.UserId).IsRequired();
+    entity.Property(s => s.ModuleName).IsRequired().HasMaxLength(200);
+    entity.Property(s => s.CreatedAt).IsRequired();
+    entity.Property(s => s.IsActive).HasDefaultValue(true);
+ 
+    entity.HasIndex(s => s.GroupId);
+ 
+    entity.HasOne<Group>()
+          .WithMany()
+          .HasForeignKey(s => s.GroupId)
+          .OnDelete(DeleteBehavior.Cascade);
+ 
+    entity.ToTable("ChatSessions");
+});
+ 
+modelBuilder.Entity<ChatMessage>(entity =>
+{
+    entity.HasKey(m => m.Id);
+    entity.Property(m => m.Id).ValueGeneratedNever();
+ 
+    entity.Property(m => m.SessionId).IsRequired();
+    entity.Property(m => m.Sender).IsRequired().HasMaxLength(10);  // "user" or "ai"
+    entity.Property(m => m.MessageText).IsRequired().HasColumnType("TEXT");
+    entity.Property(m => m.SentAt).IsRequired();
+ 
+    entity.HasIndex(m => m.SessionId);
+ 
+    entity.HasOne<ChatSession>()
+          .WithMany()
+          .HasForeignKey(m => m.SessionId)
+          .OnDelete(DeleteBehavior.Cascade);
+ 
+    entity.ToTable("ChatMessages");
+});
     }
 }

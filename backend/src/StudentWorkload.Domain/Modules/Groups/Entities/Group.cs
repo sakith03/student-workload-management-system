@@ -7,9 +7,9 @@ public class Group
     public Guid SubjectId { get; private set; }
     // User who created the group (for permission checks)
     public Guid CreatedByUserId { get; private set; }
-    public string Name { get; private set; }         // e.g. "Team Alpha"
-    public string Description { get; private set; }
-    public string InviteCode { get; private set; }   // Short code to join
+    public string Name { get; private set; } = null!;         // e.g. "Team Alpha"
+    public string Description { get; private set; } = null!;
+    public string InviteCode { get; private set; } = null!;   // Short code to join
     public int MaxMembers { get; private set; }
     public DateTime CreatedAt { get; private set; }
     public bool IsActive { get; private set; }

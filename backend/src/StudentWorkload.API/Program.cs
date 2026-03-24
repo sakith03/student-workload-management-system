@@ -16,6 +16,8 @@ using StudentWorkload.Infrastructure.Modules.Subjects;
 using StudentWorkload.Infrastructure.Modules.Users;
 using StudentWorkload.Infrastructure.Services;
 using System.Text;
+using StudentWorkload.Domain.Modules.Chatbot.Repositories;
+using StudentWorkload.Infrastructure.Modules.Chatbot;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -44,6 +46,9 @@ builder.Services.AddScoped<IGroupRepository, GroupRepository>();
 builder.Services.AddScoped<IGroupInvitationRepository, GroupInvitationRepository>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IJwtService, JwtService>();
+builder.Services.AddScoped<IChatSessionRepository, ChatSessionRepository>();
+builder.Services.AddScoped<IChatMessageRepository, ChatMessageRepository>();
+builder.Services.AddHttpClient();
 
 // ─── JWT Authentication ──────────────────────────
 var jwtSection = builder.Configuration.GetSection("JwtSettings");

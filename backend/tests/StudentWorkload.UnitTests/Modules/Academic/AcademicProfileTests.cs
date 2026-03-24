@@ -35,7 +35,7 @@ public class SetupAcademicProfileCommandHandlerTests
 
         // Assert
         result.IsSuccess.Should().BeTrue();
-        result.ProfileId.Should().NotBeNull();
+        result.ProfileId.Should().NotBeEmpty();
         result.Error.Should().BeNull();
 
         // Verify AddAsync was called once (new profile)
@@ -86,33 +86,34 @@ public class SetupAcademicProfileCommandHandlerTests
     [InlineData(0)]   // below minimum
     [InlineData(7)]   // above maximum
     [InlineData(-1)]  // negative
-    public async Task HandleAsync_InvalidAcademicYear_ThrowsArgumentException(int invalidYear)
+    public async Task HandleAsync_InvalidAcademicYear_ReturnsFailureResult(int invalidYear)
     {
         _repoMock.Setup(r => r.GetByUserIdAsync(_userId, default))
                  .ReturnsAsync((AcademicProfile?)null);
 
         var command = new SetupAcademicProfileCommand(_userId, invalidYear, Semester: 1);
 
-        // Entity factory throws — handler should propagate
-        await FluentActions.Invoking(() => _handler.HandleAsync(command))
-            .Should().ThrowAsync<ArgumentException>()
-            .WithMessage("*academic year*");
+        var result = await _handler.HandleAsync(command);
+
+        result.IsSuccess.Should().BeFalse();
+        result.Error.Should().Contain("year");
     }
 
     [Theory]
     [InlineData(0)]   // below minimum
     [InlineData(3)]   // above maximum
     [InlineData(-1)]  // negative
-    public async Task HandleAsync_InvalidSemester_ThrowsArgumentException(int invalidSemester)
+    public async Task HandleAsync_InvalidSemester_ReturnsFailureResult(int invalidSemester)
     {
         _repoMock.Setup(r => r.GetByUserIdAsync(_userId, default))
                  .ReturnsAsync((AcademicProfile?)null);
 
         var command = new SetupAcademicProfileCommand(_userId, AcademicYear: 1, invalidSemester);
 
-        await FluentActions.Invoking(() => _handler.HandleAsync(command))
-            .Should().ThrowAsync<ArgumentException>()
-            .WithMessage("*emester*");
+        var result = await _handler.HandleAsync(command);
+
+        result.IsSuccess.Should().BeFalse();
+        result.Error.Should().Contain("Semester");
     }
 }
 
