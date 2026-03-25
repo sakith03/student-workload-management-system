@@ -34,8 +34,3 @@ Thumbs.db
 .vscode/settings.json
 .idea/
 *.swp
-
-
-# JMeter results (generated output, not source)
-tests/jmeter/results/
-tests/jmeter/*.jtl

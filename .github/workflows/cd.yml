@@ -1,0 +1,63 @@
+name: CD Pipeline
+
+on:
+  push:
+    branches: [main, develop]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Checkout
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # 2. Setup Docker Buildx
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # 3. Login to Docker Hub
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      # 4. Build & Push Backend
+      - name: Build & Push Backend
+        run: |
+          docker build \
+            -f ./backend/src/StudentWorkload.API/Dockerfile \
+            -t ${{ secrets.DOCKER_USERNAME }}/myapp-backend:latest \
+            -t ${{ secrets.DOCKER_USERNAME }}/myapp-backend:${{ github.sha }} \
+            ./backend
+          docker push ${{ secrets.DOCKER_USERNAME }}/myapp-backend:latest
+          docker push ${{ secrets.DOCKER_USERNAME }}/myapp-backend:${{ github.sha }}
+
+      # 5. Build & Push Frontend
+      - name: Build & Push Frontend
+        run: |
+          docker build \
+            --build-arg VITE_API_URL=${{ secrets.VITE_API_URL }} \
+            -t ${{ secrets.DOCKER_USERNAME }}/myapp-frontend:latest \
+            -t ${{ secrets.DOCKER_USERNAME }}/myapp-frontend:${{ github.sha }} \
+            ./frontend
+          docker push ${{ secrets.DOCKER_USERNAME }}/myapp-frontend:latest
+          docker push ${{ secrets.DOCKER_USERNAME }}/myapp-frontend:${{ github.sha }}
+
+      # 6. Deploy Backend
+      - name: Deploy Backend
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: backend-loadmate
+          publish-profile: ${{ secrets.AZURE_PUBLISH_PROFILE_BACKEND }}
+          images: ${{ secrets.DOCKER_USERNAME }}/myapp-backend:${{ github.sha }}
+
+      # 7. Deploy Frontend
+      - name: Deploy Frontend
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: frontend-loadmate
+          publish-profile: ${{ secrets.AZURE_PUBLISH_PROFILE_FRONTEND }}
+          images: ${{ secrets.DOCKER_USERNAME }}/myapp-frontend:${{ github.sha }}

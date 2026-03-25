@@ -5,11 +5,11 @@ public class CourseModule
     public Guid Id { get; private set; }
     public Guid UserId { get; private set; }
     public Guid? SubjectId { get; private set; }
-    public string Name { get; private set; }
+    public string Name { get; private set; } = null!;
     public string? Description { get; private set; }
-    public string ColorTag { get; private set; }
+    public string ColorTag { get; private set; } = null!;
     public decimal TargetHoursPerWeek { get; private set; }
-    public string Semester { get; private set; }
+    public string Semester { get; private set; } = null!;
     public DateTime CreatedAt { get; private set; }
     public DateTime? UpdatedAt { get; private set; }
 

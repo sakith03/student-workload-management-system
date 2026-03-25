@@ -35,7 +35,7 @@ export default function Login() {
         if (err.response?.status === 404) {
           hasProfile = false;
         } else {
-          // Some other error, default to dashboard
+          // If some other error occurs, default to dashboard but ideally onboarding
           hasProfile = true;
         }
       }
@@ -113,7 +113,7 @@ export default function Login() {
         <div className="auth-right">
           <div className="auth-card login-card">
             <div className="auth-card-header">
-              <h2 className="auth-title">Welcome back, Testing</h2>
+              <h2 className="auth-title">Welcome back!</h2>
               <p className="auth-subtitle">Sign in to continue to LoadMate</p>
             </div>
 

@@ -80,8 +80,8 @@ export default function Dashboard() {
             </svg>
           </div>
           <div className="stat-card-content">
-            <p className="stat-label">Current Sprint</p>
-            <p className="stat-value">Sprint 2</p>
+            <p className="stat-label">Academic Level</p>
+            <p className="stat-value">Y2S2</p>
             <p className="stat-desc">Workspace system</p>
           </div>
           <div className="stat-card-glow" />

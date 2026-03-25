@@ -26,6 +26,7 @@ services:
       EmailSettings__Password: ${EMAIL_PASSWORD}
       EmailSettings__From: ${EMAIL_FROM}
       EmailSettings__EnableSsl: "true"
+      Gemini__ApiKey: ${GEMINI_API_KEY}
 
     ports:
       - "8080:8080"
