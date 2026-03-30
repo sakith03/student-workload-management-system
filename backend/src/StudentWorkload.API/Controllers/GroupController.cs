@@ -1,13 +1,11 @@
-// FILE PATH:
-// backend/src/StudentWorkload.API/Controllers/GroupController.cs
-
 namespace StudentWorkload.API.Controllers;
- 
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using StudentWorkload.Application.Modules.Groups.Commands.CreateGroup;
 using StudentWorkload.Domain.Modules.Groups.Repositories;
+using StudentWorkload.Domain.Modules.Users.Repositories; // ✅ NEW import
  
 [ApiController]
 [Route("api/[controller]")]
@@ -15,12 +13,25 @@ using StudentWorkload.Domain.Modules.Groups.Repositories;
 public class GroupsController : ControllerBase
 {
     private readonly IGroupRepository _groupRepo;
-    public GroupsController(IGroupRepository groupRepo) => _groupRepo = groupRepo;
- 
+    private readonly IUserRepository _userRepo;                           // ✅ NEW
+    private readonly IGroupInvitationRepository _invitationRepo;         // ✅ NEW
+
+    // ✅ CHANGE: constructor now accepts 3 dependencies instead of 1
+    // DI container in Program.cs already registers all three — no Program.cs changes needed
+    public GroupsController(
+        IGroupRepository groupRepo,
+        IUserRepository userRepo,                                          // ✅ NEW
+        IGroupInvitationRepository invitationRepo)                        // ✅ NEW
+    {
+        _groupRepo = groupRepo;
+        _userRepo = userRepo;
+        _invitationRepo = invitationRepo;
+    }
+
     private Guid GetUserId() =>
         Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
- 
-    // ─── POST api/groups ────────────────────────────────────────────────
+
+    // ─── POST api/groups ─────────────────────────────────────── (UNCHANGED)
     [HttpPost]
     public async Task<IActionResult> CreateGroup([FromBody] CreateGroupRequest request)
     {
@@ -28,16 +39,14 @@ public class GroupsController : ControllerBase
         var result = await handler.HandleAsync(new CreateGroupCommand(
             request.SubjectId, GetUserId(),
             request.Name, request.Description, request.MaxMembers));
- 
+
         if (!result.IsSuccess) return BadRequest(new { message = result.Error });
- 
+
         return CreatedAtAction(nameof(GetGroup), new { id = result.GroupId },
             new { groupId = result.GroupId, inviteCode = result.InviteCode });
     }
- 
-    // ─── GET api/groups/{id} ────────────────────────────────────────────
-    // CHANGED: Previously this returned 403 for anyone who wasn't the creator.
-    // Now both the creator AND invited members can view the group detail page.
+
+    // ─── GET api/groups/{id} ─────────────────────────────────── (UNCHANGED)
     [HttpGet("{id}")]
     public async Task<IActionResult> GetGroup(Guid id)
     {
@@ -45,14 +54,12 @@ public class GroupsController : ControllerBase
         if (group is null) return NotFound();
 
         var userId = GetUserId();
-
-        // Allow the creator OR any group member to access
         var isCreator = group.CreatedByUserId == userId;
-        var isMember  = !isCreator && await _groupRepo.IsUserMemberAsync(id, userId);
+        var isMember = !isCreator && await _groupRepo.IsUserMemberAsync(id, userId);
 
         if (!isCreator && !isMember)
             return Forbid();
- 
+
         return Ok(new {
             group.Id,
             group.Name,
@@ -63,8 +70,8 @@ public class GroupsController : ControllerBase
             group.CreatedAt
         });
     }
- 
-    // ─── GET api/groups/subject/{subjectId} ─────────────────────────────
+
+    // ─── GET api/groups/subject/{subjectId} ──────────────────── (UNCHANGED)
     [HttpGet("subject/{subjectId}")]
     public async Task<IActionResult> GetGroupsBySubject(Guid subjectId)
     {
@@ -73,33 +80,126 @@ public class GroupsController : ControllerBase
             g.Id, g.Name, g.Description, g.MaxMembers, g.CreatedAt
         }));
     }
- 
-    // ─── GET api/groups/my ──────────────────────────────────────────────
-    // CHANGED: Previously this only returned groups the user created.
-    // Now it returns groups they created PLUS groups they joined via invitation.
-    // We deduplicate using UnionBy in case of overlap (shouldn't happen, but
-    // defensive programming is good practice).
+
+    // ─── GET api/groups/my ───────────────────────────────────── (UNCHANGED)
     [HttpGet("my")]
     public async Task<IActionResult> GetMyGroups()
     {
         var userId = GetUserId();
-
-        // Groups this user created
         var createdGroups = await _groupRepo.GetByCreatedUserIdAsync(userId);
-
-        // Groups this user joined as a member (via invitation)
         var joinedGroups = await _groupRepo.GetByMemberUserIdAsync(userId);
-
-        // Combine and deduplicate by group ID
-        var allGroups = createdGroups
-            .UnionBy(joinedGroups, g => g.Id)
-            .ToList();
+        var allGroups = createdGroups.UnionBy(joinedGroups, g => g.Id).ToList();
 
         return Ok(allGroups.Select(g => new {
             g.Id, g.Name, g.SubjectId, g.CreatedAt
         }));
     }
+
+    // ─── GET api/groups/{groupId}/members ────────────────────── ✅ NEW
+    // Returns the full list of users currently in the group with their role and join date.
+    // Only accessible by the group creator or an existing member.
+    [HttpGet("{groupId}/members")]
+    public async Task<IActionResult> GetGroupMembers(Guid groupId)
+    {
+        // 1. Verify the group exists
+        var group = await _groupRepo.GetByIdAsync(groupId);
+        if (group is null) return NotFound(new { message = "Group not found." });
+
+        // 2. Verify the requester belongs to this group (security check)
+        var requesterId = GetUserId();
+        var isCreator = group.CreatedByUserId == requesterId;
+        var isMember = !isCreator && await _groupRepo.IsUserMemberAsync(groupId, requesterId);
+
+        if (!isCreator && !isMember)
+            return Forbid();
+
+        // 3. Load the GroupMember join records
+        var members = await _groupRepo.GetMembersAsync(groupId);
+
+        // 4. For each member, enrich with user details from the Users table
+        // We fetch each user individually — fine for small groups (max 10 members)
+        var result = new List<object>();
+        foreach (var member in members)
+        {
+            var user = await _userRepo.GetByIdAsync(member.UserId);
+            if (user is null) continue; // defensive: skip orphaned member records
+
+            result.Add(new
+            {
+                userId       = user.Id,
+                firstName    = user.FirstName,
+                lastName     = user.LastName,
+                email        = user.Email.Value,  // Email is a Value Object — use .Value
+                role         = user.Role.ToString(),
+                groupRole    = member.Role.ToString(),  // "Owner" or "Member"
+                joinedAt     = member.JoinedAt,
+                isOwner      = member.IsOwner
+            });
+        }
+
+        // 5. Sort: Owner first, then Members alphabetically by last name
+        var sorted = result
+            .OrderBy(m => ((dynamic)m).isOwner ? 0 : 1)
+            .ThenBy(m => ((dynamic)m).lastName)
+            .ToList();
+
+        return Ok(new
+        {
+            groupId      = group.Id,
+            groupName    = group.Name,
+            totalMembers = sorted.Count,
+            maxMembers   = group.MaxMembers,
+            members      = sorted
+        });
+    }
+
+    // ─── GET api/groups/{groupId}/pending-invitations ────────── ✅ NEW
+    // Returns all invitations sent for this group that haven't been accepted yet.
+    // Only the group owner (creator) can see pending invitations — members cannot.
+    [HttpGet("{groupId}/pending-invitations")]
+    public async Task<IActionResult> GetPendingInvitations(Guid groupId)
+    {
+        // 1. Verify group exists
+        var group = await _groupRepo.GetByIdAsync(groupId);
+        if (group is null) return NotFound(new { message = "Group not found." });
+
+        // 2. Only the group creator can see who has been invited but not yet joined
+        // This prevents members from knowing who else was invited
+        var requesterId = GetUserId();
+        if (group.CreatedByUserId != requesterId)
+            return Forbid();
+
+        // 3. Fetch pending invitations
+        var pendingInvitations = await _invitationRepo.GetPendingByGroupIdAsync(groupId);
+
+        // 4. Try to enrich with the inviter's name (who sent each invite)
+        var result = new List<object>();
+        foreach (var invite in pendingInvitations)
+        {
+            var invitedBy = await _userRepo.GetByIdAsync(invite.InvitedByUserId);
+
+            result.Add(new
+            {
+                invitationId  = invite.Id,
+                invitedEmail  = invite.InvitedEmail,
+                invitedByName = invitedBy is not null
+                                    ? $"{invitedBy.FirstName} {invitedBy.LastName}"
+                                    : "Unknown",
+                sentAt        = invite.CreatedAt,
+                expiresAt     = invite.ExpiresAt,
+                daysUntilExpiry = (int)Math.Max(0, (invite.ExpiresAt - DateTime.UtcNow).TotalDays)
+            });
+        }
+
+        return Ok(new
+        {
+            groupId            = group.Id,
+            groupName          = group.Name,
+            pendingCount       = result.Count,
+            pendingInvitations = result
+        });
+    }
 }
- 
+
 public record CreateGroupRequest(
     Guid SubjectId, string Name, string Description, int MaxMembers = 6);

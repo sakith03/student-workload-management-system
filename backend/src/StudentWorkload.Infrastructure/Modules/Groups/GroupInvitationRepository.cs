@@ -30,4 +30,16 @@ public class GroupInvitationRepository : IGroupInvitationRepository
 
     public async Task SaveChangesAsync(CancellationToken ct = default)
         => await _context.SaveChangesAsync(ct);
+
+    // fetches all invitations for a group that are still pending and not expired
+    public async Task<IEnumerable<GroupInvitation>> GetPendingByGroupIdAsync(
+        Guid groupId,
+        CancellationToken ct = default)
+        => await _context.GroupInvitations
+            .Where(i =>
+                i.GroupId == groupId &&
+                i.Status == InvitationStatus.Pending &&
+                i.ExpiresAt > DateTime.UtcNow)
+            .OrderByDescending(i => i.CreatedAt) // most recent invite first
+            .ToListAsync(ct);
 }
