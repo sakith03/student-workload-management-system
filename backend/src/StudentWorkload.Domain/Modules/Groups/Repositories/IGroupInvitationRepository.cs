@@ -11,4 +11,6 @@ public interface IGroupInvitationRepository
     Task<bool> HasPendingInvitationAsync(Guid groupId, string email, CancellationToken ct = default);
     Task AddAsync(GroupInvitation invitation, CancellationToken ct = default);
     Task SaveChangesAsync(CancellationToken ct = default);
+    Task<IEnumerable<GroupInvitation>> GetPendingByGroupIdAsync(Guid groupId, CancellationToken ct = default);
+
 }
