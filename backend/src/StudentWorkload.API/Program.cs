@@ -44,6 +44,7 @@ builder.Services.AddScoped<IAcademicProfileRepository, AcademicProfileRepository
 builder.Services.AddScoped<ISubjectRepository, SubjectRepository>();
 builder.Services.AddScoped<IGroupRepository, GroupRepository>();
 builder.Services.AddScoped<IGroupInvitationRepository, GroupInvitationRepository>();
+builder.Services.AddScoped<IGroupChatMessageRepository, GroupChatMessageRepository>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<IChatSessionRepository, ChatSessionRepository>();
