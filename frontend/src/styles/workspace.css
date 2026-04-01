@@ -33,6 +33,100 @@
 .ws-detail-desc { font-size: 0.9rem; color: #64748b; margin: 6px 0 12px; }
 .ws-detail-meta { display: flex; gap: 10px; flex-wrap: wrap; }
 .ws-meta-pill { display: inline-flex; align-items: center; padding: 4px 12px; background: #f1f5f9; border-radius: 100px; font-size: 0.775rem; color: #475569; font-weight: 500; }
+/* Right dock: team chat + FAB offset (see WorkspaceDetail layoutRightInset) */
+.ws-workspace-with-dock {
+  box-sizing: border-box;
+}
+
+.ws-chat-dock {
+  position: fixed;
+  top: var(--nav-height, 68px);
+  right: 0;
+  bottom: 0;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  background: #f8fafc;
+  border-left: 1px solid #e2e8f0;
+  box-shadow: -6px 0 32px rgba(15, 23, 42, 0.07);
+  transition: width 0.3s ease;
+  overflow: hidden;
+  max-width: min(420px, calc(100vw - 48px));
+}
+
+.ws-chat-dock--collapsed {
+  max-width: 56px;
+}
+
+.ws-chat-dock-inner {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.ws-chat-dock-toggle {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 3;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid #e2e8f0;
+  background: #fff;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.12);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #475569;
+  font-size: 1.1rem;
+  font-weight: 700;
+  line-height: 1;
+  padding: 0;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.ws-chat-dock-toggle:hover {
+  background: #eff6ff;
+  color: #2563eb;
+}
+
+.ws-chat-dock-toggle-icon {
+  display: block;
+  margin-top: -1px;
+}
+
+.ws-chat-dock-collapsed {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 4px;
+  pointer-events: none;
+}
+
+.ws-chat-dock-collapsed-emoji {
+  font-size: 1.35rem;
+  opacity: 0.9;
+}
+
+.ws-chat-dock-collapsed-text {
+  font-family: 'Sora', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #64748b;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
 .ws-coming-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 18px; margin-top: 8px; }
 .ws-coming-card { background: #fafbff; border-radius: 16px; border: 1px dashed #e2e8f0; padding: 28px 22px; display: flex; flex-direction: column; align-items: center; text-align: center; }
 .ws-coming-icon { font-size: 2rem; margin-bottom: 12px; }
