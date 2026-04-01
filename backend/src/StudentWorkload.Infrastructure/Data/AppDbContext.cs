@@ -20,8 +20,9 @@ public class AppDbContext : DbContext
     public DbSet<Group> Groups { get; set; } = default!;
     public DbSet<GroupMember> GroupMembers { get; set; } = default!;
     public DbSet<GroupInvitation> GroupInvitations { get; set; } = default!;
-public DbSet<ChatSession> ChatSessions { get; set; } = default!;
-public DbSet<ChatMessage> ChatMessages { get; set; } = default!;
+    public DbSet<ChatMessage> ChatMessages { get; set; } = default!;
+    public DbSet<ChatSession> ChatSessions { get; set; } = default!;
+    public DbSet<GroupChatMessage> GroupChatMessages { get; set; } = default!;
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -268,5 +269,27 @@ modelBuilder.Entity<ChatMessage>(entity =>
  
     entity.ToTable("ChatMessages");
 });
+
+        // ── GroupChatMessage ──────────────────────────────────────────────
+        modelBuilder.Entity<GroupChatMessage>(entity =>
+        {
+            entity.HasKey(m => m.Id);
+            entity.Property(m => m.Id).ValueGeneratedNever();
+
+            entity.Property(m => m.GroupId).IsRequired();
+            entity.Property(m => m.SenderUserId).IsRequired();
+            entity.Property(m => m.SenderName).IsRequired().HasMaxLength(200);
+            entity.Property(m => m.MessageText).IsRequired().HasColumnType("NVARCHAR(MAX)");
+            entity.Property(m => m.SentAt).IsRequired();
+
+            entity.HasIndex(m => new { m.GroupId, m.SentAt });
+
+            entity.HasOne<Group>()
+                  .WithMany()
+                  .HasForeignKey(m => m.GroupId)
+                  .OnDelete(DeleteBehavior.Cascade);
+
+            entity.ToTable("GroupChatMessages");
+        });
     }
 }

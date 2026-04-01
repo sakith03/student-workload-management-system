@@ -32,8 +32,9 @@ function Bubble({ sender, text, time }) {
 // ── Props ─────────────────────────────────────────────────────────────────────
 // workspaceGroupId  : passed from WorkspaceDetail when on a workspace page
 // workspaceModuleName: the subject name e.g. "Operating Systems"
-// Both are optional — on non-workspace pages the chatbot shows a friendly default
-export default function FloatingChatbot({ workspaceGroupId, workspaceModuleName }) {
+// layoutRightInset — distance from viewport right to the FAB/window (px). Use on workspace
+// pages when a right dock (e.g. team chat) is open so the FAB sits left of that panel.
+export default function FloatingChatbot({ workspaceGroupId, workspaceModuleName, layoutRightInset }) {
   const location = useLocation();
   const [open, setOpen] = useState(false);
   const [sessionId, setSessionId] = useState(null);
@@ -52,6 +53,19 @@ export default function FloatingChatbot({ workspaceGroupId, workspaceModuleName 
   const workspaceMatch = location.pathname.match(/^\/workspace\/([^/]+)/);
   const groupId = workspaceGroupId || (workspaceMatch ? workspaceMatch[1] : null);
   const isWorkspace = Boolean(groupId);
+
+  const [viewportW, setViewportW] = useState(() =>
+    typeof window !== 'undefined' ? window.innerWidth : 1200
+  );
+  useEffect(() => {
+    const onResize = () => setViewportW(window.innerWidth);
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
+
+  const rawRight = layoutRightInset ?? 28;
+  const rightPx = Math.min(rawRight, Math.max(28, viewportW - 72));
+  const windowWidthPx = Math.min(360, Math.max(260, viewportW - rightPx - 16));
 
   // Reset session when navigating to a different workspace
   useEffect(() => {
@@ -151,6 +165,8 @@ export default function FloatingChatbot({ workspaceGroupId, workspaceModuleName 
       {/* Floating button */}
       <button onClick={() => setOpen(p => !p)} title="AI Assistant" style={{
         ...styles.fab,
+        right: rightPx,
+        transition: 'right 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease',
         animation: pulse && !open ? 'chatbot-pulse 2s infinite' : 'none',
         background: open
           ? 'linear-gradient(135deg, #1a2f4e 0%, #0f1e33 100%)'
@@ -174,7 +190,12 @@ export default function FloatingChatbot({ workspaceGroupId, workspaceModuleName 
 
       {/* Chat window */}
       {open && (
-        <div style={styles.window}>
+        <div style={{
+          ...styles.window,
+          right: rightPx,
+          width: windowWidthPx,
+          transition: 'right 0.3s ease, width 0.3s ease',
+        }}>
           {/* Header */}
           <div style={styles.header}>
             <div style={styles.headerLeft}>
@@ -259,9 +280,9 @@ export default function FloatingChatbot({ workspaceGroupId, workspaceModuleName 
 }
 
 const styles = {
-  fab: { position:'fixed', bottom:28, right:28, width:54, height:54, borderRadius:'50%', border:'none', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', zIndex:9999, boxShadow:'0 8px 32px rgba(46,134,171,0.4)', transition:'transform 0.2s ease, box-shadow 0.2s ease' },
+  fab: { position:'fixed', bottom:28, width:54, height:54, borderRadius:'50%', border:'none', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', zIndex:9999, boxShadow:'0 8px 32px rgba(46,134,171,0.4)' },
   fabBadge: { position:'absolute', top:-3, right:-3, background:'#f59e0b', color:'#fff', fontSize:9, fontWeight:700, borderRadius:6, padding:'1px 4px', fontFamily:'DM Sans, sans-serif', letterSpacing:'0.05em' },
-  window: { position:'fixed', bottom:92, right:28, width:360, height:520, background:'#0f1e33', borderRadius:16, boxShadow:'0 24px 64px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.06)', display:'flex', flexDirection:'column', overflow:'hidden', zIndex:9998, animation:'chatbot-fadein 0.25s ease', fontFamily:'DM Sans, sans-serif' },
+  window: { position:'fixed', bottom:92, width:360, height:520, maxHeight:'calc(100vh - 120px)', background:'#0f1e33', borderRadius:16, boxShadow:'0 24px 64px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.06)', display:'flex', flexDirection:'column', overflow:'hidden', zIndex:9998, animation:'chatbot-fadein 0.25s ease', fontFamily:'DM Sans, sans-serif' },
   header: { background:'linear-gradient(135deg, #1a3a5c 0%, #0f2240 100%)', padding:'14px 16px', display:'flex', alignItems:'center', justifyContent:'space-between', borderBottom:'1px solid rgba(255,255,255,0.06)' },
   headerLeft: { display:'flex', alignItems:'center', gap:10 },
   headerIcon: { width:34, height:34, borderRadius:10, background:'linear-gradient(135deg, #2E86AB, #1a5c7a)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:14, color:'#7dd3fc', boxShadow:'0 2px 8px rgba(46,134,171,0.4)' },
