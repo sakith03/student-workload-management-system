@@ -9,6 +9,8 @@ public class CourseModuleDto
     public decimal TargetHoursPerWeek { get; set; }
     public string Semester { get; set; } = string.Empty;
     public Guid? SubjectId { get; set; }
+    public List<string>? StepByStepGuidance { get; set; }  // NEW — deserialized from JSON
+    public string? SubmissionGuidelines { get; set; }       // NEW
     public DateTime CreatedAt { get; set; }
     public DateTime? UpdatedAt { get; set; }
 }
