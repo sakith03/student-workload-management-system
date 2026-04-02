@@ -121,6 +121,15 @@ public class AppDbContext : DbContext
             entity.Property(m => m.Semester).IsRequired().HasMaxLength(20);
             entity.Property(m => m.SubjectId).IsRequired(false);
 
+            // ── NEW: AI extraction fields ──
+            entity.Property(m => m.StepByStepGuidance)
+                .HasColumnType("NVARCHAR(MAX)")
+                .IsRequired(false);
+
+            entity.Property(m => m.SubmissionGuidelines)
+                .HasMaxLength(2000)
+                .IsRequired(false);
+
             entity.HasIndex(m => m.UserId);
             entity.HasIndex(m => m.SubjectId);
 
