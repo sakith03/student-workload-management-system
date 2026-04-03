@@ -49,4 +49,25 @@ public class Group
         return new string(Enumerable.Range(0, 6)
             .Select(_ => chars[rng.Next(chars.Length)]).ToArray());
     }
+
+    public void UpdateDetails(string name, string description, int maxMembers)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+            throw new ArgumentException("Group name is required.");
+        if (maxMembers < 2 || maxMembers > 10)
+            throw new ArgumentException("Max members must be between 2 and 10.");
+
+        Name = name.Trim();
+        Description = description?.Trim() ?? string.Empty;
+        MaxMembers = maxMembers;
+    }
+
+    public void ChangeSubject(Guid subjectId)
+    {
+        if (subjectId == Guid.Empty)
+            throw new ArgumentException("SubjectId must be provided.", nameof(subjectId));
+        SubjectId = subjectId;
+    }
+
+    public void Deactivate() => IsActive = false;
 }

@@ -3,6 +3,8 @@ import api from './axiosConfig';
 export const groupsApi = {
   createGroup: (data) => api.post('/groups', data),
   getGroup: (id) => api.get(`/groups/${id}`),
+  updateGroup: (id, data) => api.put(`/groups/${id}`, data),
+  deleteGroup: (id) => api.delete(`/groups/${id}`),
   getGroupsBySubject: (subjectId) => api.get(`/groups/subject/${subjectId}`),
   getMyGroups: () => api.get('/groups/my'),
 
