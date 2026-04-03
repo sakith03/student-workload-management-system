@@ -51,7 +51,7 @@ public class GroupsController : ControllerBase
     public async Task<IActionResult> GetGroup(Guid id)
     {
         var group = await _groupRepo.GetByIdAsync(id);
-        if (group is null) return NotFound();
+        if (group is null || !group.IsActive) return NotFound();
 
         var userId = GetUserId();
         var isCreator = group.CreatedByUserId == userId;
@@ -67,7 +67,8 @@ public class GroupsController : ControllerBase
             group.SubjectId,
             group.MaxMembers,
             group.InviteCode,
-            group.CreatedAt
+            group.CreatedAt,
+            group.CreatedByUserId
         });
     }
 
@@ -91,8 +92,71 @@ public class GroupsController : ControllerBase
         var allGroups = createdGroups.UnionBy(joinedGroups, g => g.Id).ToList();
 
         return Ok(allGroups.Select(g => new {
-            g.Id, g.Name, g.SubjectId, g.CreatedAt
+            g.Id, g.Name, g.SubjectId, g.CreatedAt,
+            isCreator = g.CreatedByUserId == userId
         }));
+    }
+
+    [HttpPut("{id}")]
+    public async Task<IActionResult> UpdateGroup(Guid id, [FromBody] UpdateGroupRequest request)
+    {
+        var group = await _groupRepo.GetByIdAsync(id);
+        if (group is null || !group.IsActive)
+            return NotFound(new { message = "Workspace not found." });
+
+        var userId = GetUserId();
+        if (group.CreatedByUserId != userId)
+            return Forbid();
+
+        if (request.SubjectId != group.SubjectId)
+        {
+            var myGroups = await _groupRepo.GetByCreatedUserIdAsync(userId);
+            if (myGroups.Any(g => g.Id != id && g.SubjectId == request.SubjectId))
+                return BadRequest(new { message = "You already have a workspace for that subject." });
+        }
+
+        var memberCount = (await _groupRepo.GetMembersAsync(id)).Count();
+        if (request.MaxMembers < memberCount)
+            return BadRequest(new { message = $"Max members cannot be less than the current team size ({memberCount})." });
+
+        try
+        {
+            group.UpdateDetails(request.Name, request.Description, request.MaxMembers);
+            if (request.SubjectId != group.SubjectId)
+                group.ChangeSubject(request.SubjectId);
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+
+        await _groupRepo.SaveChangesAsync();
+
+        return Ok(new {
+            group.Id,
+            group.Name,
+            group.Description,
+            group.SubjectId,
+            group.MaxMembers,
+            group.InviteCode,
+            group.CreatedAt,
+            group.CreatedByUserId
+        });
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteGroup(Guid id)
+    {
+        var group = await _groupRepo.GetByIdAsync(id);
+        if (group is null || !group.IsActive)
+            return NotFound(new { message = "Workspace not found." });
+
+        if (group.CreatedByUserId != GetUserId())
+            return Forbid();
+
+        group.Deactivate();
+        await _groupRepo.SaveChangesAsync();
+        return NoContent();
     }
 
     // ─── GET api/groups/{groupId}/members ────────────────────── ✅ NEW
@@ -203,3 +267,6 @@ public class GroupsController : ControllerBase
 
 public record CreateGroupRequest(
     Guid SubjectId, string Name, string Description, int MaxMembers = 6);
+
+public record UpdateGroupRequest(
+    string Name, string Description, int MaxMembers, Guid SubjectId);

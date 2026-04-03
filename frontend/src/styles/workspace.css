@@ -22,6 +22,65 @@
 .ws-card { background: #fff; border-radius: 16px; border: 1px solid #e8eef6; padding: 22px; cursor: pointer; transition: all 0.2s ease; border-left: 4px solid var(--ws-color); }
 .ws-card:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(26,58,110,0.1); }
 .ws-card-top { margin-bottom: 12px; }
+.ws-card-top--with-actions {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+.ws-card-actions--minimal {
+  display: inline-flex;
+  align-items: center;
+  gap: 0;
+  flex-shrink: 0;
+  margin: -2px 0 0;
+}
+.ws-card-mini-btn {
+  background: none;
+  border: none;
+  padding: 2px 4px;
+  margin: 0;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #b4bcc6;
+  cursor: pointer;
+  transition: color 0.15s ease, opacity 0.15s ease;
+  opacity: 0.85;
+}
+.ws-card-mini-btn:hover {
+  color: #7c8796;
+  opacity: 1;
+}
+.ws-card-mini-btn:focus-visible {
+  outline: 1px solid #cbd5e1;
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+.ws-card-mini-btn--delete {
+  color: #b8b2b2;
+}
+.ws-card-mini-btn--delete:hover {
+  color: #9a8f8f;
+}
+.ws-card-mini-sep {
+  color: #d1d5db;
+  font-size: 0.65rem;
+  user-select: none;
+  padding: 0 1px;
+}
+.ws-card:hover .ws-card-mini-btn {
+  color: #94a3b8;
+  opacity: 1;
+}
+.ws-card:hover .ws-card-mini-btn--delete {
+  color: #a8a29e;
+}
+.ws-card:hover .ws-card-mini-btn--delete:hover {
+  color: #8b8181;
+}
 .ws-card-code { font-family: 'Courier New', monospace; font-size: 0.75rem; font-weight: 700; color: var(--ws-color); background: color-mix(in srgb, var(--ws-color) 12%, transparent); padding: 3px 9px; border-radius: 6px; }
 .ws-card-name { font-family: 'Sora', sans-serif; font-size: 1.05rem; font-weight: 700; color: #0f172a; margin: 0 0 6px; }
 .ws-card-subject { font-size: 0.8rem; color: #64748b; margin: 0 0 16px; }
@@ -134,3 +193,103 @@
 .ws-coming-desc { font-size: 0.825rem; color: #94a3b8; margin: 0; line-height: 1.6; }
 @media (max-width: 768px) { .ws-root { padding: 24px 16px; } .ws-coming-grid { grid-template-columns: 1fr 1fr; } }
 @media (max-width: 480px) { .ws-coming-grid { grid-template-columns: 1fr; } }
+
+.ws-btn--sm {
+  padding: 6px 12px;
+  font-size: 0.8rem;
+  box-shadow: none;
+}
+.ws-btn--ghost {
+  background: #fff;
+  color: #2563eb;
+  border: 1.5px solid #bfdbfe;
+  box-shadow: none;
+}
+.ws-btn--ghost:hover {
+  background: #eff6ff;
+}
+.ws-btn.ws-btn--ghost-danger {
+  background: #fff;
+  color: #dc2626;
+  border: 1.5px solid #f87171;
+  box-shadow: none;
+}
+.ws-btn.ws-btn--ghost-danger:hover {
+  background: #fef2f2;
+  color: #b91c1c;
+  border-color: #ef4444;
+}
+.ws-btn--danger {
+  background: linear-gradient(135deg, #991b1b, #dc2626);
+  box-shadow: 0 4px 16px rgba(220, 38, 38, 0.25);
+}
+.ws-btn--danger-confirm {
+  animation: ws-pulse 0.6s ease;
+}
+@keyframes ws-pulse {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-1px); }
+}
+.ws-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  background: rgba(15, 23, 42, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  box-sizing: border-box;
+}
+.ws-modal {
+  width: 100%;
+  max-width: 480px;
+  max-height: min(90vh, 720px);
+  overflow: auto;
+  margin: 0;
+}
+.ws-modal-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.ws-modal-close {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  line-height: 1;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 0 4px;
+}
+.ws-modal-close:hover { color: #0f172a; }
+.ws-modal-actions { margin-top: 4px; }
+.ws-danger-zone {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid #fecaca;
+}
+.ws-danger-label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #991b1b;
+  margin: 0 0 6px;
+}
+.ws-danger-hint {
+  font-size: 0.78rem;
+  color: #94a3b8;
+  margin: 0 0 12px;
+  line-height: 1.5;
+}
+.ws-btn-text {
+  margin-left: 10px;
+  background: none;
+  border: none;
+  color: #64748b;
+  font-size: 0.85rem;
+  cursor: pointer;
+  text-decoration: underline;
+}
+.ws-btn-text:hover { color: #0f172a; }
