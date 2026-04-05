@@ -60,4 +60,21 @@ jobs:
         with:
           app-name: frontend-loadmate
           publish-profile: ${{ secrets.AZURE_PUBLISH_PROFILE_FRONTEND }}
-          images: ${{ secrets.DOCKER_USERNAME }}/myapp-frontend:${{ github.sha }}
+          images: ${{ secrets.DOCKER_USERNAME }}/myapp-frontend:${{ github.sha }} 
+
+          # 8. Print Deployment Report 
+      - name: Print Deployment Report
+        if: always() # Run this step regardless of previous step's success or failure
+        run: |
+          echo "## LoadMate Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "**Triggered by:** ${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "${{ job.status }}" == "success" ]; then
+            echo "### Status: SUCCESS" >> $GITHUB_STEP_SUMMARY
+            echo "Backend successfully deployed to: **backend-loadmate**" >> $GITHUB_STEP_SUMMARY
+            echo "Frontend successfully deployed to: **frontend-loadmate**" >> $GITHUB_STEP_SUMMARY
+            echo "Docker Tag used: \`${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "### Status: FAILED" >> $GITHUB_STEP_SUMMARY
+            echo "Deployment failed. Please check the GitHub Actions logs to fix the issue." >> $GITHUB_STEP_SUMMARY
+          fi
