@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { groupsApi } from '../../api/groupsApi';
 import { academicApi } from '../../api/academicApi';
 import MainLayout from '../../components/MainLayout';
+import WorkspaceSettingsModal from '../../components/WorkspaceSettingsModal';
 import '../../styles/workspace.css';
 
 export default function WorkspaceList() {
@@ -10,6 +11,7 @@ export default function WorkspaceList() {
   const [subjects, setSubjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showCreate, setShowCreate] = useState(false);
+  const [settingsGroupId, setSettingsGroupId] = useState(null);
   const [params] = useSearchParams();
   const moduleParam = params.get('module');
 
@@ -21,6 +23,22 @@ export default function WorkspaceList() {
   });
   const [error, setError] = useState('');
   const navigate = useNavigate();
+
+  const refreshGroups = () =>
+    groupsApi.getMyGroups().then((res) => setGroups(res.data));
+
+  const handleDeleteWorkspace = async (e, id) => {
+    e.stopPropagation();
+    if (!window.confirm('Delete this workspace? It will be removed for all members and related data will be deleted.')) {
+      return;
+    }
+    try {
+      await groupsApi.deleteGroup(id);
+      await refreshGroups();
+    } catch (err) {
+      window.alert(err.response?.data?.message || 'Failed to delete workspace.');
+    }
+  };
 
   useEffect(() => {
     Promise.all([groupsApi.getMyGroups(), academicApi.getSubjects()])
@@ -120,11 +138,41 @@ export default function WorkspaceList() {
           {groups.map(g => {
             const sub = subjects.find(s => s.id === g.subjectId);
             return (
-              <div key={g.id} className="ws-card"
+              <div
+                key={g.id}
+                className="ws-card"
                 style={{ '--ws-color': sub?.color || '#3b82f6' }}
-                onClick={() => navigate(`/workspace/${g.id}`)}>
-                <div className="ws-card-top">
+                onClick={() => navigate(`/workspace/${g.id}`)}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') navigate(`/workspace/${g.id}`);
+                }}
+              >
+                <div className="ws-card-top ws-card-top--with-actions">
                   <span className="ws-card-code">{sub?.code || 'Subject'}</span>
+                  {g.isCreator && (
+                    <div className="ws-card-actions ws-card-actions--minimal" onClick={(e) => e.stopPropagation()}>
+                      <button
+                        type="button"
+                        className="ws-card-mini-btn"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSettingsGroupId(g.id);
+                        }}
+                      >
+                        Edit
+                      </button>
+                      <span className="ws-card-mini-sep" aria-hidden>·</span>
+                      <button
+                        type="button"
+                        className="ws-card-mini-btn ws-card-mini-btn--delete"
+                        onClick={(e) => handleDeleteWorkspace(e, g.id)}
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  )}
                 </div>
                 <h3 className="ws-card-name">{g.name}</h3>
                 <p className="ws-card-subject">{sub?.name}</p>
@@ -135,6 +183,15 @@ export default function WorkspaceList() {
             );
           })}
         </div>
+      )}
+
+      {settingsGroupId && (
+        <WorkspaceSettingsModal
+          groupId={settingsGroupId}
+          onClose={() => setSettingsGroupId(null)}
+          onSaved={refreshGroups}
+          onDeleted={refreshGroups}
+        />
       )}
     </MainLayout>
   );

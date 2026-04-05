@@ -1,6 +1,6 @@
 // FILE: frontend/src/pages/workspace/WorkspaceDetail.jsx
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { groupsApi } from '../../api/groupsApi';
 import { academicApi } from '../../api/academicApi';
@@ -8,6 +8,8 @@ import InviteModal from '../../components/InviteModal';
 import MainLayout from '../../components/MainLayout';
 import FloatingChatbot from '../../components/FloatingChatbot';
 import GroupChat from '../../components/GroupChat';
+import WorkspaceSettingsModal from '../../components/WorkspaceSettingsModal';
+import { useAuth } from '../../context/AuthContext';
 import '../../styles/workspace.css';
 
 const TEAM_CHAT_COLLAPSED_PX = 56;
@@ -15,10 +17,12 @@ const FAB_GAP_PX = 16;
 
 export default function WorkspaceDetail() {
   const { groupId } = useParams();
+  const { user } = useAuth();
   const [group, setGroup] = useState(null);
   const [subjectName, setSubjectName] = useState('');
   const [loading, setLoading] = useState(true);
   const [showInvite, setShowInvite] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
   const [teamChatCollapsed, setTeamChatCollapsed] = useState(false);
   const [windowWidth, setWindowWidth] = useState(
     typeof window !== 'undefined' ? window.innerWidth : 1200
@@ -31,26 +35,45 @@ export default function WorkspaceDetail() {
     return () => window.removeEventListener('resize', onResize);
   }, []);
 
-  useEffect(() => {
-    const load = async () => {
-      try {
-        const [groupRes, subjectsRes] = await Promise.all([
-          groupsApi.getGroup(groupId),
-          academicApi.getSubjects(),
-        ]);
-        const g = groupRes.data;
-        setGroup(g);
+  const loadWorkspace = async () => {
+    const [groupRes, subjectsRes] = await Promise.all([
+      groupsApi.getGroup(groupId),
+      academicApi.getSubjects(),
+    ]);
+    const g = groupRes.data;
+    setGroup(g);
+    const matched = subjectsRes.data.find(s => s.id === g.subjectId);
+    setSubjectName(matched?.name || matched?.code || 'General');
+  };
 
-        const matched = subjectsRes.data.find(s => s.id === g.subjectId);
-        setSubjectName(matched?.name || matched?.code || 'General');
+  useEffect(() => {
+    (async () => {
+      try {
+        await loadWorkspace();
       } catch {
         navigate('/workspaces');
       } finally {
         setLoading(false);
       }
-    };
-    load();
+    })();
   }, [groupId, navigate]);
+
+  const isCreator = useMemo(() => {
+    if (!user?.id || !group?.createdByUserId) return false;
+    return String(user.id).toLowerCase() === String(group.createdByUserId).toLowerCase();
+  }, [user?.id, group?.createdByUserId]);
+
+  const handleDeleteFromDetail = async () => {
+    if (!window.confirm('Delete this workspace? It will be removed for all members and related data will be deleted.')) {
+      return;
+    }
+    try {
+      await groupsApi.deleteGroup(groupId);
+      navigate('/workspaces');
+    } catch (err) {
+      window.alert(err.response?.data?.message || 'Failed to delete workspace.');
+    }
+  };
 
   const expandedChatPanelWidth = Math.min(420, Math.max(280, windowWidth - 64));
   const chatPanelWidth = teamChatCollapsed ? TEAM_CHAT_COLLAPSED_PX : expandedChatPanelWidth;
@@ -79,6 +102,27 @@ export default function WorkspaceDetail() {
             <span className="ws-meta-pill">Created {new Date(group.createdAt).toLocaleDateString()}</span>
             {subjectName && <span className="ws-meta-pill">📚 {subjectName}</span>}
 
+            {isCreator && (
+              <>
+                <button
+                  type="button"
+                  className="ws-btn ws-btn--ghost"
+                  style={{ padding: '9px 16px', boxShadow: 'none' }}
+                  onClick={() => setShowSettings(true)}
+                >
+                  Edit details
+                </button>
+                <button
+                  type="button"
+                  className="ws-btn ws-btn--ghost-danger"
+                  style={{ padding: '9px 16px' }}
+                  onClick={handleDeleteFromDetail}
+                >
+                  Delete workspace
+                </button>
+              </>
+            )}
+
             <button
               className="ws-btn"
               style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 8, padding: '9px 18px' }}
@@ -96,6 +140,21 @@ export default function WorkspaceDetail() {
 
         {showInvite && (
           <InviteModal groupId={groupId} onClose={() => setShowInvite(false)} />
+        )}
+
+        {showSettings && (
+          <WorkspaceSettingsModal
+            groupId={groupId}
+            onClose={() => setShowSettings(false)}
+            onSaved={async () => {
+              try {
+                await loadWorkspace();
+              } catch {
+                navigate('/workspaces');
+              }
+            }}
+            onDeleted={() => navigate('/workspaces')}
+          />
         )}
 
         <div className="ws-coming-grid">

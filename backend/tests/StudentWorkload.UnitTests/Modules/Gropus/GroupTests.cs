@@ -200,4 +200,35 @@ public class GroupEntityTests
         var act = () => Group.Create(_subjectId, _userId, "Team", "", invalid);
         act.Should().Throw<ArgumentException>().WithMessage("*embers*");
     }
+
+    [Fact]
+    public void UpdateDetails_ChangesNameDescriptionAndMaxMembers()
+    {
+        var group = Group.Create(_subjectId, _userId, "Old", "d", 6);
+        var newSubject = Guid.NewGuid();
+
+        group.UpdateDetails("New Name", "New desc", 8);
+        group.ChangeSubject(newSubject);
+
+        group.Name.Should().Be("New Name");
+        group.Description.Should().Be("New desc");
+        group.MaxMembers.Should().Be(8);
+        group.SubjectId.Should().Be(newSubject);
+    }
+
+    [Fact]
+    public void Deactivate_SetsInactive()
+    {
+        var group = Group.Create(_subjectId, _userId, "Team", "", 6);
+        group.Deactivate();
+        group.IsActive.Should().BeFalse();
+    }
+
+    [Fact]
+    public void UpdateDetails_InvalidMaxMembers_Throws()
+    {
+        var group = Group.Create(_subjectId, _userId, "Team", "", 6);
+        var act = () => group.UpdateDetails("Team", "", 1);
+        act.Should().Throw<ArgumentException>();
+    }
 }
