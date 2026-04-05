@@ -61,3 +61,17 @@ jobs:
       # 10. Stop Services
       - name: Stop Services
         run: docker compose down
+
+    
+      # 1. Run Backend Tests with TRX Logger
+      - name: Run Backend Tests
+        run: dotnet test ./backend --logger "trx;LogFileName=test_results.trx"
+
+      # 2. Publish Test Results
+      - name: Publish Test Summary
+        uses: dorny/test-reporter@v1
+        if: always() # Ensure this runs even if tests fail
+        with:
+          name:  Backend Unit Tests Report
+          path: "**/*test_results.trx"
+          reporter: dotnet-trx
