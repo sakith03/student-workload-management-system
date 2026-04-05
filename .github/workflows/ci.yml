@@ -26,36 +26,34 @@ jobs:
         with:
           dotnet-version: '8.0.x'
 
-      # 3. Run Backend Tests
-      - name: Run Backend Tests
-        run: dotnet test ./backend
 
-      # 4. Setup Node
+
+      # 3. Setup Node
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: '18'
 
-      # 5. Install Frontend Dependencies
+      # 4. Install Frontend Dependencies
       - name: Install Frontend Dependencies
         run: npm install
         working-directory: ./frontend
 
-      # 6. Create .env file
+      # 5. Create .env file
       - name: Create .env file
         run: |
           echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
           echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
 
-      # 7. Build Docker Images
+      # 6. Build Docker Images
       - name: Build Docker Images
         run: docker compose build
 
-      # 8. Start Services
+      # 7. Start Services
       - name: Start Services
         run: docker compose up -d
 
-      # 9. Wait for Backend Health
+      # 8. Wait for Backend Health
       - name: Wait for Backend
         run: |
           for i in {1..10}; do
@@ -63,16 +61,16 @@ jobs:
             sleep 5
           done
 
-      # 10. Stop Services
+      # 9. Stop Services
       - name: Stop Services
         run: docker compose down
 
     
-      # 1. Run Backend Tests with TRX Logger
+      # 10 Run Backend Tests with TRX Logger
       - name: Run Backend Tests
         run: dotnet test ./backend --logger "trx;LogFileName=test_results.trx"
 
-      # 2. Publish Test Results
+      # 11 Publish Test Results
       - name: Publish Test Summary
         uses: dorny/test-reporter@v1
         if: always() # Ensure this runs even if tests fail
