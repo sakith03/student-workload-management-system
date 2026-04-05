@@ -2,7 +2,7 @@ name: CD Pipeline
 
 on:
   push:
-    branches: [main]
+    branches: [main, develop]
 
 jobs:
   deploy:
@@ -62,10 +62,10 @@ jobs:
           publish-profile: ${{ secrets.AZURE_PUBLISH_PROFILE_FRONTEND }}
           images: ${{ secrets.DOCKER_USERNAME }}/myapp-frontend:${{ github.sha }} 
 
-          # 8. Print Deployment Report 
-          - name: Print Detailed Deployment Report
-          if: always()
-          run: |
+      # 8. Print Deployment Report 
+      - name: Print Detailed Deployment Report
+        if: always()
+        run: |
             echo "## LoadMate Deployment Summary" >> $GITHUB_STEP_SUMMARY
             
             # Git & Commit Details
