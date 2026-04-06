@@ -66,27 +66,27 @@ jobs:
       - name: Print Detailed Deployment Report
         if: always()
         run: |
-            echo "## LoadMate Deployment Summary" >> $GITHUB_STEP_SUMMARY
-            
-           # Git & Commit Details
-            echo "### Trigger Information" >> $GITHUB_STEP_SUMMARY
-            echo "* **Pushed by:** @${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
-            echo "* **Branch:** \`${{ github.ref_name }}\`" >> $GITHUB_STEP_SUMMARY
-            echo "* **Commit Message:** ${{ github.event.head_commit.message }}" >> $GITHUB_STEP_SUMMARY
-            echo "* **Full Logs:** [Click here to view all logs](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            
+          echo "## LoadMate Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          
+          # Git & Commit Details
+          echo "### Trigger Information" >> $GITHUB_STEP_SUMMARY
+          echo "* **Pushed by:** @${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
+          echo "* **Branch:** \`${{ github.ref_name }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "* **Commit Message:** ${{ github.event.head_commit.message }}" >> $GITHUB_STEP_SUMMARY
+          echo "* **Full Logs:** [Click here to view all logs](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
           # Deployment Status
-            echo "###  Deployment Status" >> $GITHUB_STEP_SUMMARY
-            if [ "${{ job.status }}" == "success" ]; then
-              echo " **SUCCESS:** All services deployed correctly." >> $GITHUB_STEP_SUMMARY
-              echo "* **Backend:** [backend-loadmate.azurewebsites.net](https://backend-loadmate.azurewebsites.net/health)" >> $GITHUB_STEP_SUMMARY
-              echo "* **Frontend:** [frontend-loadmate.azurewebsites.net](https://frontend-loadmate-h5h2gghtascvcnay.centralindia-01.azurewebsites.net/login)" >> $GITHUB_STEP_SUMMARY
-              echo "* **Docker Tag:** \`${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
-              echo "* **Deployed At:** $(date -u +'%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY
-              echo "" >> $GITHUB_STEP_SUMMARY
-              echo "###  Performance Audit" >> $GITHUB_STEP_SUMMARY
-              echo "Google Lighthouse report has been generated! Scroll to the bottom of this page and look under **Artifacts** to download the full HTML report." >> $GITHUB_STEP_SUMMARY
-            else
-              echo " **FAILED:** Deployment did not complete. Check the full logs above." >> $GITHUB_STEP_SUMMARY
-            fi
+          echo "### Deployment Status" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ job.status }}" == "success" ]; then
+            echo " **SUCCESS:** All services deployed correctly." >> $GITHUB_STEP_SUMMARY
+            echo "* **Backend:** [backend-loadmate.azurewebsites.net](https://backend-loadmate.azurewebsites.net/health)" >> $GITHUB_STEP_SUMMARY
+            echo "* **Frontend:** [frontend-loadmate.azurewebsites.net](https://frontend-loadmate-h5h2gghtascvcnay.centralindia-01.azurewebsites.net/login)" >> $GITHUB_STEP_SUMMARY
+            echo "* **Docker Tag:** \`${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
+            echo "* **Deployed At:** $(date -u +'%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "### Performance Audit" >> $GITHUB_STEP_SUMMARY
+            echo "Google Lighthouse report has been generated! Scroll to the bottom of this page and look under **Artifacts** to download the full HTML report." >> $GITHUB_STEP_SUMMARY
+          else
+            echo " **FAILED:** Deployment did not complete. Check the full logs above." >> $GITHUB_STEP_SUMMARY
+          fi
