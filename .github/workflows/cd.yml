@@ -80,7 +80,11 @@ jobs:
       
           npm init -y
           npm install lighthouse puppeteer
-          npx lighthouse https://frontend-loadmate-h5h2gghtascvcnay.centralindia-01.azurewebsites.net/login --chrome-flags="--headless --no-sandbox" --output=html --output-path=./lighthouse-report.html
+          npx lighthouse https://frontend-loadmate-h5h2gghtascvcnay.centralindia-01.azurewebsites.net/login \
+            --chrome-flags="--headless=new --no-sandbox --disable-dev-shm-usage" \
+            --max-wait-for-load=60000 \
+            --output=html \
+            --output-path=./lighthouse-report.html
       
       
       # 9. Upload Lighthouse Report as Artifact
