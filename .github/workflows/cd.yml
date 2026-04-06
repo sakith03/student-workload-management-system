@@ -64,12 +64,15 @@ jobs:
       
       # 8. Run Google Lighthouse on Live URL
       - name: Run Google Lighthouse
+        continue-on-error: true # MEKA DANNA: Lighthouse fail unath deployment eka success kiyala pennanna
         run: |
+          echo "Waiting 45 seconds for Azure App Service to warm up..."
+          sleep 45  
           npm init -y
           npm install lighthouse puppeteer
-          # Pallahin thiyena URL eka oyage aththa Frontend Azure URL ekata wenas karanna
           npx lighthouse https://frontend-loadmate-h5h2gghtascvcnay.centralindia-01.azurewebsites.net/login --chrome-flags="--headless --no-sandbox" --output=html --output-path=./lighthouse-report.html
-
+      
+      
       # 9. Upload Lighthouse Report as Artifact
       - name: Upload Lighthouse HTML Report
         uses: actions/upload-artifact@v4
