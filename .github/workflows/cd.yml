@@ -61,8 +61,23 @@ jobs:
           app-name: frontend-loadmate
           publish-profile: ${{ secrets.AZURE_PUBLISH_PROFILE_FRONTEND }}
           images: ${{ secrets.DOCKER_USERNAME }}/myapp-frontend:${{ github.sha }} 
+      
+      # 8. Run Google Lighthouse on Live URL
+      - name: Run Google Lighthouse
+        run: |
+          npm init -y
+          npm install lighthouse puppeteer
+          # Pallahin thiyena URL eka oyage aththa Frontend Azure URL ekata wenas karanna
+          npx lighthouse https://frontend-loadmate-h5h2gghtascvcnay.centralindia-01.azurewebsites.net/login --chrome-flags="--headless --no-sandbox" --output=html --output-path=./lighthouse-report.html
 
-      # 8. Print Deployment Report 
+      # 9. Upload Lighthouse Report as Artifact
+      - name: Upload Lighthouse HTML Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: Lighthouse-Report
+          path: ./lighthouse-report.html
+      
+      # 10. Print Deployment Report 
       - name: Print Detailed Deployment Report
         if: always()
         run: |
@@ -81,9 +96,12 @@ jobs:
             if [ "${{ job.status }}" == "success" ]; then
               echo " **SUCCESS:** All services deployed correctly." >> $GITHUB_STEP_SUMMARY
               echo "* **Backend:** [backend-loadmate.azurewebsites.net](https://backend-loadmate.azurewebsites.net/health)" >> $GITHUB_STEP_SUMMARY
-              echo "* **Frontend:** [frontend-loadmate.azurewebsites.net](https://frontend-loadmate.azurewebsites.net)" >> $GITHUB_STEP_SUMMARY
+              echo "* **Frontend:** [frontend-loadmate.azurewebsites.net](https://frontend-loadmate-h5h2gghtascvcnay.centralindia-01.azurewebsites.net/login)" >> $GITHUB_STEP_SUMMARY
               echo "* **Docker Tag:** \`${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
               echo "* **Deployed At:** $(date -u +'%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY
+              echo "" >> $GITHUB_STEP_SUMMARY
+              echo "###  Performance Audit" >> $GITHUB_STEP_SUMMARY
+              echo "Google Lighthouse report has been generated! Scroll to the bottom of this page and look under **Artifacts** to download the full HTML report." >> $GITHUB_STEP_SUMMARY
             else
               echo " **FAILED:** Deployment did not complete. Check the full logs above." >> $GITHUB_STEP_SUMMARY
             fi
