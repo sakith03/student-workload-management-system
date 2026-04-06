@@ -62,34 +62,49 @@ jobs:
           publish-profile: ${{ secrets.AZURE_PUBLISH_PROFILE_FRONTEND }}
           images: ${{ secrets.DOCKER_USERNAME }}/myapp-frontend:${{ github.sha }} 
       
-      # 8. Run Google Lighthouse on Live URL
+      # 8. Wait for Frontend to be Ready
+      - name: Wait for Frontend to be Ready
+        run: |
+          echo "Waiting for Azure App Service to warm up..."
+          for i in {1..12}; do
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+              https://frontend-loadmate-h5h2gghtascvcnay.centralindia-01.azurewebsites.net/login)
+            echo "Attempt $i: HTTP $STATUS"
+            if [ "$STATUS" = "200" ]; then
+              echo "App is ready!"
+              break
+            fi
+            sleep 10
+          done
+
+      # 9. Run Google Lighthouse on Live URL
       - name: Run Google Lighthouse
         continue-on-error: true
         run: |
           npm init -y
-          npm install lighthouse puppeteer
-        
-         
+          npm install lighthouse
+
           npx lighthouse https://frontend-loadmate-h5h2gghtascvcnay.centralindia-01.azurewebsites.net/login \
-           --chrome-flags="--headless=new --no-sandbox --disable-dev-shm-usage --disable-gpu" \
-           --output=html \
-           --output-path=./lighthouse-report.html
-      
-      
-      # 9. Upload Lighthouse Report as Artifact
+            --chrome-flags="--headless=new --no-sandbox --disable-dev-shm-usage --disable-gpu" \
+            --output=html \
+            --output-path=./lighthouse-report.html \
+            --timeout=60000 \
+            --max-wait-for-load=45000
+
+      # 10. Upload Lighthouse Report as Artifact
       - name: Upload Lighthouse HTML Report
         uses: actions/upload-artifact@v4
         with:
           name: Lighthouse-Report
           path: ./lighthouse-report.html
       
-      # 10. Print Deployment Report 
+      # 11. Print Deployment Report 
       - name: Print Detailed Deployment Report
         if: always()
         run: |
             echo "## LoadMate Deployment Summary" >> $GITHUB_STEP_SUMMARY
             
-            # Git & Commit Details
+           # Git & Commit Details
             echo "### Trigger Information" >> $GITHUB_STEP_SUMMARY
             echo "* **Pushed by:** @${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
             echo "* **Branch:** \`${{ github.ref_name }}\`" >> $GITHUB_STEP_SUMMARY
@@ -97,7 +112,7 @@ jobs:
             echo "* **Full Logs:** [Click here to view all logs](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
             
-            # Deployment Status
+          # Deployment Status
             echo "###  Deployment Status" >> $GITHUB_STEP_SUMMARY
             if [ "${{ job.status }}" == "success" ]; then
               echo " **SUCCESS:** All services deployed correctly." >> $GITHUB_STEP_SUMMARY
