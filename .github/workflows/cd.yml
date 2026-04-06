@@ -64,27 +64,16 @@ jobs:
       
       # 8. Run Google Lighthouse on Live URL
       - name: Run Google Lighthouse
-        continue-on-error: true 
+        continue-on-error: true
         run: |
-          echo "Waiting for Azure App Service to warm up..."
-          for i in {1..12}; do
-            STATUS_CODE=$(curl -s -o /dev/null -w "%{http_code}" https://frontend-loadmate-h5h2gghtascvcnay.centralindia-01.azurewebsites.net/login)
-            if [ "$STATUS_CODE" == "200" ]; then
-              echo " App is live! Status Code: $STATUS_CODE. Proceeding with Lighthouse."
-              break
-            else
-              echo " App not ready yet (Status: $STATUS_CODE). Waiting 10 seconds..."
-              sleep 10
-            fi
-          done
-      
           npm init -y
           npm install lighthouse puppeteer
+        
+         
           npx lighthouse https://frontend-loadmate-h5h2gghtascvcnay.centralindia-01.azurewebsites.net/login \
-            --chrome-flags="--headless=new --no-sandbox --disable-dev-shm-usage" \
-            --max-wait-for-load=60000 \
-            --output=html \
-            --output-path=./lighthouse-report.html
+           --chrome-flags="--headless=new --no-sandbox --disable-dev-shm-usage --disable-gpu" \
+           --output=html \
+           --output-path=./lighthouse-report.html
       
       
       # 9. Upload Lighthouse Report as Artifact
