@@ -62,7 +62,7 @@ jobs:
           publish-profile: ${{ secrets.AZURE_PUBLISH_PROFILE_FRONTEND }}
           images: ${{ secrets.DOCKER_USERNAME }}/myapp-frontend:${{ github.sha }} 
 
-      # 10. Print Deployment Report 
+      # 8. Print Deployment Report 
       - name: Print Detailed Deployment Report
         if: always()
         run: |
