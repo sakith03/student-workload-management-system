@@ -37,14 +37,13 @@ public class CourseModuleService : ICourseModuleService
         Guid userId, CreateCourseModuleDto dto,
         CancellationToken cancellationToken = default)
     {
-        // Serialize the steps list to JSON for DB storage
         var stepsJson = SerializeSteps(dto.StepByStepGuidance);
 
         var module = CourseModule.Create(
             userId:                 userId,
             name:                   dto.Name,
             semester:               dto.Semester,
-            targetHoursPerWeek:     dto.TargetHoursPerWeek,
+            deadlineDate:           dto.DeadlineDate,
             description:            dto.Description,
             colorTag:               dto.ColorTag,
             subjectId:              dto.SubjectId,
@@ -68,7 +67,7 @@ public class CourseModuleService : ICourseModuleService
         module.Update(
             name:                   dto.Name,
             semester:               dto.Semester,
-            targetHoursPerWeek:     dto.TargetHoursPerWeek,
+            deadlineDate:           dto.DeadlineDate,
             description:            dto.Description,
             colorTag:               dto.ColorTag,
             stepByStepGuidance:     stepsJson,
@@ -112,7 +111,7 @@ public class CourseModuleService : ICourseModuleService
             Name                 = module.Name,
             Description          = module.Description,
             ColorTag             = module.ColorTag,
-            TargetHoursPerWeek   = module.TargetHoursPerWeek,
+            DeadlineDate         = module.DeadlineDate,
             Semester             = module.Semester,
             SubjectId            = module.SubjectId,
             StepByStepGuidance   = DeserializeSteps(module.StepByStepGuidance),

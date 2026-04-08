@@ -117,7 +117,7 @@ public class AppDbContext : DbContext
             entity.Property(m => m.Name).IsRequired().HasMaxLength(120);
             entity.Property(m => m.Description).HasMaxLength(500);
             entity.Property(m => m.ColorTag).IsRequired().HasDefaultValue("Blue").HasMaxLength(50);
-            entity.Property(m => m.TargetHoursPerWeek).HasColumnType("decimal(5,2)").IsRequired();
+            entity.Property(m => m.DeadlineDate).IsRequired(false);
             entity.Property(m => m.Semester).IsRequired().HasMaxLength(20);
             entity.Property(m => m.SubjectId).IsRequired(false);
 

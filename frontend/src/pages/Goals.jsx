@@ -25,7 +25,7 @@ const EMPTY_FORM = {
     name: '',
     description: '',
     semester: '',
-    targetHoursPerWeek: 2,
+    deadlineDate: '',
     colorTag: 'Blue',
     stepByStepGuidance: [],
     submissionGuidelines: '',
@@ -114,7 +114,7 @@ export default function Goals() {
                 name: data.name || '',
                 description: data.description || '',
                 semester: data.semesterTag || '',
-                targetHoursPerWeek: 2,
+                deadlineDate: '',
                 colorTag: 'Blue',
                 stepByStepGuidance: data.stepByStepGuidance || [],
                 submissionGuidelines: data.submissionGuidelines || '',
@@ -169,7 +169,7 @@ export default function Goals() {
         const payload = {
             ...form,
             subjectId: selectedModuleId,
-            targetHoursPerWeek: Number(form.targetHoursPerWeek),
+            deadlineDate: form.deadlineDate || null,
         };
 
         try {
@@ -210,7 +210,7 @@ export default function Goals() {
             name: goal.name || '',
             description: goal.description || '',
             semester: goal.semester || '',
-            targetHoursPerWeek: goal.targetHoursPerWeek || 2,
+            deadlineDate: goal.deadlineDate ? goal.deadlineDate.substring(0, 10) : '',
             colorTag: goal.colorTag || 'Blue',
             stepByStepGuidance: goal.stepByStepGuidance || [],
             submissionGuidelines: goal.submissionGuidelines || '',
@@ -497,18 +497,14 @@ export default function Goals() {
                                     />
                                 </div>
 
-                                {/* Hours */}
+                                {/* Deadline Date */}
                                 <div className="subjects-field" style={{ flex: 0.6 }}>
-                                    <label className="subjects-label">Hours / Week</label>
+                                    <label className="subjects-label">Deadline Date</label>
                                     <input
-                                        type="number"
-                                        step="0.5"
-                                        min="0"
-                                        max="168"
-                                        required
+                                        type="date"
                                         className="subjects-input"
-                                        value={form.targetHoursPerWeek}
-                                        onChange={e => setForm({ ...form, targetHoursPerWeek: e.target.value })}
+                                        value={form.deadlineDate}
+                                        onChange={e => setForm({ ...form, deadlineDate: e.target.value })}
                                     />
                                 </div>
 
@@ -746,13 +742,17 @@ function GoalCard({ goal, onEdit, onDelete }) {
 
                     {/* Meta row */}
                     <div className="goals-goal-meta">
-                        <span className="goals-meta-item">
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                <circle cx="12" cy="12" r="10" />
-                                <polyline points="12 6 12 12 16 14" />
-                            </svg>
-                            {goal.targetHoursPerWeek} hrs/week
-                        </span>
+                        {goal.deadlineDate && (
+                            <span className="goals-meta-item">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                                    <line x1="16" y1="2" x2="16" y2="6" />
+                                    <line x1="8" y1="2" x2="8" y2="6" />
+                                    <line x1="3" y1="10" x2="21" y2="10" />
+                                </svg>
+                                {new Date(goal.deadlineDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).replace(/ /g, '.')}
+                            </span>
+                        )}
 
                         {goal.stepByStepGuidance?.length > 0 && (
                             <span className="goals-meta-item">

@@ -150,8 +150,8 @@ namespace StudentWorkload.Infrastructure.Migrations
                         .HasMaxLength(2000)
                         .HasColumnType("nvarchar(2000)");
 
-                    b.Property<decimal>("TargetHoursPerWeek")
-                        .HasColumnType("decimal(5,2)");
+                    b.Property<DateTime?>("DeadlineDate")
+                        .HasColumnType("datetime2");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");

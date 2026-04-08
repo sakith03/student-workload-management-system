@@ -8,9 +8,9 @@ public class CourseModule
     public string Name { get; private set; } = null!;
     public string? Description { get; private set; }
     public string ColorTag { get; private set; } = null!;
-    public decimal TargetHoursPerWeek { get; private set; }
+    public DateTime? DeadlineDate { get; private set; }
     public string Semester { get; private set; } = null!;
-    // ── NEW: AI-extracted fields ──────────────────────────────────
+    // ── AI-extracted fields ──────────────────────────────────────
     public string? StepByStepGuidance { get; private set; }    // stored as JSON array string
     public string? SubmissionGuidelines { get; private set; }
     // ─────────────────────────────────────────────────────────────
@@ -23,18 +23,15 @@ public class CourseModule
         Guid userId,
         string name,
         string semester,
-        decimal targetHoursPerWeek,
+        DateTime? deadlineDate = null,
         string? description = null,
         string colorTag = "Blue",
         Guid? subjectId = null,
-        string? stepByStepGuidance = null,      // NEW
-        string? submissionGuidelines = null)    // NEW
+        string? stepByStepGuidance = null,
+        string? submissionGuidelines = null)
     {
         ArgumentException.ThrowIfNullOrEmpty(name, nameof(name));
         ArgumentException.ThrowIfNullOrEmpty(semester, nameof(semester));
-        if (targetHoursPerWeek < 0 || targetHoursPerWeek > 168)
-            throw new ArgumentOutOfRangeException(nameof(targetHoursPerWeek),
-                "Target hours must be between 0 and 168.");
 
         return new CourseModule
         {
@@ -43,7 +40,7 @@ public class CourseModule
             SubjectId = subjectId,
             Name = name.Trim(),
             Semester = semester.Trim(),
-            TargetHoursPerWeek = targetHoursPerWeek,
+            DeadlineDate = deadlineDate,
             Description = description?.Trim(),
             ColorTag = string.IsNullOrWhiteSpace(colorTag) ? "Blue" : colorTag.Trim(),
             StepByStepGuidance = stepByStepGuidance,
@@ -55,21 +52,18 @@ public class CourseModule
     public void Update(
         string name,
         string semester,
-        decimal targetHoursPerWeek,
+        DateTime? deadlineDate,
         string? description,
         string colorTag,
-        string? stepByStepGuidance = null,      // NEW
-        string? submissionGuidelines = null)    // NEW
+        string? stepByStepGuidance = null,
+        string? submissionGuidelines = null)
     {
         ArgumentException.ThrowIfNullOrEmpty(name, nameof(name));
         ArgumentException.ThrowIfNullOrEmpty(semester, nameof(semester));
-        if (targetHoursPerWeek < 0 || targetHoursPerWeek > 168)
-            throw new ArgumentOutOfRangeException(nameof(targetHoursPerWeek),
-                "Target hours must be between 0 and 168.");
 
         Name = name.Trim();
         Semester = semester.Trim();
-        TargetHoursPerWeek = targetHoursPerWeek;
+        DeadlineDate = deadlineDate;
         Description = description?.Trim();
         ColorTag = string.IsNullOrWhiteSpace(colorTag) ? "Blue" : colorTag.Trim();
         StepByStepGuidance = stepByStepGuidance;

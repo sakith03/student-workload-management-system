@@ -12,15 +12,13 @@ public class UpdateCourseModuleDto
 
     public string ColorTag { get; set; } = "Blue";
 
-    [Required]
-    [Range(0, 168)]
-    public decimal TargetHoursPerWeek { get; set; }
+    public DateTime? DeadlineDate { get; set; }
 
     [Required]
     public string Semester { get; set; } = string.Empty;
 
     public Guid? SubjectId { get; set; }
 
-    public List<string>? StepByStepGuidance { get; set; }  // NEW
-    public string? SubmissionGuidelines { get; set; }       // NEW
+    public List<string>? StepByStepGuidance { get; set; }
+    public string? SubmissionGuidelines { get; set; }
 }
