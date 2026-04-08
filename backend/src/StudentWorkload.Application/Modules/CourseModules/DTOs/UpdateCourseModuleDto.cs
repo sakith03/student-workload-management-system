@@ -20,5 +20,6 @@ public class UpdateCourseModuleDto
     public Guid? SubjectId { get; set; }
 
     public List<string>? StepByStepGuidance { get; set; }
+    public List<bool>? StepCompletions { get; set; }
     public string? SubmissionGuidelines { get; set; }
 }

@@ -12,21 +12,19 @@ export const moduleService = {
   },
 
   createModule: async (moduleData) => {
-    const payload = {
-      ...moduleData,
-      targetHoursPerWeek: Number(moduleData.targetHoursPerWeek)
-    };
-    const response = await api.post('/modules', payload);
+    const response = await api.post('/modules', moduleData);
     return response.data;
   },
 
   updateModule: async (id, moduleData) => {
-    const payload = {
-      ...moduleData,
-      targetHoursPerWeek: Number(moduleData.targetHoursPerWeek)
-    };
-    const response = await api.put(`/modules/${id}`, payload);
+    const response = await api.put(`/modules/${id}`, moduleData);
     return response.data;
+  },
+
+  patchCompletions: async (id, completions) => {
+    // completions: boolean[]
+    const response = await api.patch(`/modules/${id}/completions`, { completions });
+    return response;
   },
 
   deleteModule: async (id) => {

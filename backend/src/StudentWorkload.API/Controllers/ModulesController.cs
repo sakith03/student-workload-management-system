@@ -86,4 +86,28 @@ public class ModulesController : ControllerBase
 
         return NoContent();
     }
+
+    /// <summary>
+    /// PATCH api/modules/{id}/completions
+    /// Lightweight endpoint — updates only the step completion booleans.
+    /// Returns 409 Conflict if the goal's deadline has already passed.
+    /// </summary>
+    [HttpPatch("{id:guid}/completions")]
+    public async Task<IActionResult> PatchCompletions(
+        Guid id,
+        [FromBody] PatchStepCompletionsDto dto,
+        CancellationToken cancellationToken)
+    {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
+        var userId = GetUserId();
+        var (found, closed) = await _courseModuleService.PatchCompletionsAsync(
+            id, userId, dto.Completions, cancellationToken);
+
+        if (!found)   return NotFound();
+        if (closed)   return Conflict(new { message = "Goal is closed — deadline has passed." });
+
+        return NoContent();
+    }
 }

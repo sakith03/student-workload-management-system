@@ -10,6 +10,7 @@ public class CourseModuleDto
     public string Semester { get; set; } = string.Empty;
     public Guid? SubjectId { get; set; }
     public List<string>? StepByStepGuidance { get; set; }
+    public List<bool>? StepCompletions { get; set; }
     public string? SubmissionGuidelines { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime? UpdatedAt { get; set; }

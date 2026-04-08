@@ -12,6 +12,7 @@ public class CourseModule
     public string Semester { get; private set; } = null!;
     // ── AI-extracted fields ──────────────────────────────────────
     public string? StepByStepGuidance { get; private set; }    // stored as JSON array string
+    public string? StepCompletions { get; private set; }       // stored as JSON bool array string
     public string? SubmissionGuidelines { get; private set; }
     // ─────────────────────────────────────────────────────────────
     public DateTime CreatedAt { get; private set; }
@@ -28,6 +29,7 @@ public class CourseModule
         string colorTag = "Blue",
         Guid? subjectId = null,
         string? stepByStepGuidance = null,
+        string? stepCompletions = null,
         string? submissionGuidelines = null)
     {
         ArgumentException.ThrowIfNullOrEmpty(name, nameof(name));
@@ -44,6 +46,7 @@ public class CourseModule
             Description = description?.Trim(),
             ColorTag = string.IsNullOrWhiteSpace(colorTag) ? "Blue" : colorTag.Trim(),
             StepByStepGuidance = stepByStepGuidance,
+            StepCompletions = stepCompletions,
             SubmissionGuidelines = submissionGuidelines?.Trim(),
             CreatedAt = DateTime.UtcNow
         };
@@ -56,6 +59,7 @@ public class CourseModule
         string? description,
         string colorTag,
         string? stepByStepGuidance = null,
+        string? stepCompletions = null,
         string? submissionGuidelines = null)
     {
         ArgumentException.ThrowIfNullOrEmpty(name, nameof(name));
@@ -67,7 +71,21 @@ public class CourseModule
         Description = description?.Trim();
         ColorTag = string.IsNullOrWhiteSpace(colorTag) ? "Blue" : colorTag.Trim();
         StepByStepGuidance = stepByStepGuidance;
+        StepCompletions = stepCompletions;
         SubmissionGuidelines = submissionGuidelines?.Trim();
+        UpdatedAt = DateTime.UtcNow;
+    }
+
+    /// <summary>
+    /// Lightweight update — only persists the step completion booleans.
+    /// Raises an exception if the goal's deadline has already passed.
+    /// </summary>
+    public void UpdateCompletions(string? completionsJson)
+    {
+        if (DeadlineDate.HasValue && DeadlineDate.Value.ToUniversalTime() < DateTime.UtcNow)
+            throw new InvalidOperationException("Goal is closed — deadline has passed.");
+
+        StepCompletions = completionsJson;
         UpdatedAt = DateTime.UtcNow;
     }
 }
