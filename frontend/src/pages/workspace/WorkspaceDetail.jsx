@@ -9,6 +9,8 @@ import MainLayout from '../../components/MainLayout';
 import FloatingChatbot from '../../components/FloatingChatbot';
 import GroupChat from '../../components/GroupChat';
 import WorkspaceSettingsModal from '../../components/WorkspaceSettingsModal';
+import WorkspaceWhiteboard from '../../components/WorkspaceWhiteboard';
+import WorkspaceSharedFiles from '../../components/WorkspaceSharedFiles';
 import { useAuth } from '../../context/AuthContext';
 import '../../styles/workspace.css';
 
@@ -23,6 +25,7 @@ export default function WorkspaceDetail() {
   const [loading, setLoading] = useState(true);
   const [showInvite, setShowInvite] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const [activeTab, setActiveTab] = useState('overview');
   const [teamChatCollapsed, setTeamChatCollapsed] = useState(false);
   const [windowWidth, setWindowWidth] = useState(
     typeof window !== 'undefined' ? window.innerWidth : 1200
@@ -157,19 +160,50 @@ export default function WorkspaceDetail() {
           />
         )}
 
-        <div className="ws-coming-grid">
-          {[
-            { icon: '👥', title: 'Member Management', desc: 'Invite members via email using the button above — invitations expire after 7 days.' },
-            { icon: '🤖', title: 'AI Assistant', desc: `Use the floating AI button to the left of the team chat panel for ${subjectName} help.` },
-            { icon: '📁', title: 'Shared Files', desc: 'Upload and share files with your group — coming in Stage 3.' },
-            { icon: '✅', title: 'Task Board', desc: 'Kanban task tracking for group assignments — coming in Stage 4.' },
-          ].map(panel => (
-            <div key={panel.title} className="ws-coming-card">
-              <div className="ws-coming-icon">{panel.icon}</div>
-              <h3 className="ws-coming-title">{panel.title}</h3>
-              <p className="ws-coming-desc">{panel.desc}</p>
+        <div className="ws-tabs">
+          <button
+            type="button"
+            className={`ws-tab ${activeTab === 'overview' ? 'ws-tab--active' : ''}`}
+            onClick={() => setActiveTab('overview')}
+          >
+            Overview
+          </button>
+          <button
+            type="button"
+            className={`ws-tab ${activeTab === 'whiteboard' ? 'ws-tab--active' : ''}`}
+            onClick={() => setActiveTab('whiteboard')}
+          >
+            Whiteboard
+          </button>
+          <button
+            type="button"
+            className={`ws-tab ${activeTab === 'files' ? 'ws-tab--active' : ''}`}
+            onClick={() => setActiveTab('files')}
+          >
+            Shared Files
+          </button>
+        </div>
+
+        <div className="ws-tab-panel">
+          {activeTab === 'overview' && (
+            <div className="ws-coming-grid">
+              {[
+                { icon: '👥', title: 'Member Management', desc: 'Invite members via email using the button above — invitations expire after 7 days.' },
+                { icon: '🤖', title: 'AI Assistant', desc: `Use the floating AI button to the left of the team chat panel for ${subjectName} help.` },
+                { icon: '📁', title: 'Shared Files', desc: 'Use the Shared Files tab to upload and download resources for this workspace.' },
+                { icon: '✅', title: 'Task Board', desc: 'Kanban task tracking for group assignments — coming in Stage 4.' },
+              ].map(panel => (
+                <div key={panel.title} className="ws-coming-card">
+                  <div className="ws-coming-icon">{panel.icon}</div>
+                  <h3 className="ws-coming-title">{panel.title}</h3>
+                  <p className="ws-coming-desc">{panel.desc}</p>
+                </div>
+              ))}
             </div>
-          ))}
+          )}
+
+          {activeTab === 'whiteboard' && <WorkspaceWhiteboard groupId={groupId} />}
+          {activeTab === 'files' && <WorkspaceSharedFiles groupId={groupId} />}
         </div>
       </div>
 

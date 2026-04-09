@@ -95,6 +95,12 @@
 /* Right dock: team chat + FAB offset (see WorkspaceDetail layoutRightInset) */
 .ws-workspace-with-dock {
   box-sizing: border-box;
+  max-width: none;
+  width: 100%;
+  min-height: calc(100vh - var(--nav-height, 68px));
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 .ws-chat-dock {
@@ -293,3 +299,110 @@
   text-decoration: underline;
 }
 .ws-btn-text:hover { color: #0f172a; }
+
+.ws-tabs {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-bottom: 1px solid #e2e8f0;
+  padding-bottom: 10px;
+  margin-bottom: 18px;
+}
+.ws-tab-panel {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+}
+.ws-tab {
+  border: none;
+  background: transparent;
+  color: #475569;
+  font-weight: 600;
+  font-size: 0.9rem;
+  border-radius: 8px;
+  padding: 8px 12px;
+  cursor: pointer;
+}
+.ws-tab:hover {
+  background: #f1f5f9;
+}
+.ws-tab--active {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.ws-whiteboard {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 14px;
+  height: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+.ws-whiteboard-toolbar {
+  flex-shrink: 0;
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.ws-whiteboard-canvas {
+  width: 100%;
+  height: auto;
+  flex: 1;
+  min-height: 380px;
+  border: 1px solid #dbe3ee;
+  border-radius: 12px;
+  touch-action: none;
+  background: #ffffff;
+}
+
+.ws-files-panel {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 14px;
+  height: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+.ws-files-actions {
+  flex-shrink: 0;
+  margin-bottom: 14px;
+}
+.ws-files-input {
+  display: none;
+}
+.ws-files-list {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.ws-files-item {
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  border-radius: 10px;
+  padding: 10px 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+.ws-files-name {
+  margin: 0 0 4px;
+  color: #0f172a;
+  font-weight: 600;
+}
+.ws-files-meta {
+  margin: 0;
+  font-size: 0.8rem;
+  color: #64748b;
+}

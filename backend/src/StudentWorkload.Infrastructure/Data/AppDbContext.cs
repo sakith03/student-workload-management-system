@@ -20,6 +20,8 @@ public class AppDbContext : DbContext
     public DbSet<Group> Groups { get; set; } = default!;
     public DbSet<GroupMember> GroupMembers { get; set; } = default!;
     public DbSet<GroupInvitation> GroupInvitations { get; set; } = default!;
+    public DbSet<GroupWhiteboardState> GroupWhiteboardStates { get; set; } = default!;
+    public DbSet<GroupSharedFile> GroupSharedFiles { get; set; } = default!;
     public DbSet<ChatMessage> ChatMessages { get; set; } = default!;
     public DbSet<ChatSession> ChatSessions { get; set; } = default!;
     public DbSet<GroupChatMessage> GroupChatMessages { get; set; } = default!;
@@ -243,6 +245,48 @@ public class AppDbContext : DbContext
                 .OnDelete(DeleteBehavior.Restrict);
 
             entity.ToTable("GroupInvitations");
+        });
+
+        modelBuilder.Entity<GroupWhiteboardState>(entity =>
+        {
+            entity.HasKey(w => w.GroupId);
+            entity.Property(w => w.GroupId).ValueGeneratedNever();
+            entity.Property(w => w.StateJson).IsRequired().HasColumnType("NVARCHAR(MAX)");
+            entity.Property(w => w.UpdatedAt).IsRequired();
+
+            entity.HasOne<Group>()
+                .WithMany()
+                .HasForeignKey(w => w.GroupId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.ToTable("GroupWhiteboardStates");
+        });
+
+        modelBuilder.Entity<GroupSharedFile>(entity =>
+        {
+            entity.HasKey(f => f.Id);
+            entity.Property(f => f.Id).ValueGeneratedNever();
+            entity.Property(f => f.GroupId).IsRequired();
+            entity.Property(f => f.UploadedByUserId).IsRequired();
+            entity.Property(f => f.OriginalFileName).IsRequired().HasMaxLength(255);
+            entity.Property(f => f.StoredFileName).IsRequired().HasMaxLength(255);
+            entity.Property(f => f.ContentType).IsRequired().HasMaxLength(200);
+            entity.Property(f => f.SizeBytes).IsRequired();
+            entity.Property(f => f.UploadedAt).IsRequired();
+
+            entity.HasIndex(f => new { f.GroupId, f.UploadedAt });
+
+            entity.HasOne<Group>()
+                .WithMany()
+                .HasForeignKey(f => f.GroupId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne<User>()
+                .WithMany()
+                .HasForeignKey(f => f.UploadedByUserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.ToTable("GroupSharedFiles");
         });
 
         modelBuilder.Entity<ChatSession>(entity =>
