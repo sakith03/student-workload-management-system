@@ -90,6 +90,30 @@ public class WhiteboardHub : Hub
         await _whiteboardRepo.SaveChangesAsync();
         await Clients.Group(groupId.ToString()).SendAsync("boardCleared");
     }
+
+    public async Task ReplaceBoardState(Guid groupId, IEnumerable<WhiteboardStroke> strokes)
+    {
+        var userId = GetUserId();
+        if (userId == Guid.Empty || !await CanAccessGroup(groupId, userId))
+            throw new HubException("Forbidden");
+
+        var safeStrokes = strokes?.ToList() ?? new List<WhiteboardStroke>();
+        var updatedJson = JsonSerializer.Serialize(safeStrokes);
+
+        var state = await _whiteboardRepo.GetByGroupIdAsync(groupId);
+        if (state is null)
+        {
+            state = GroupWhiteboardState.Create(groupId, updatedJson);
+            await _whiteboardRepo.AddAsync(state);
+        }
+        else
+        {
+            state.UpdateState(updatedJson);
+        }
+
+        await _whiteboardRepo.SaveChangesAsync();
+        await Clients.Group(groupId.ToString()).SendAsync("boardStateReplaced", safeStrokes);
+    }
 }
 
 public record WhiteboardStroke(
@@ -98,4 +122,5 @@ public record WhiteboardStroke(
     double ToX,
     double ToY,
     string Color,
-    double LineWidth);
+    double LineWidth,
+    double Alpha = 1);
