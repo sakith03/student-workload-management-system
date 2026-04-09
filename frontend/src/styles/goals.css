@@ -753,3 +753,213 @@
     border-color: #818cf8;
     background: #eef2ff;
 }
+
+/* ── Manual Step Builder ─────────────────────────────────────────────────── */
+
+.goals-manual-steps-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 10px;
+}
+
+.goals-manual-step-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 8px 10px;
+}
+
+.goals-manual-step-text {
+    margin: 0;
+    flex: 1;
+    font-size: 0.8rem;
+    color: #334155;
+    line-height: 1.5;
+    padding-top: 2px;
+}
+
+/* Step adder input + button row */
+.goals-step-adder {
+    display: flex;
+    gap: 8px;
+    align-items: flex-end;
+    margin-top: 6px;
+}
+
+.goals-step-adder-input {
+    flex: 1;
+    padding: 9px 12px;
+    font-size: 0.8rem;
+    font-family: 'DM Sans', sans-serif;
+    border: 1.5px solid #cbd5e1;
+    border-radius: 8px;
+    resize: none;
+    line-height: 1.5;
+    color: #1e293b;
+    background: #fff;
+    transition: border-color 0.18s;
+    outline: none;
+}
+
+.goals-step-adder-input:focus {
+    border-color: #6366f1;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
+}
+
+.goals-step-adder-btn {
+    flex-shrink: 0;
+    padding: 9px 15px;
+    background: #4f46e5;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.18s, transform 0.15s;
+    white-space: nowrap;
+}
+
+.goals-step-adder-btn:hover:not(:disabled) {
+    background: #4338ca;
+    transform: translateY(-1px);
+}
+
+.goals-step-adder-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+/* ── Complete Goal Button ─────────────────────────────────────────────────── */
+
+.goals-complete-goal-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    margin-top: 18px;
+    padding-top: 18px;
+    border-top: 2px dashed #a5b4fc;
+    animation: goals-bounce-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes goals-bounce-in {
+    0% {
+        opacity: 0;
+        transform: scale(0.85) translateY(10px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+.goals-complete-goal-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 32px;
+    font-size: 0.95rem;
+    font-family: 'Sora', sans-serif;
+    font-weight: 700;
+    border: none;
+    border-radius: 14px;
+    cursor: pointer;
+    color: #fff;
+    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #22c55e 100%);
+    background-size: 200% 200%;
+    box-shadow: 0 4px 20px rgba(79, 70, 229, 0.4), 0 0 0 0 rgba(79, 70, 229, 0);
+    animation: goals-cta-glow 2.5s ease-in-out infinite;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+@keyframes goals-cta-glow {
+
+    0%,
+    100% {
+        box-shadow: 0 4px 20px rgba(79, 70, 229, 0.4), 0 0 0 0 rgba(79, 70, 229, 0.2);
+    }
+
+    50% {
+        box-shadow: 0 6px 28px rgba(79, 70, 229, 0.6), 0 0 14px 6px rgba(124, 58, 237, 0.25);
+    }
+}
+
+.goals-complete-goal-btn:hover:not(:disabled) {
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 8px 32px rgba(79, 70, 229, 0.55);
+}
+
+.goals-complete-goal-btn:active:not(:disabled) {
+    transform: scale(0.97);
+}
+
+.goals-complete-goal-btn:disabled,
+.goals-complete-goal-btn--loading {
+    opacity: 0.75;
+    cursor: not-allowed;
+    animation: none;
+}
+
+/* Button content spinner */
+.goals-complete-spinner {
+    display: inline-block;
+    width: 15px;
+    height: 15px;
+    border: 2px solid rgba(255, 255, 255, 0.4);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: goals-spin 0.7s linear infinite;
+}
+
+@keyframes goals-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.goals-complete-goal-hint {
+    margin: 0;
+    font-size: 0.72rem;
+    color: #6366f1;
+    font-weight: 500;
+    text-align: center;
+}
+
+/* ── Completed Banner ─────────────────────────────────────────────────────── */
+
+.goals-completed-banner {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 16px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #fefce8, #fef9c3);
+    border: 1.5px solid #fde047;
+    color: #854d0e;
+    font-size: 0.82rem;
+    font-weight: 600;
+    margin-bottom: 14px;
+}
+
+/* ── Completed Badge (GoalCard title row) ────────────────────────────────── */
+
+.goals-completed-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 9px;
+    border-radius: 100px;
+    background: linear-gradient(135deg, #fef9c3, #fde68a);
+    color: #92400e;
+    font-size: 0.68rem;
+    font-weight: 700;
+    border: 1px solid #fbbf24;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+}

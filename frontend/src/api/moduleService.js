@@ -16,6 +16,11 @@ export const moduleService = {
     return response.data;
   },
 
+  createManualModule: async (moduleData) => {
+    const response = await api.post('/modules/manual', moduleData);
+    return response.data;
+  },
+
   updateModule: async (id, moduleData) => {
     const response = await api.put(`/modules/${id}`, moduleData);
     return response.data;
@@ -24,6 +29,11 @@ export const moduleService = {
   patchCompletions: async (id, completions) => {
     // completions: boolean[]
     const response = await api.patch(`/modules/${id}/completions`, { completions });
+    return response;
+  },
+
+  completeGoal: async (id) => {
+    const response = await api.patch(`/modules/${id}/complete`);
     return response;
   },
 

@@ -4,6 +4,7 @@ import { useSearchParams } from 'react-router-dom';
 import { moduleService } from '../api/moduleService';
 import { academicApi } from '../api/academicApi';
 import { goalParserApi } from '../api/goalParserApi';
+import confetti from 'canvas-confetti';
 import MainLayout from '../components/MainLayout';
 import '../styles/workspace.css';
 import '../styles/goals.css';
@@ -184,6 +185,15 @@ export default function Goals() {
                 setGoals(prev => prev.map(g =>
                     g.id === editingGoal.id ? updatedGoal : g
                 ));
+            } else if (formMode === 'manual') {
+                // Manual flow — validate steps + use the dedicated /manual endpoint
+                if (!payload.stepByStepGuidance || payload.stepByStepGuidance.length === 0) {
+                    setFormError('Add at least one step to create a manual goal.');
+                    setSubmitting(false);
+                    return;
+                }
+                const created = await moduleService.createManualModule(payload);
+                setGoals(prev => [created, ...prev]);
             } else {
                 const created = await moduleService.createModule(payload);
                 setGoals(prev => [created, ...prev]);
@@ -439,7 +449,7 @@ export default function Goals() {
                                 ? '✏️ Edit Goal'
                                 : formMode === 'ai-form'
                                     ? '✦ Review AI-Extracted Goal'
-                                    : '+ New Goal'}
+                                    : '📝 Add Manually'}
                         </h3>
 
                         {formError && (
@@ -528,6 +538,49 @@ export default function Goals() {
                                 </div>
                             </div>
 
+                            {/* ── Dynamic Step Builder — manual mode only ── */}
+                            {formMode === 'manual' && (
+                                <div className="subjects-field" style={{ marginTop: 4 }}>
+                                    <label className="subjects-label">
+                                        Step-by-Step Guide
+                                        <span style={{ marginLeft: 6, fontWeight: 400, color: '#94a3b8', fontSize: '0.72rem' }}>
+                                            ({form.stepByStepGuidance.length} step{form.stepByStepGuidance.length !== 1 ? 's' : ''} added)
+                                        </span>
+                                    </label>
+
+                                    {/* Existing steps */}
+                                    {form.stepByStepGuidance.length > 0 && (
+                                        <div className="goals-manual-steps-list">
+                                            {form.stepByStepGuidance.map((step, idx) => (
+                                                <div key={idx} className="goals-manual-step-row">
+                                                    <div className="goals-step-number goals-step-number--sm" style={{ flexShrink: 0 }}>
+                                                        {idx + 1}
+                                                    </div>
+                                                    <p className="goals-manual-step-text">{step}</p>
+                                                    <button
+                                                        type="button"
+                                                        className="goals-step-delete-btn"
+                                                        onClick={() => setForm(f => ({
+                                                            ...f,
+                                                            stepByStepGuidance: f.stepByStepGuidance.filter((_, i) => i !== idx)
+                                                        }))}
+                                                        title="Remove step"
+                                                    >✕</button>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+
+                                    {/* Add new step */}
+                                    <ManualStepAdder
+                                        onAdd={(text) => setForm(f => ({
+                                            ...f,
+                                            stepByStepGuidance: [...f.stepByStepGuidance, text]
+                                        }))}
+                                    />
+                                </div>
+                            )}
+
                             {/* Action Buttons */}
                             <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end', marginTop: 8, flexWrap: 'wrap' }}>
                                 <button type="button" className="subjects-btn-outline" onClick={resetAll}>
@@ -565,6 +618,7 @@ export default function Goals() {
                     </div>
                 </div>
             )}
+
 
             {/* ══════════════════════════════════════════════════════════════════
                 STEP 4 — AI GUIDANCE & SUBMISSION PANEL
@@ -716,6 +770,45 @@ export default function Goals() {
     );
 }
 
+// ── ManualStepAdder ───────────────────────────────────────────────────────────
+// Tiny self-clearing input + button; calls onAdd(text) when the user confirms a step.
+
+function ManualStepAdder({ onAdd }) {
+    const [text, setText] = useState('');
+
+    const commit = () => {
+        const trimmed = text.trim();
+        if (!trimmed) return;
+        onAdd(trimmed);
+        setText('');
+    };
+
+    const handleKey = (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); commit(); }
+    };
+
+    return (
+        <div className="goals-step-adder">
+            <textarea
+                className="goals-step-adder-input"
+                value={text}
+                rows={2}
+                placeholder="Type a step and press Add or Enter…"
+                onChange={e => setText(e.target.value)}
+                onKeyDown={handleKey}
+            />
+            <button
+                type="button"
+                className="goals-step-adder-btn"
+                onClick={commit}
+                disabled={!text.trim()}
+            >
+                + Add Step
+            </button>
+        </div>
+    );
+}
+
 // ── GoalCard Component ────────────────────────────────────────────────────────
 
 function GoalCard({ goal, onEdit, onDelete, onGoalUpdated }) {
@@ -739,6 +832,9 @@ function GoalCard({ goal, onEdit, onDelete, onGoalUpdated }) {
                         <span className="goals-semester-tag">{goal.semester}</span>
                         {hasAi && (
                             <span className="goals-ai-indicator">✦ AI</span>
+                        )}
+                        {goal.isCompleted && (
+                            <span className="goals-completed-badge">🏆 Completed</span>
                         )}
                     </div>
 
@@ -785,8 +881,9 @@ function GoalCard({ goal, onEdit, onDelete, onGoalUpdated }) {
                             </svg>
                         </button>
                     )}
-                    <button className="copy-btn" title="Edit goal" onClick={() => onEdit(goal)}>
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <button className="copy-btn" title="Edit goal" onClick={() => onEdit(goal)} disabled={goal.isCompleted}>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                            style={{ opacity: goal.isCompleted ? 0.35 : 1 }}>
                             <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" />
                             <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
                         </svg>
@@ -816,10 +913,10 @@ function GoalCard({ goal, onEdit, onDelete, onGoalUpdated }) {
 // ── GoalGuidancePanel ─────────────────────────────────────────────────────────
 
 function GoalGuidancePanel({ goal, onGoalUpdated }) {
-    // ── Deadline / closed state ──────────────────────────────────────────────
-    const isClosed = Boolean(
-        goal.deadlineDate && new Date(goal.deadlineDate) < new Date()
-    );
+    // ── Deadline / completed / locked state ──────────────────────────────────
+    const isClosed = Boolean(goal.deadlineDate && new Date(goal.deadlineDate) < new Date());
+    const isCompleted = Boolean(goal.isCompleted);
+    const isLocked = isClosed || isCompleted;   // no edits when either is true
 
     // ── Local state ──────────────────────────────────────────────────────────
     const [steps, setSteps] = useState(goal.stepByStepGuidance || []);
@@ -830,6 +927,7 @@ function GoalGuidancePanel({ goal, onGoalUpdated }) {
     });
     const [editMode, setEditMode] = useState(false);
     const [saving, setSaving] = useState(false);
+    const [completing, setCompleting] = useState(false);
     const [error, setError] = useState('');
 
     // Derived progress
@@ -891,11 +989,44 @@ function GoalGuidancePanel({ goal, onGoalUpdated }) {
         }
     };
 
+    // ── Complete goal ────────────────────────────────────────────────────────
+    const handleCompleteGoal = async () => {
+        if (isLocked || !allDone || completing) return;
+        setCompleting(true); setError('');
+        try {
+            await moduleService.completeGoal(goal.id);
+            // 🎉 Confetti burst
+            const burst = (originY, spread) => confetti({
+                particleCount: 90,
+                spread,
+                origin: { y: originY },
+                colors: ['#4f46e5', '#22c55e', '#f59e0b', '#ec4899', '#06b6d4'],
+                zIndex: 9999,
+            });
+            burst(0.7, 60);
+            setTimeout(() => burst(0.6, 80), 150);
+            setTimeout(() => burst(0.75, 50), 300);
+            onGoalUpdated({ ...goal, isCompleted: true });
+        } catch {
+            setError('Could not mark goal as complete. Try again.');
+        } finally {
+            setCompleting(false);
+        }
+    };
+
     return (
         <div className="goals-goal-guidance">
 
-            {/* Closed banner */}
-            {isClosed && (
+            {/* Completed banner */}
+            {isCompleted && (
+                <div className="goals-completed-banner">
+                    <span>🏆</span>
+                    <span>Goal completed! Great work — this goal is now permanently locked.</span>
+                </div>
+            )}
+
+            {/* Deadline closed banner (only if not completed) */}
+            {!isCompleted && isClosed && (
                 <div className="goals-closed-banner">
                     <span>🔒</span>
                     <span>Deadline reached — this goal is now closed. Steps are read-only.</span>
@@ -915,8 +1046,8 @@ function GoalGuidancePanel({ goal, onGoalUpdated }) {
                             </span>
                         </p>
 
-                        {/* Edit / Save / Cancel — hidden when closed */}
-                        {!isClosed && (
+                        {/* Edit / Save / Cancel — hidden when locked */}
+                        {!isLocked && (
                             <div style={{ display: 'flex', gap: 6 }}>
                                 {!editMode ? (
                                     <button className="goals-step-action-btn" onClick={startEdit} title="Edit steps">
@@ -969,10 +1100,10 @@ function GoalGuidancePanel({ goal, onGoalUpdated }) {
                                     </div>
                                 ) : (
                                     <button
-                                        className={`goals-step-check ${completions[idx] ? 'goals-step-check--done' : ''} ${isClosed ? 'goals-step-check--locked' : ''}`}
+                                        className={`goals-step-check ${completions[idx] ? 'goals-step-check--done' : ''} ${isLocked ? 'goals-step-check--locked' : ''}`}
                                         onClick={() => toggleCompletion(idx)}
-                                        disabled={isClosed}
-                                        title={isClosed ? 'Goal closed' : (completions[idx] ? 'Mark incomplete' : 'Mark complete')}
+                                        disabled={isLocked}
+                                        title={isLocked ? (isCompleted ? 'Goal completed' : 'Goal closed') : (completions[idx] ? 'Mark incomplete' : 'Mark complete')}
                                     >
                                         {completions[idx] && (
                                             <svg width="10" height="10" viewBox="0 0 12 12" fill="none">
@@ -1034,6 +1165,29 @@ function GoalGuidancePanel({ goal, onGoalUpdated }) {
                             <span className={`goals-progress-label ${allDone ? 'goals-progress-label--done' : ''}`}>
                                 {allDone ? '✓ Done' : `${pct}%`}
                             </span>
+                        </div>
+                    )}
+
+                    {/* ── Complete Goal button — appears when all steps done and not locked ── */}
+                    {allDone && !isLocked && !editMode && (
+                        <div className="goals-complete-goal-wrap">
+                            <button
+                                className={`goals-complete-goal-btn ${completing ? 'goals-complete-goal-btn--loading' : ''}`}
+                                onClick={handleCompleteGoal}
+                                disabled={completing}
+                            >
+                                {completing ? (
+                                    <span className="goals-complete-spinner" />
+                                ) : (
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                        <path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" fill="currentColor" />
+                                    </svg>
+                                )}
+                                {completing ? 'Completing…' : 'Complete Goal'}
+                            </button>
+                            <p className="goals-complete-goal-hint">
+                                All steps done! Press to officially mark this goal as complete.
+                            </p>
                         </div>
                     )}
                 </div>

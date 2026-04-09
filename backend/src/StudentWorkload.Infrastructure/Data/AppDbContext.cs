@@ -130,6 +130,9 @@ public class AppDbContext : DbContext
                 .HasColumnType("NVARCHAR(MAX)")
                 .IsRequired(false);
 
+            entity.Property(m => m.IsCompleted)
+                .HasDefaultValue(false);
+
             entity.Property(m => m.SubmissionGuidelines)
                 .HasMaxLength(2000)
                 .IsRequired(false);

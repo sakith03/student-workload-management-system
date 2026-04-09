@@ -117,6 +117,29 @@ public class CourseModuleService : ICourseModuleService
         }
     }
 
+    /// <summary>
+    /// Permanently marks the goal as completed. Returns (found:false) if not found/unauthorized;
+    /// (found:true, alreadyDone:true) if deadline passed or already completed.
+    /// </summary>
+    public async Task<(bool found, bool alreadyDone)> CompleteGoalAsync(
+        Guid id, Guid userId,
+        CancellationToken cancellationToken = default)
+    {
+        var module = await _repository.GetByIdAsync(id, cancellationToken);
+        if (module == null || module.UserId != userId) return (false, false);
+
+        try
+        {
+            module.Complete();
+            await _repository.UpdateAsync(module, cancellationToken);
+            return (true, false);
+        }
+        catch (InvalidOperationException)
+        {
+            return (true, true);
+        }
+    }
+
     // ── Helpers ──────────────────────────────────────────────────────────────
 
     private static string? SerializeSteps(List<string>? steps)
@@ -159,6 +182,7 @@ public class CourseModuleService : ICourseModuleService
             StepByStepGuidance   = DeserializeSteps(module.StepByStepGuidance),
             StepCompletions      = DeserializeCompletions(module.StepCompletions),
             SubmissionGuidelines = module.SubmissionGuidelines,
+            IsCompleted          = module.IsCompleted,
             CreatedAt            = module.CreatedAt,
             UpdatedAt            = module.UpdatedAt
         };

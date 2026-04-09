@@ -14,6 +14,7 @@ public class CourseModule
     public string? StepByStepGuidance { get; private set; }    // stored as JSON array string
     public string? StepCompletions { get; private set; }       // stored as JSON bool array string
     public string? SubmissionGuidelines { get; private set; }
+    public bool IsCompleted { get; private set; }
     // ─────────────────────────────────────────────────────────────
     public DateTime CreatedAt { get; private set; }
     public DateTime? UpdatedAt { get; private set; }
@@ -87,5 +88,20 @@ public class CourseModule
 
         StepCompletions = completionsJson;
         UpdatedAt = DateTime.UtcNow;
+    }
+
+    /// <summary>
+    /// Permanently marks the goal as completed. Once completed, no further edits are allowed.
+    /// </summary>
+    public void Complete()
+    {
+        if (IsCompleted)
+            throw new InvalidOperationException("Goal is already completed.");
+
+        if (DeadlineDate.HasValue && DeadlineDate.Value.ToUniversalTime() < DateTime.UtcNow)
+            throw new InvalidOperationException("Goal is closed — deadline has passed.");
+
+        IsCompleted = true;
+        UpdatedAt   = DateTime.UtcNow;
     }
 }

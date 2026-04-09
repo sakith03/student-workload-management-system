@@ -12,6 +12,7 @@ public class CourseModuleDto
     public List<string>? StepByStepGuidance { get; set; }
     public List<bool>? StepCompletions { get; set; }
     public string? SubmissionGuidelines { get; set; }
+    public bool IsCompleted { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime? UpdatedAt { get; set; }
 }

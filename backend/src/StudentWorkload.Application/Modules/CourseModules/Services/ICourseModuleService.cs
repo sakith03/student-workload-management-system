@@ -10,4 +10,6 @@ public interface ICourseModuleService
     Task<bool> UpdateModuleAsync(Guid id, Guid userId, UpdateCourseModuleDto dto, CancellationToken cancellationToken = default);
     Task<bool> DeleteModuleAsync(Guid id, Guid userId, CancellationToken cancellationToken = default);
     Task<(bool found, bool closed)> PatchCompletionsAsync(Guid id, Guid userId, List<bool> completions, CancellationToken cancellationToken = default);
+    /// <summary>Returns (found, alreadyDone) where alreadyDone=true means it was already closed/completed.</summary>
+    Task<(bool found, bool alreadyDone)> CompleteGoalAsync(Guid id, Guid userId, CancellationToken cancellationToken = default);
 }
