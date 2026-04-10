@@ -16,8 +16,105 @@ function drawStroke(ctx, stroke) {
   ctx.globalAlpha = 1;
 }
 
+const IconPen = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden>
+    <path
+      d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
+const IconBrush = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden>
+    <path
+      d="M9.06 11.9l8.94-8.94a2.25 2.25 0 0 1 3.18 0l.78.78a2.25 2.25 0 0 1 0 3.18l-8.94 8.94a4.5 4.5 0 0 1-1.9 1.13L9 18l.8-2.69a4.5 4.5 0 0 1 1.26-1.41z"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
+const IconHighlighter = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden>
+    <path
+      d="M15 5l4 4-9 9H6v-4l9-9z"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
+const IconEraser = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden>
+    <path
+      d="m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.6-9.6c1-1 2.5-1 3.4 0l5.6 5.6c1 1 1 2.5 0 3.4L13 21M22 21H7"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
+const IconUndo = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden>
+    <path
+      d="M3 7v6h6M21 17a9 9 0 0 0-15-6l-3 3"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
+const IconRedo = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden>
+    <path
+      d="M21 7v6h-6M3 17a9 9 0 0 1 15-6l3 3"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
+const IconTrash = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden>
+    <path
+      d="M3 6h18M8 6V4h8v2M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6M10 11v6M14 11v6"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
+const IconPalette = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden>
+    <path
+      d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0zM6.34 12.66L12 7l5.66 5.66M12 2.69V12"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
 export default function WorkspaceWhiteboard({ groupId }) {
   const canvasRef = useRef(null);
+  const canvasWrapRef = useRef(null);
   const connectionRef = useRef(null);
   const drawingRef = useRef(false);
   const previousPointRef = useRef(null);
@@ -54,9 +151,15 @@ export default function WorkspaceWhiteboard({ groupId }) {
     if (!canvas || !ctx) return undefined;
 
     const setupCanvas = () => {
-      const rect = canvas.getBoundingClientRect();
-      canvas.width = rect.width;
-      canvas.height = rect.height;
+      const wrap = canvasWrapRef.current;
+      const w = wrap ? wrap.clientWidth : canvas.getBoundingClientRect().width;
+      const h = wrap ? wrap.clientHeight : canvas.getBoundingClientRect().height;
+      const width = Math.max(1, Math.floor(w));
+      const height = Math.max(1, Math.floor(h));
+      if (canvas.width !== width || canvas.height !== height) {
+        canvas.width = width;
+        canvas.height = height;
+      }
       redrawCanvas();
     };
     setupCanvas();
@@ -111,10 +214,17 @@ export default function WorkspaceWhiteboard({ groupId }) {
 
     const onResize = () => setupCanvas();
     window.addEventListener('resize', onResize);
+    const wrapEl = canvasWrapRef.current;
+    const ro =
+      wrapEl && typeof ResizeObserver !== 'undefined'
+        ? new ResizeObserver(() => setupCanvas())
+        : null;
+    if (ro) ro.observe(wrapEl);
 
     return () => {
       mounted = false;
       window.removeEventListener('resize', onResize);
+      ro?.disconnect();
       connection.stop();
     };
   }, [groupId]);
@@ -193,50 +303,77 @@ export default function WorkspaceWhiteboard({ groupId }) {
     await replaceSharedBoardState();
   };
 
+  const tools = [
+    { id: 'pen', label: 'Pen', icon: IconPen },
+    { id: 'brush', label: 'Brush', icon: IconBrush },
+    { id: 'marker', label: 'Highlighter', icon: IconHighlighter },
+    { id: 'erase', label: 'Eraser', icon: IconEraser },
+  ];
+
   return (
     <div className="ws-whiteboard">
       <div className="ws-whiteboard-toolbar">
-        <button type="button" className={`ws-btn ws-btn--sm ${tool === 'pen' ? '' : 'ws-btn--ghost'}`} onClick={() => setTool('pen')}>
-          Pen
-        </button>
-        <button type="button" className={`ws-btn ws-btn--sm ${tool === 'brush' ? '' : 'ws-btn--ghost'}`} onClick={() => setTool('brush')}>
-          Brush
-        </button>
-        <button type="button" className={`ws-btn ws-btn--sm ${tool === 'marker' ? '' : 'ws-btn--ghost'}`} onClick={() => setTool('marker')}>
-          Marker
-        </button>
-        <button type="button" className={`ws-btn ws-btn--sm ${tool === 'erase' ? '' : 'ws-btn--ghost'}`} onClick={() => setTool('erase')}>
-          Erase
-        </button>
-        <label className="ws-whiteboard-color-wrap">
-          Color
-          <input
-            type="color"
-            className="ws-whiteboard-color"
-            value={color}
-            onChange={(e) => setColor(e.target.value)}
-            disabled={tool === 'erase'}
-          />
-        </label>
-        <button type="button" className="ws-btn ws-btn--ghost ws-btn--sm" onClick={handleUndo}>
-          Undo
-        </button>
-        <button type="button" className="ws-btn ws-btn--ghost ws-btn--sm" onClick={handleRedo}>
-          Redo
-        </button>
-        <button type="button" className="ws-btn ws-btn--ghost ws-btn--sm" onClick={clearBoard}>
-          Clear board
-        </button>
+        <div className="ws-wb-toolbar-group" role="toolbar" aria-label="Drawing tools">
+          {tools.map(({ id, label, icon: Icon }) => (
+            <button
+              key={id}
+              type="button"
+              className={`ws-wb-tool ${tool === id ? 'ws-wb-tool--active' : ''}`}
+              onClick={() => setTool(id)}
+              title={label}
+              aria-label={label}
+              aria-pressed={tool === id}
+            >
+              <Icon />
+            </button>
+          ))}
+        </div>
+        <span className="ws-wb-toolbar-divider" aria-hidden />
+        <div className="ws-wb-toolbar-group" title="Stroke color">
+          <span className="ws-wb-tool" style={{ width: 36, height: 36, pointerEvents: 'none', color: '#64748b' }}>
+            <IconPalette />
+          </span>
+          <label className="ws-wb-color-btn" aria-label="Stroke color">
+            <input
+              type="color"
+              className="ws-whiteboard-color"
+              value={color}
+              onChange={(e) => setColor(e.target.value)}
+              disabled={tool === 'erase'}
+            />
+          </label>
+        </div>
+        <span className="ws-wb-toolbar-divider" aria-hidden />
+        <div className="ws-wb-toolbar-group" role="toolbar" aria-label="History">
+          <button type="button" className="ws-wb-tool" onClick={handleUndo} title="Undo" aria-label="Undo">
+            <IconUndo />
+          </button>
+          <button type="button" className="ws-wb-tool" onClick={handleRedo} title="Redo" aria-label="Redo">
+            <IconRedo />
+          </button>
+          <button
+            type="button"
+            className="ws-wb-tool ws-wb-tool--danger"
+            onClick={clearBoard}
+            title="Clear board"
+            aria-label="Clear board"
+          >
+            <IconTrash />
+          </button>
+        </div>
       </div>
-      {error && <div className="ws-error">{error}</div>}
-      <canvas
-        ref={canvasRef}
-        className="ws-whiteboard-canvas"
-        onPointerDown={onPointerDown}
-        onPointerMove={onPointerMove}
-        onPointerUp={onPointerUp}
-        onPointerLeave={onPointerUp}
-      />
+      {error && <div className="ws-error ws-whiteboard-error">{error}</div>}
+      <p className="ws-whiteboard-hint">Live canvas — sketches sync for everyone in this workspace.</p>
+      <div ref={canvasWrapRef} className="ws-whiteboard-canvas-wrap">
+        <canvas
+          ref={canvasRef}
+          className="ws-whiteboard-canvas"
+          onPointerDown={onPointerDown}
+          onPointerMove={onPointerMove}
+          onPointerUp={onPointerUp}
+          onPointerLeave={onPointerUp}
+        />
+      </div>
     </div>
   );
 }

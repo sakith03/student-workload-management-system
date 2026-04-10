@@ -333,6 +333,14 @@
   width: 100%;
 }
 
+/* Workspace whiteboard: use full main column width; flex chain for viewport-height canvas */
+.dash-content.dash-content--workspace-whiteboard {
+  max-width: none;
+  min-height: 0;
+  gap: 12px;
+  padding-bottom: 0;
+}
+
 /* ─── Greeting ──────────────────────────────────────────── */
 .dash-greeting {
   animation: fadeSlideUp 0.4s ease both;

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import Sidebar from './Sidebar';
 import Topbar from './Topbar';
 
-export default function MainLayout({ children, title }) {
+export default function MainLayout({ children, title, contentClassName }) {
     const [sidebarOpen, setSidebarOpen] = useState(false);
 
     return (
@@ -16,7 +16,7 @@ export default function MainLayout({ children, title }) {
                     title={title}
                     onToggleSidebar={() => setSidebarOpen(o => !o)}
                 />
-                <main className="dash-content">
+                <main className={contentClassName ? `dash-content ${contentClassName}` : 'dash-content'}>
                     {children}
                 </main>
             </div>
