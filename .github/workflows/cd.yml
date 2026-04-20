@@ -24,6 +24,20 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
+      # ── STEP 2 NEW: Preserve :previous image for rollback ──────────────
+      - name:  Preserve :previous image for rollback
+        run: |
+          echo "Saving current :latest as :previous for rollback safety..."
+          docker pull ${{ secrets.DOCKER_USERNAME }}/myapp-backend:latest || echo "No previous backend image found, skipping."
+          docker tag  ${{ secrets.DOCKER_USERNAME }}/myapp-backend:latest \
+                      ${{ secrets.DOCKER_USERNAME }}/myapp-backend:previous || echo "Tag skipped."
+          docker push ${{ secrets.DOCKER_USERNAME }}/myapp-backend:previous || echo "Push skipped."
+
+          docker pull ${{ secrets.DOCKER_USERNAME }}/myapp-frontend:latest || echo "No previous frontend image found, skipping."
+          docker tag  ${{ secrets.DOCKER_USERNAME }}/myapp-frontend:latest \
+                      ${{ secrets.DOCKER_USERNAME }}/myapp-frontend:previous || echo "Tag skipped."
+          docker push ${{ secrets.DOCKER_USERNAME }}/myapp-frontend:previous || echo "Push skipped."
+
       # 4. Build & Push Backend
       - name: Build & Push Backend
         run: |
@@ -60,23 +74,77 @@ jobs:
         with:
           app-name: frontend-loadmate
           publish-profile: ${{ secrets.AZURE_PUBLISH_PROFILE_FRONTEND }}
-          images: ${{ secrets.DOCKER_USERNAME }}/myapp-frontend:${{ github.sha }} 
+          images: ${{ secrets.DOCKER_USERNAME }}/myapp-frontend:${{ github.sha }}
 
-      # 8. Print Deployment Report 
+      # ── STEP 2 NEW: Post-deploy health check with automatic rollback ────
+      - name:  Post-Deploy Health Check
+        id: health_check
+        run: |
+          echo "Waiting 30s for Azure to start the new container..."
+          sleep 30
+          BACKEND_URL="https://backend-loadmate-b3ezg2behsgyerbw.centralindia-01.azurewebsites.net/health"
+          MAX_RETRIES=5
+          RETRY_DELAY=15
+          SUCCESS=false
+          for i in $(seq 1 $MAX_RETRIES); do
+            echo "Health check attempt $i of $MAX_RETRIES..."
+            HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$BACKEND_URL" --max-time 10)
+            if [ "$HTTP_STATUS" -eq 200 ]; then
+              echo "Health check passed (HTTP $HTTP_STATUS)"
+              SUCCESS=true
+              break
+            else
+              echo "Health check returned HTTP $HTTP_STATUS. Retrying in ${RETRY_DELAY}s..."
+              sleep $RETRY_DELAY
+            fi
+          done
+          if [ "$SUCCESS" = false ]; then
+            echo "Health check FAILED after $MAX_RETRIES attempts. Rollback required."
+            echo "rollback_required=true" >> $GITHUB_OUTPUT
+          else
+            echo "Health check passed. Deployment is stable."
+            echo "rollback_required=false" >> $GITHUB_OUTPUT
+          fi
+
+      # ── STEP 2 NEW: Rollback backend if health check failed ─────────────
+      - name:  Rollback Backend to Previous Image
+        if: steps.health_check.outputs.rollback_required == 'true'
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: backend-loadmate
+          publish-profile: ${{ secrets.AZURE_PUBLISH_PROFILE_BACKEND }}
+          images: ${{ secrets.DOCKER_USERNAME }}/myapp-backend:previous
+
+      # ── STEP 2 NEW: Rollback frontend if health check failed ────────────
+      - name:  Rollback Frontend to Previous Image
+        if: steps.health_check.outputs.rollback_required == 'true'
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: frontend-loadmate
+          publish-profile: ${{ secrets.AZURE_PUBLISH_PROFILE_FRONTEND }}
+          images: ${{ secrets.DOCKER_USERNAME }}/myapp-frontend:previous
+
+      # ── STEP 2 NEW: Fail the pipeline to surface the issue ──────────────
+      - name: ❌ Fail Pipeline — Rollback Was Triggered
+        if: steps.health_check.outputs.rollback_required == 'true'
+        run: |
+          echo "Deployment failed health checks. Rolled back to :previous image."
+          echo "Check Azure logs and backend /health endpoint for details."
+          exit 1
+
+      # 8. Print Deployment Report
       - name: Print Detailed Deployment Report
         if: always()
         run: |
           echo "## LoadMate Deployment Summary" >> $GITHUB_STEP_SUMMARY
-          
-          # Git & Commit Details
+
           echo "### Trigger Information" >> $GITHUB_STEP_SUMMARY
           echo "* **Pushed by:** @${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
           echo "* **Branch:** \`${{ github.ref_name }}\`" >> $GITHUB_STEP_SUMMARY
           echo "* **Commit Message:** ${{ github.event.head_commit.message }}" >> $GITHUB_STEP_SUMMARY
           echo "* **Full Logs:** [Click here to view all logs](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          
-          # Deployment Status
+
           echo "### Deployment Status" >> $GITHUB_STEP_SUMMARY
           if [ "${{ job.status }}" == "success" ]; then
             echo " **SUCCESS:** All services deployed correctly." >> $GITHUB_STEP_SUMMARY
@@ -84,9 +152,45 @@ jobs:
             echo "* **Frontend:** [frontend-loadmate.azurewebsites.net](https://frontend-loadmate-h5h2gghtascvcnay.centralindia-01.azurewebsites.net/login)" >> $GITHUB_STEP_SUMMARY
             echo "* **Docker Tag:** \`${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
             echo "* **Deployed At:** $(date -u +'%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "### Performance Audit" >> $GITHUB_STEP_SUMMARY
-            echo "Google Lighthouse report has been generated! Scroll to the bottom of this page and look under **Artifacts** to download the full HTML report." >> $GITHUB_STEP_SUMMARY
           else
             echo " **FAILED:** Deployment did not complete. Check the full logs above." >> $GITHUB_STEP_SUMMARY
           fi
+
+      # ── Step 1: Slack Notifications ───────────────────────────────────────
+
+      - name: 📣 Notify Slack — Deployment Success
+        if: success()
+        run: |
+          curl -X POST "${{ secrets.SLACK_WEBHOOK_URL }}" \
+            -H 'Content-type: application/json' \
+            --data '{
+              "text": "✅ *LoadMate Deployed Successfully!*",
+              "attachments": [{
+                "color": "#36a64f",
+                "fields": [
+                  {"title": "Branch",        "value": "${{ github.ref_name }}", "short": true},
+                  {"title": "Deployed by",   "value": "${{ github.actor }}",    "short": true},
+                  {"title": "Commit SHA",    "value": "${{ github.sha }}",      "short": false},
+                  {"title": "Frontend",      "value": "https://frontend-loadmate-h5h2gghtascvcnay.centralindia-01.azurewebsites.net/login", "short": true},
+                  {"title": "Backend Health","value": "https://backend-loadmate.azurewebsites.net/health", "short": true}
+                ]
+              }]
+            }'
+
+      - name: 🚨 Notify Slack — Deployment Failed
+        if: failure()
+        run: |
+          curl -X POST "${{ secrets.SLACK_WEBHOOK_URL }}" \
+            -H 'Content-type: application/json' \
+            --data '{
+              "text": "❌ *LoadMate Deployment FAILED!*",
+              "attachments": [{
+                "color": "#d9534f",
+                "fields": [
+                  {"title": "Branch",       "value": "${{ github.ref_name }}", "short": true},
+                  {"title": "Triggered by", "value": "${{ github.actor }}",    "short": true},
+                  {"title": "Commit",       "value": "${{ github.sha }}",      "short": false},
+                  {"title": "View Pipeline","value": "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}", "short": false}
+                ]
+              }]
+            }'

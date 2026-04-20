@@ -136,5 +136,6 @@ using (var scope = app.Services.CreateScope())
         logger.LogError(ex, "Migration failed — app will still start");
     }
 }
+app.MapGet("/health", () => Results.Ok("Healthy"));
 
 app.Run();
