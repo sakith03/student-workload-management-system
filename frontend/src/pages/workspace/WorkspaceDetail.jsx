@@ -9,6 +9,8 @@ import MainLayout from '../../components/MainLayout';
 import FloatingChatbot from '../../components/FloatingChatbot';
 import GroupChat from '../../components/GroupChat';
 import WorkspaceSettingsModal from '../../components/WorkspaceSettingsModal';
+import WorkspaceWhiteboard from '../../components/WorkspaceWhiteboard';
+import WorkspaceSharedFiles from '../../components/WorkspaceSharedFiles';
 import { useAuth } from '../../context/AuthContext';
 import '../../styles/workspace.css';
 
@@ -23,6 +25,7 @@ export default function WorkspaceDetail() {
   const [loading, setLoading] = useState(true);
   const [showInvite, setShowInvite] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const [activeTab, setActiveTab] = useState('overview');
   const [teamChatCollapsed, setTeamChatCollapsed] = useState(false);
   const [windowWidth, setWindowWidth] = useState(
     typeof window !== 'undefined' ? window.innerWidth : 1200
@@ -86,10 +89,15 @@ export default function WorkspaceDetail() {
   );
   if (!group) return null;
 
+  const isWhiteboardTab = activeTab === 'whiteboard';
+
   return (
-    <MainLayout title={group.name}>
+    <MainLayout
+      title={group.name}
+      contentClassName={isWhiteboardTab ? 'dash-content--workspace-whiteboard' : undefined}
+    >
       <div
-        className="ws-root ws-workspace-with-dock"
+        className={`ws-root ws-workspace-with-dock${isWhiteboardTab ? ' ws-root--whiteboard-focus' : ''}`}
         style={{
           paddingRight: chatPanelWidth,
           transition: 'padding-right 0.3s ease',
@@ -157,19 +165,54 @@ export default function WorkspaceDetail() {
           />
         )}
 
-        <div className="ws-coming-grid">
-          {[
-            { icon: '👥', title: 'Member Management', desc: 'Invite members via email using the button above — invitations expire after 7 days.' },
-            { icon: '🤖', title: 'AI Assistant', desc: `Use the floating AI button to the left of the team chat panel for ${subjectName} help.` },
-            { icon: '📁', title: 'Shared Files', desc: 'Upload and share files with your group — coming in Stage 3.' },
-            { icon: '✅', title: 'Task Board', desc: 'Kanban task tracking for group assignments — coming in Stage 4.' },
-          ].map(panel => (
-            <div key={panel.title} className="ws-coming-card">
-              <div className="ws-coming-icon">{panel.icon}</div>
-              <h3 className="ws-coming-title">{panel.title}</h3>
-              <p className="ws-coming-desc">{panel.desc}</p>
+        <div className="ws-tabs">
+          <button
+            type="button"
+            className={`ws-tab ${activeTab === 'overview' ? 'ws-tab--active' : ''}`}
+            onClick={() => setActiveTab('overview')}
+          >
+            Overview
+          </button>
+          <button
+            type="button"
+            className={`ws-tab ws-tab--with-icon ${activeTab === 'whiteboard' ? 'ws-tab--active' : ''}`}
+            onClick={() => setActiveTab('whiteboard')}
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
+              <rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" strokeWidth="2" />
+              <path d="M8 15l3-3 3 3M12 12v6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+            Whiteboard
+          </button>
+          <button
+            type="button"
+            className={`ws-tab ${activeTab === 'files' ? 'ws-tab--active' : ''}`}
+            onClick={() => setActiveTab('files')}
+          >
+            Shared Files
+          </button>
+        </div>
+
+        <div className={`ws-tab-panel${isWhiteboardTab ? ' ws-tab-panel--whiteboard' : ''}`}>
+          {activeTab === 'overview' && (
+            <div className="ws-coming-grid">
+              {[
+                { icon: '👥', title: 'Member Management', desc: 'Invite members via email using the button above — invitations expire after 7 days.' },
+                { icon: '🤖', title: 'AI Assistant', desc: `Use the floating AI button to the left of the team chat panel for ${subjectName} help.` },
+                { icon: '📁', title: 'Shared Files', desc: 'Use the Shared Files tab to upload and download resources for this workspace.' },
+                { icon: '✅', title: 'Task Board', desc: 'Kanban task tracking for group assignments — coming in Stage 4.' },
+              ].map(panel => (
+                <div key={panel.title} className="ws-coming-card">
+                  <div className="ws-coming-icon">{panel.icon}</div>
+                  <h3 className="ws-coming-title">{panel.title}</h3>
+                  <p className="ws-coming-desc">{panel.desc}</p>
+                </div>
+              ))}
             </div>
-          ))}
+          )}
+
+          {activeTab === 'whiteboard' && <WorkspaceWhiteboard groupId={groupId} />}
+          {activeTab === 'files' && <WorkspaceSharedFiles groupId={groupId} />}
         </div>
       </div>
 
