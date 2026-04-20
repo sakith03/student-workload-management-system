@@ -82,7 +82,7 @@ jobs:
         run: |
           echo "Waiting 30s for Azure to start the new container..."
           sleep 30
-          BACKEND_URL="https://backend-loadmate.azurewebsites.net/health"
+          BACKEND_URL="https://backend-loadmate-b3ezg2behsgyerbw.centralindia-01.azurewebsites.net/health"
           MAX_RETRIES=5
           RETRY_DELAY=15
           SUCCESS=false
