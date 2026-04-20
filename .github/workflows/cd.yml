@@ -90,3 +90,42 @@ jobs:
           else
             echo " **FAILED:** Deployment did not complete. Check the full logs above." >> $GITHUB_STEP_SUMMARY
           fi
+
+      # ── Step 1: Slack Notifications ───────────────────────────────────────
+
+      - name: 📣 Notify Slack — Deployment Success
+        if: success()
+        run: |
+          curl -X POST "${{ secrets.SLACK_WEBHOOK_URL }}" \
+            -H 'Content-type: application/json' \
+            --data '{
+              "text": "✅ *LoadMate Deployed Successfully!*",
+              "attachments": [{
+                "color": "#36a64f",
+                "fields": [
+                  {"title": "Branch",        "value": "${{ github.ref_name }}", "short": true},
+                  {"title": "Deployed by",   "value": "${{ github.actor }}",    "short": true},
+                  {"title": "Commit SHA",    "value": "${{ github.sha }}",      "short": false},
+                  {"title": "Frontend",      "value": "https://frontend-loadmate-h5h2gghtascvcnay.centralindia-01.azurewebsites.net/login", "short": true},
+                  {"title": "Backend Health","value": "https://backend-loadmate.azurewebsites.net/health", "short": true}
+                ]
+              }]
+            }'
+
+      - name: 🚨 Notify Slack — Deployment Failed
+        if: failure()
+        run: |
+          curl -X POST "${{ secrets.SLACK_WEBHOOK_URL }}" \
+            -H 'Content-type: application/json' \
+            --data '{
+              "text": "❌ *LoadMate Deployment FAILED!*",
+              "attachments": [{
+                "color": "#d9534f",
+                "fields": [
+                  {"title": "Branch",       "value": "${{ github.ref_name }}", "short": true},
+                  {"title": "Triggered by", "value": "${{ github.actor }}",    "short": true},
+                  {"title": "Commit",       "value": "${{ github.sha }}",      "short": false},
+                  {"title": "View Pipeline","value": "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}", "short": false}
+                ]
+              }]
+            }'
