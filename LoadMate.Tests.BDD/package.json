@@ -1,0 +1,22 @@
+{
+  "name": "loadmate.tests.bdd",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "npm run test:bdd",
+    "test:bdd": "cucumber-js",
+    "test:bdd:smoke": "cucumber-js --tags \"@smoke\"",
+    "test:bdd:headed": "set E2E_HEADLESS=false && cucumber-js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@cucumber/cucumber": "^12.8.1",
+    "@playwright/test": "^1.59.1",
+    "dotenv": "^17.4.2",
+    "mssql": "^12.5.0",
+    "playwright": "^1.59.1"
+  }
+}
