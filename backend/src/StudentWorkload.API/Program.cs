@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using StudentWorkload.API.Hubs;
 using StudentWorkload.Application.Common.Interfaces;
 using StudentWorkload.Application.Modules.CourseModules.Services;
 using StudentWorkload.Domain.Modules.Academic.Repositories;
@@ -45,6 +46,8 @@ builder.Services.AddScoped<ISubjectRepository, SubjectRepository>();
 builder.Services.AddScoped<IGroupRepository, GroupRepository>();
 builder.Services.AddScoped<IGroupInvitationRepository, GroupInvitationRepository>();
 builder.Services.AddScoped<IGroupChatMessageRepository, GroupChatMessageRepository>();
+builder.Services.AddScoped<IGroupWhiteboardStateRepository, GroupWhiteboardStateRepository>();
+builder.Services.AddScoped<IGroupSharedFileRepository, GroupSharedFileRepository>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<IChatSessionRepository, ChatSessionRepository>();
@@ -70,10 +73,24 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 Encoding.UTF8.GetBytes(jwtSecretKey)
             )
         };
+        options.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context =>
+            {
+                var accessToken = context.Request.Query["access_token"];
+                var path = context.HttpContext.Request.Path;
+
+                if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/hubs/whiteboard"))
+                    context.Token = accessToken;
+
+                return Task.CompletedTask;
+            }
+        };
     });
 
 builder.Services.AddAuthorization();
 builder.Services.AddControllers();
+builder.Services.AddSignalR();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -87,7 +104,8 @@ builder.Services.AddCors(options =>
             "https://frontend-loadmate-h5h2gghtascvcnay.centralindia-01.azurewebsites.net" // ✅ your Azure frontend
         )
         .AllowAnyHeader()
-        .AllowAnyMethod());
+        .AllowAnyMethod()
+        .AllowCredentials());
 });
 
 var app = builder.Build();
@@ -102,6 +120,7 @@ app.UseCors("AllowFrontend");
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+app.MapHub<WhiteboardHub>("/hubs/whiteboard");
 
 // ─── Auto Migrate ─────────────────────────
 using (var scope = app.Services.CreateScope())
@@ -117,5 +136,6 @@ using (var scope = app.Services.CreateScope())
         logger.LogError(ex, "Migration failed — app will still start");
     }
 }
+app.MapGet("/health", () => Results.Ok("Healthy"));
 
 app.Run();

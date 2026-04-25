@@ -4,6 +4,7 @@ import { useSearchParams } from 'react-router-dom';
 import { moduleService } from '../api/moduleService';
 import { academicApi } from '../api/academicApi';
 import { goalParserApi } from '../api/goalParserApi';
+import confetti from 'canvas-confetti';
 import MainLayout from '../components/MainLayout';
 import '../styles/workspace.css';
 import '../styles/goals.css';
@@ -25,7 +26,7 @@ const EMPTY_FORM = {
     name: '',
     description: '',
     semester: '',
-    targetHoursPerWeek: 2,
+    deadlineDate: '',
     colorTag: 'Blue',
     stepByStepGuidance: [],
     submissionGuidelines: '',
@@ -114,7 +115,7 @@ export default function Goals() {
                 name: data.name || '',
                 description: data.description || '',
                 semester: data.semesterTag || '',
-                targetHoursPerWeek: 2,
+                deadlineDate: '',
                 colorTag: 'Blue',
                 stepByStepGuidance: data.stepByStepGuidance || [],
                 submissionGuidelines: data.submissionGuidelines || '',
@@ -169,7 +170,7 @@ export default function Goals() {
         const payload = {
             ...form,
             subjectId: selectedModuleId,
-            targetHoursPerWeek: Number(form.targetHoursPerWeek),
+            deadlineDate: form.deadlineDate || null,
         };
 
         try {
@@ -184,6 +185,15 @@ export default function Goals() {
                 setGoals(prev => prev.map(g =>
                     g.id === editingGoal.id ? updatedGoal : g
                 ));
+            } else if (formMode === 'manual') {
+                // Manual flow — validate steps + use the dedicated /manual endpoint
+                if (!payload.stepByStepGuidance || payload.stepByStepGuidance.length === 0) {
+                    setFormError('Add at least one step to create a manual goal.');
+                    setSubmitting(false);
+                    return;
+                }
+                const created = await moduleService.createManualModule(payload);
+                setGoals(prev => [created, ...prev]);
             } else {
                 const created = await moduleService.createModule(payload);
                 setGoals(prev => [created, ...prev]);
@@ -210,7 +220,7 @@ export default function Goals() {
             name: goal.name || '',
             description: goal.description || '',
             semester: goal.semester || '',
-            targetHoursPerWeek: goal.targetHoursPerWeek || 2,
+            deadlineDate: goal.deadlineDate ? goal.deadlineDate.substring(0, 10) : '',
             colorTag: goal.colorTag || 'Blue',
             stepByStepGuidance: goal.stepByStepGuidance || [],
             submissionGuidelines: goal.submissionGuidelines || '',
@@ -226,6 +236,11 @@ export default function Goals() {
             setGoals(prev => prev.filter(g => g.id !== id));
         } catch { /* silently fail — user sees no change */ }
     };
+
+    // ── Optimistic goal list update (from GoalGuidancePanel) ─────────────────
+    const handleGoalUpdated = useCallback((updatedGoal) => {
+        setGoals(prev => prev.map(g => g.id === updatedGoal.id ? updatedGoal : g));
+    }, []);
 
     // ── Quality colour helper ─────────────────────────────────────────────────
     const qualityColor = (status) => ({
@@ -434,7 +449,7 @@ export default function Goals() {
                                 ? '✏️ Edit Goal'
                                 : formMode === 'ai-form'
                                     ? '✦ Review AI-Extracted Goal'
-                                    : '+ New Goal'}
+                                    : '📝 Add Manually'}
                         </h3>
 
                         {formError && (
@@ -497,18 +512,14 @@ export default function Goals() {
                                     />
                                 </div>
 
-                                {/* Hours */}
+                                {/* Deadline Date */}
                                 <div className="subjects-field" style={{ flex: 0.6 }}>
-                                    <label className="subjects-label">Hours / Week</label>
+                                    <label className="subjects-label">Deadline Date</label>
                                     <input
-                                        type="number"
-                                        step="0.5"
-                                        min="0"
-                                        max="168"
-                                        required
+                                        type="date"
                                         className="subjects-input"
-                                        value={form.targetHoursPerWeek}
-                                        onChange={e => setForm({ ...form, targetHoursPerWeek: e.target.value })}
+                                        value={form.deadlineDate}
+                                        onChange={e => setForm({ ...form, deadlineDate: e.target.value })}
                                     />
                                 </div>
 
@@ -526,6 +537,49 @@ export default function Goals() {
                                     </select>
                                 </div>
                             </div>
+
+                            {/* ── Dynamic Step Builder — manual mode only ── */}
+                            {formMode === 'manual' && (
+                                <div className="subjects-field" style={{ marginTop: 4 }}>
+                                    <label className="subjects-label">
+                                        Step-by-Step Guide
+                                        <span style={{ marginLeft: 6, fontWeight: 400, color: '#94a3b8', fontSize: '0.72rem' }}>
+                                            ({form.stepByStepGuidance.length} step{form.stepByStepGuidance.length !== 1 ? 's' : ''} added)
+                                        </span>
+                                    </label>
+
+                                    {/* Existing steps */}
+                                    {form.stepByStepGuidance.length > 0 && (
+                                        <div className="goals-manual-steps-list">
+                                            {form.stepByStepGuidance.map((step, idx) => (
+                                                <div key={idx} className="goals-manual-step-row">
+                                                    <div className="goals-step-number goals-step-number--sm" style={{ flexShrink: 0 }}>
+                                                        {idx + 1}
+                                                    </div>
+                                                    <p className="goals-manual-step-text">{step}</p>
+                                                    <button
+                                                        type="button"
+                                                        className="goals-step-delete-btn"
+                                                        onClick={() => setForm(f => ({
+                                                            ...f,
+                                                            stepByStepGuidance: f.stepByStepGuidance.filter((_, i) => i !== idx)
+                                                        }))}
+                                                        title="Remove step"
+                                                    >✕</button>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+
+                                    {/* Add new step */}
+                                    <ManualStepAdder
+                                        onAdd={(text) => setForm(f => ({
+                                            ...f,
+                                            stepByStepGuidance: [...f.stepByStepGuidance, text]
+                                        }))}
+                                    />
+                                </div>
+                            )}
 
                             {/* Action Buttons */}
                             <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end', marginTop: 8, flexWrap: 'wrap' }}>
@@ -564,6 +618,7 @@ export default function Goals() {
                     </div>
                 </div>
             )}
+
 
             {/* ══════════════════════════════════════════════════════════════════
                 STEP 4 — AI GUIDANCE & SUBMISSION PANEL
@@ -705,6 +760,7 @@ export default function Goals() {
                             goal={goal}
                             onEdit={handleEdit}
                             onDelete={handleDelete}
+                            onGoalUpdated={handleGoalUpdated}
                         />
                     ))}
                 </div>
@@ -714,9 +770,48 @@ export default function Goals() {
     );
 }
 
+// ── ManualStepAdder ───────────────────────────────────────────────────────────
+// Tiny self-clearing input + button; calls onAdd(text) when the user confirms a step.
+
+function ManualStepAdder({ onAdd }) {
+    const [text, setText] = useState('');
+
+    const commit = () => {
+        const trimmed = text.trim();
+        if (!trimmed) return;
+        onAdd(trimmed);
+        setText('');
+    };
+
+    const handleKey = (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); commit(); }
+    };
+
+    return (
+        <div className="goals-step-adder">
+            <textarea
+                className="goals-step-adder-input"
+                value={text}
+                rows={2}
+                placeholder="Type a step and press Add or Enter…"
+                onChange={e => setText(e.target.value)}
+                onKeyDown={handleKey}
+            />
+            <button
+                type="button"
+                className="goals-step-adder-btn"
+                onClick={commit}
+                disabled={!text.trim()}
+            >
+                + Add Step
+            </button>
+        </div>
+    );
+}
+
 // ── GoalCard Component ────────────────────────────────────────────────────────
 
-function GoalCard({ goal, onEdit, onDelete }) {
+function GoalCard({ goal, onEdit, onDelete, onGoalUpdated }) {
     const [open, setOpen] = useState(false);
 
     const hasAi = Boolean(
@@ -738,6 +833,9 @@ function GoalCard({ goal, onEdit, onDelete }) {
                         {hasAi && (
                             <span className="goals-ai-indicator">✦ AI</span>
                         )}
+                        {goal.isCompleted && (
+                            <span className="goals-completed-badge">🏆 Completed</span>
+                        )}
                     </div>
 
                     {goal.description && (
@@ -746,14 +844,17 @@ function GoalCard({ goal, onEdit, onDelete }) {
 
                     {/* Meta row */}
                     <div className="goals-goal-meta">
-                        <span className="goals-meta-item">
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                <circle cx="12" cy="12" r="10" />
-                                <polyline points="12 6 12 12 16 14" />
-                            </svg>
-                            {goal.targetHoursPerWeek} hrs/week
-                        </span>
-
+                        {goal.deadlineDate && (
+                            <span className="goals-meta-item">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                                    <line x1="16" y1="2" x2="16" y2="6" />
+                                    <line x1="8" y1="2" x2="8" y2="6" />
+                                    <line x1="3" y1="10" x2="21" y2="10" />
+                                </svg>
+                                {new Date(goal.deadlineDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).replace(/ /g, '.')}
+                            </span>
+                        )}
                         {goal.stepByStepGuidance?.length > 0 && (
                             <span className="goals-meta-item">
                                 <svg width="12" height="12" viewBox="0 0 16 16" fill="none">
@@ -770,7 +871,7 @@ function GoalCard({ goal, onEdit, onDelete }) {
                     {hasAi && (
                         <button
                             className="copy-btn"
-                            title={open ? 'Hide AI guidance' : 'View AI guidance'}
+                            title={open ? 'Hide guidance' : 'View guidance & progress'}
                             onClick={() => setOpen(o => !o)}
                             style={{ color: open ? '#4f46e5' : undefined }}
                         >
@@ -780,8 +881,9 @@ function GoalCard({ goal, onEdit, onDelete }) {
                             </svg>
                         </button>
                     )}
-                    <button className="copy-btn" title="Edit" onClick={() => onEdit(goal)}>
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <button className="copy-btn" title="Edit goal" onClick={() => onEdit(goal)} disabled={goal.isCompleted}>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                            style={{ opacity: goal.isCompleted ? 0.35 : 1 }}>
                             <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" />
                             <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
                         </svg>
@@ -800,32 +902,307 @@ function GoalCard({ goal, onEdit, onDelete }) {
                 </div>
             </div>
 
-            {/* Expandable AI panel */}
+            {/* Expandable guidance + progress panel */}
             {open && hasAi && (
-                <div className="goals-goal-guidance">
-                    {goal.stepByStepGuidance?.length > 0 && (
-                        <div style={{ marginBottom: 14 }}>
-                            <p className="goals-guidance-section-title">📋 Step-by-Step Guidance</p>
-                            {goal.stepByStepGuidance.map((step, idx) => (
-                                <div key={idx} className="goals-inline-step">
-                                    <div className="goals-step-number goals-step-number--sm">{idx + 1}</div>
-                                    <p style={{ margin: 0, fontSize: '0.8rem', color: '#334155', lineHeight: 1.6 }}>
-                                        {step}
-                                    </p>
-                                </div>
-                            ))}
+                <GoalGuidancePanel goal={goal} onGoalUpdated={onGoalUpdated} />
+            )}
+        </div>
+    );
+}
+
+// ── GoalGuidancePanel ─────────────────────────────────────────────────────────
+
+function GoalGuidancePanel({ goal, onGoalUpdated }) {
+    // ── Deadline / completed / locked state ──────────────────────────────────
+    const isClosed = Boolean(goal.deadlineDate && new Date(goal.deadlineDate) < new Date());
+    const isCompleted = Boolean(goal.isCompleted);
+    const isLocked = isClosed || isCompleted;   // no edits when either is true
+
+    // ── Local state ──────────────────────────────────────────────────────────
+    const [steps, setSteps] = useState(goal.stepByStepGuidance || []);
+    const [completions, setCompletions] = useState(() => {
+        const base = goal.stepByStepGuidance || [];
+        const saved = goal.stepCompletions || [];
+        return base.map((_, i) => saved[i] ?? false);
+    });
+    const [editMode, setEditMode] = useState(false);
+    const [saving, setSaving] = useState(false);
+    const [completing, setCompleting] = useState(false);
+    const [error, setError] = useState('');
+
+    // Derived progress
+    const doneCount = completions.filter(Boolean).length;
+    const totalSteps = steps.length;
+    const pct = totalSteps > 0 ? Math.round((doneCount / totalSteps) * 100) : 0;
+    const allDone = totalSteps > 0 && doneCount === totalSteps;
+
+    // ── Edit helpers ─────────────────────────────────────────────────────────
+    const startEdit = () => { setSteps([...(goal.stepByStepGuidance || [])]); setEditMode(true); setError(''); };
+    const cancelEdit = () => { setSteps(goal.stepByStepGuidance || []); setEditMode(false); setError(''); };
+
+    const updateStep = (idx, val) => setSteps(prev => prev.map((s, i) => i === idx ? val : s));
+    const deleteStep = (idx) => setSteps(prev => prev.filter((_, i) => i !== idx));
+    const addStep = () => setSteps(prev => [...prev, '']);
+
+    // ── Save edited steps via PUT ─────────────────────────────────────────────
+    const saveSteps = async () => {
+        const cleaned = steps.map(s => s.trim()).filter(Boolean);
+        if (cleaned.length === 0) { setError('At least one step is required.'); return; }
+        setSaving(true); setError('');
+        try {
+            await moduleService.updateModule(goal.id, {
+                name: goal.name,
+                description: goal.description,
+                semester: goal.semester,
+                deadlineDate: goal.deadlineDate || null,
+                colorTag: goal.colorTag,
+                subjectId: goal.subjectId || null,
+                stepByStepGuidance: cleaned,
+                stepCompletions: cleaned.map(() => false),
+                submissionGuidelines: goal.submissionGuidelines || null,
+            });
+            const reset = cleaned.map(() => false);
+            setSteps(cleaned);
+            setCompletions(reset);
+            setEditMode(false);
+            onGoalUpdated({ ...goal, stepByStepGuidance: cleaned, stepCompletions: reset });
+        } catch {
+            setError('Failed to save steps. Please try again.');
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    // ── Toggle completion via PATCH ──────────────────────────────────────────
+    const toggleCompletion = async (idx) => {
+        if (isClosed || editMode) return;
+        const next = completions.map((c, i) => i === idx ? !c : c);
+        setCompletions(next); // optimistic update
+        try {
+            await moduleService.patchCompletions(goal.id, next);
+            onGoalUpdated({ ...goal, stepCompletions: next });
+        } catch (err) {
+            setCompletions(completions); // revert
+            if (err?.response?.status === 409) {
+                setError('Goal is closed — deadline has passed.');
+            }
+        }
+    };
+
+    // ── Complete goal ────────────────────────────────────────────────────────
+    const handleCompleteGoal = async () => {
+        if (isLocked || !allDone || completing) return;
+        setCompleting(true); setError('');
+        try {
+            await moduleService.completeGoal(goal.id);
+            // 🎉 Confetti burst
+            const burst = (originY, spread) => confetti({
+                particleCount: 90,
+                spread,
+                origin: { y: originY },
+                colors: ['#4f46e5', '#22c55e', '#f59e0b', '#ec4899', '#06b6d4'],
+                zIndex: 9999,
+            });
+            burst(0.7, 60);
+            setTimeout(() => burst(0.6, 80), 150);
+            setTimeout(() => burst(0.75, 50), 300);
+            onGoalUpdated({ ...goal, isCompleted: true });
+        } catch {
+            setError('Could not mark goal as complete. Try again.');
+        } finally {
+            setCompleting(false);
+        }
+    };
+
+    return (
+        <div className="goals-goal-guidance">
+
+            {/* Completed banner */}
+            {isCompleted && (
+                <div className="goals-completed-banner">
+                    <span>🏆</span>
+                    <span>Goal completed! Great work — this goal is now permanently locked.</span>
+                </div>
+            )}
+
+            {/* Deadline closed banner (only if not completed) */}
+            {!isCompleted && isClosed && (
+                <div className="goals-closed-banner">
+                    <span>🔒</span>
+                    <span>Deadline reached — this goal is now closed. Steps are read-only.</span>
+                </div>
+            )}
+
+            {/* ── Step-by-Step section ── */}
+            {(steps.length > 0 || editMode) && (
+                <div style={{ marginBottom: 16 }}>
+
+                    {/* Section header */}
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+                        <p className="goals-guidance-section-title" style={{ margin: 0 }}>
+                            📋 Step-by-Step Guide
+                            <span style={{ marginLeft: 8, fontWeight: 400, fontSize: '0.72rem', color: '#94a3b8' }}>
+                                {doneCount}/{totalSteps} done
+                            </span>
+                        </p>
+
+                        {/* Edit / Save / Cancel — hidden when locked */}
+                        {!isLocked && (
+                            <div style={{ display: 'flex', gap: 6 }}>
+                                {!editMode ? (
+                                    <button className="goals-step-action-btn" onClick={startEdit} title="Edit steps">
+                                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                                            <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" />
+                                            <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
+                                        </svg>
+                                        Edit
+                                    </button>
+                                ) : (
+                                    <>
+                                        <button
+                                            className="goals-step-action-btn goals-step-action-btn--save"
+                                            onClick={saveSteps}
+                                            disabled={saving}
+                                        >
+                                            {saving ? 'Saving…' : '✓ Save'}
+                                        </button>
+                                        <button
+                                            className="goals-step-action-btn"
+                                            onClick={cancelEdit}
+                                            disabled={saving}
+                                        >
+                                            Cancel
+                                        </button>
+                                    </>
+                                )}
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Error message */}
+                    {error && (
+                        <div className="goals-error-msg" style={{ marginBottom: 10 }}>
+                            {error}
                         </div>
                     )}
-                    {goal.submissionGuidelines && (
-                        <div>
-                            <p className="goals-guidance-section-title">📤 Submission</p>
-                            <p style={{ margin: 0, fontSize: '0.8rem', color: '#166534', background: '#f0fdf4', padding: '10px 12px', borderRadius: 8, lineHeight: 1.6 }}>
-                                {goal.submissionGuidelines}
+
+                    {/* Steps */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
+                        {steps.map((step, idx) => (
+                            <div
+                                key={idx}
+                                className={`goals-inline-step ${!editMode && completions[idx] ? 'goals-inline-step--done' : ''}`}
+                            >
+                                {/* Checkbox or step number */}
+                                {editMode ? (
+                                    <div className="goals-step-number goals-step-number--sm" style={{ flexShrink: 0, marginTop: 6 }}>
+                                        {idx + 1}
+                                    </div>
+                                ) : (
+                                    <button
+                                        className={`goals-step-check ${completions[idx] ? 'goals-step-check--done' : ''} ${isLocked ? 'goals-step-check--locked' : ''}`}
+                                        onClick={() => toggleCompletion(idx)}
+                                        disabled={isLocked}
+                                        title={isLocked ? (isCompleted ? 'Goal completed' : 'Goal closed') : (completions[idx] ? 'Mark incomplete' : 'Mark complete')}
+                                    >
+                                        {completions[idx] && (
+                                            <svg width="10" height="10" viewBox="0 0 12 12" fill="none">
+                                                <path d="M1.5 6l3 3 6-6" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                            </svg>
+                                        )}
+                                    </button>
+                                )}
+
+                                {/* Step text / textarea */}
+                                {editMode ? (
+                                    <textarea
+                                        className="goals-step-edit-input"
+                                        value={step}
+                                        rows={2}
+                                        onChange={e => updateStep(idx, e.target.value)}
+                                        placeholder={`Step ${idx + 1}…`}
+                                    />
+                                ) : (
+                                    <p style={{
+                                        margin: 0, fontSize: '0.8rem', lineHeight: 1.6, flex: 1,
+                                        color: completions[idx] ? '#94a3b8' : '#334155',
+                                        textDecoration: completions[idx] ? 'line-through' : 'none',
+                                    }}>
+                                        {step}
+                                    </p>
+                                )}
+
+                                {/* Delete button (edit only) */}
+                                {editMode && (
+                                    <button
+                                        className="goals-step-delete-btn"
+                                        onClick={() => deleteStep(idx)}
+                                        title="Remove this step"
+                                    >
+                                        ✕
+                                    </button>
+                                )}
+                            </div>
+                        ))}
+
+                        {/* Add step */}
+                        {editMode && (
+                            <button className="goals-add-step-btn" onClick={addStep}>
+                                + Add Step
+                            </button>
+                        )}
+                    </div>
+
+                    {/* ── Progress bar ── */}
+                    {!editMode && totalSteps > 0 && (
+                        <div className="goals-progress-wrap">
+                            <div className="goals-progress-track">
+                                <div
+                                    className={`goals-progress-fill ${allDone ? 'goals-progress-fill--done' : ''}`}
+                                    style={{ width: `${pct}%` }}
+                                />
+                            </div>
+                            <span className={`goals-progress-label ${allDone ? 'goals-progress-label--done' : ''}`}>
+                                {allDone ? '✓ Done' : `${pct}%`}
+                            </span>
+                        </div>
+                    )}
+
+                    {/* ── Complete Goal button — appears when all steps done and not locked ── */}
+                    {allDone && !isLocked && !editMode && (
+                        <div className="goals-complete-goal-wrap">
+                            <button
+                                className={`goals-complete-goal-btn ${completing ? 'goals-complete-goal-btn--loading' : ''}`}
+                                onClick={handleCompleteGoal}
+                                disabled={completing}
+                            >
+                                {completing ? (
+                                    <span className="goals-complete-spinner" />
+                                ) : (
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                        <path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" fill="currentColor" />
+                                    </svg>
+                                )}
+                                {completing ? 'Completing…' : 'Complete Goal'}
+                            </button>
+                            <p className="goals-complete-goal-hint">
+                                All steps done! Press to officially mark this goal as complete.
                             </p>
                         </div>
                     )}
                 </div>
             )}
+
+            {/* ── Submission Guidelines ── */}
+            {goal.submissionGuidelines && (
+                <div>
+                    <p className="goals-guidance-section-title">📤 Submission</p>
+                    <p style={{ margin: 0, fontSize: '0.8rem', color: '#166534', background: '#f0fdf4', padding: '10px 12px', borderRadius: 8, lineHeight: 1.6 }}>
+                        {goal.submissionGuidelines}
+                    </p>
+                </div>
+            )}
         </div>
     );
 }
+
