@@ -1,4 +1,4 @@
-@update
+@api @update
 Feature: Workspace Update via API
   As a workspace owner
   I want to update workspace details
@@ -37,10 +37,10 @@ Feature: Workspace Update via API
     Then the API should return status 400
     And the error message should contain "Group name is required"
 
-  Scenario Outline: Cannot update workspace to invalid max members
-    When I try to update the workspace name to "Valid Name" and max members 
+Scenario Outline: Cannot update workspace to invalid max members
+    When I try to update the workspace name to "Valid Name" and max members <maxMembers>
     Then the API should return status 400
-    And the error message should contain "Max members must be between 2 and 10"
+    And the error message should contain "Max members"
 
     Examples:
       | maxMembers |

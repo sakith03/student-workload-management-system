@@ -1,4 +1,4 @@
-@creation
+@api @creation
 Feature: Workspace Creation via API
   As a student
   I want to create a study workspace (group)
@@ -42,7 +42,7 @@ Feature: Workspace Creation via API
     Then the workspace creation should fail with a non-success response
 
   Scenario Outline: Cannot create a workspace with an invalid number of max members
-    When I try to create a workspace with max members set to 
+    When I try to create a workspace with max members set to "<maxMembers>"
     Then the workspace creation should fail with a non-success response
 
     Examples:

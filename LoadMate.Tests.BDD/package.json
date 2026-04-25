@@ -7,7 +7,7 @@
     "test": "npm run test:bdd",
     "test:bdd": "cucumber-js",
     "test:report": "cucumber-js --format html:reports/cucumber-report.html",
-    "test:workspace": "cucumber-js features/workspace/**/*.feature",
+    "test:workspace": "cucumber-js --tags \"@api\" --format progress",
     "test:bdd:smoke": "cucumber-js --tags \"@smoke\"",
     "test:bdd:headed": "set E2E_HEADLESS=false && cucumber-js"
   },

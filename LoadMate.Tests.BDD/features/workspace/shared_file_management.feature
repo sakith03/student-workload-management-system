@@ -1,4 +1,4 @@
-@files
+@api @files
 Feature: Shared File Management via API
   As a workspace member
   I want to share files within a workspace

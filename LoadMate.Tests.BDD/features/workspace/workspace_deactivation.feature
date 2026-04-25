@@ -1,4 +1,4 @@
-@deactivation
+@api @deactivation
 Feature: Workspace Deactivation via API
   As a workspace owner
   I want to delete a workspace
