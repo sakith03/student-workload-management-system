@@ -1,133 +1,217 @@
 import { test, expect } from '@playwright/test';
+import { setupMocks, goToChat, GROUP_ID } from './chat-helpers';
 
-test('Group chat e2e with iterative messages and failing-send edge case', async ({ page }) => {
-  test.setTimeout(90000);
+// test 1: empty state ----------------------------------------------------
+test('1 — Empty state shows placeholder when no messages exist', async ({ page }) => {
+  await setupMocks(page);
+  await page.goto(`/workspace/${GROUP_ID}`);
 
-  // Use unique IDs per run so repeated executions do not clash with existing data.
-  const runId = `${Date.now()}`;
-  const moduleCode = `CS${runId.slice(-4)}`;
-  const moduleName = `Test Module ${runId.slice(-6)}`;
-  const groupName = `test-group-${runId.slice(-6)}`;
+  // Verify empty state UI elements are displayed.
+  await expect(page.getByText('No messages yet')).toBeVisible();
+  await expect(
+    page.getByText('Start the thread — share deadlines, links, or a quick hello to your teammates.')
+  ).toBeVisible();
+  // Header subtitle should show the "no messages" prompt.
+  await expect(page.getByText('Say hi — quick questions & updates stay here')).toBeVisible();
+});
+
+// test 2: Send button disabled state -------------------------------------------------
+test('2 — Send button is disabled when input is empty', async ({ page }) => {
+  await setupMocks(page);
+  const chatInput = await goToChat(page);
+  const sendButton = page.locator('.gc-send-btn');
+
+  // Empty input = button disabled.
+  await expect(sendButton).toBeDisabled();
+
+  // Type something = button enabled.
+  await chatInput.fill('test');
+  await expect(sendButton).toBeEnabled();
+
+  // Clear = disabled again.
+  await chatInput.fill('');
+  await expect(sendButton).toBeDisabled();
+});
+
+// Test 3: Iterative message sending-------------------------------------------------
+test('3 — Iterative message sending via loop', async ({ page }) => {
+  await setupMocks(page);
+  const chatInput = await goToChat(page);
+  const sendButton = page.locator('.gc-send-btn');
+
   const messagesToSend = [
-    `hello team ${runId.slice(-3)}`,
-    `deadline reminder ${runId.slice(-3)}`,
-    `sharing status update ${runId.slice(-3)}`,
+    'hello team',
+    'deadline reminder',
+    'sharing status update',
   ];
 
-  let createdGroupId = '';
-  let createdSubjectId = '';
-  let appOrigin = '';
-
-  try {
-    // Login and navigate to module management before creating fresh test data.
-    await page.goto('/login');
-    appOrigin = new URL(page.url()).origin;
-
-    await page.getByRole('textbox', { name: 'you@university.edu' }).fill('test2@gmail.com');
-    await page.getByRole('textbox', { name: '••••••••' }).fill('*Test123');
-    await page.getByRole('button', { name: 'Sign In' }).click();
-    await page.getByRole('navigation').getByText('My Modules').click();
-
-    const addModuleButton = page.getByRole('button', { name: '+ Add Module' });
-    await expect(addModuleButton).toBeVisible();
-    await addModuleButton.click();
-    await page.getByRole('textbox', { name: 'e.g. CSP6001' }).fill(moduleCode);
-    await page.getByRole('textbox', { name: 'e.g. Cloud Systems Programming' }).fill(moduleName);
-
-    // Capture the create-module API response so we can reuse IDs and clean up later.
-    const addModuleResponsePromise = page.waitForResponse(
-      (response) =>
-        response.url().includes('/api/academic/subjects') &&
-        response.request().method() === 'POST' &&
-        response.status() === 201
-    );
-    await page.getByRole('button', { name: 'Add Module' }).click();
-    const addModuleResponse = await addModuleResponsePromise;
-    const addModuleBody = await addModuleResponse.json();
-    createdSubjectId = addModuleBody.subjectId || addModuleBody.id || '';
-
-    const createdModuleCard = page.locator('.subject-card').filter({ hasText: moduleCode }).first();
-    await expect(createdModuleCard).toBeVisible();
-    await createdModuleCard.getByRole('button', { name: 'View Workspace →' }).click();
-
-    // Select the newly created module in the workspace create form.
-    const subjectDropdown = page.getByRole('combobox').first();
-    await expect(subjectDropdown).toBeVisible();
-    if (createdSubjectId) {
-      await subjectDropdown.selectOption(createdSubjectId);
-    } else {
-      await subjectDropdown.selectOption({ label: `${moduleCode} — ${moduleName}` });
-    }
-
-    await page.getByRole('textbox', { name: 'e.g. Team Alpha' }).fill(groupName);
-    const createGroupResponsePromise = page.waitForResponse(
-      (response) =>
-        response.url().includes('/api/groups') &&
-        response.request().method() === 'POST' &&
-        response.status() === 201
-    );
-    await page.getByRole('button', { name: 'Create Group' }).click();
-    const createGroupResponse = await createGroupResponsePromise;
-    const createGroupBody = await createGroupResponse.json();
-    createdGroupId = createGroupBody.id || createGroupBody.groupId || '';
-
-    // Fallback: if API shape changes, derive workspace ID from the redirected URL.
-    await expect(page).toHaveURL(/\/workspace\/[0-9a-f-]+$/i);
-    if (!createdGroupId) {
-      const workspaceIdFromUrl = page.url().split('/workspace/')[1];
-      createdGroupId = workspaceIdFromUrl || '';
-    }
-
-    const chatInput = page.getByRole('textbox', { name: 'Message your group…' });
-    const sendButton = page.locator('.gc-send-btn');
-
-    // Loop-based send test: verifies each message is posted and rendered in chat.
-    for (const message of messagesToSend) {
-      await chatInput.fill(message);
-      await sendButton.click();
-      await expect(page.getByText(message, { exact: true })).toBeVisible();
-    }
-
-    // Edge case: simulate a failed POST call and verify error + input restore behavior.
-    const failingMessage = `failing-send-${runId.slice(-5)}`;
-    await page.route('**/api/groupchat/**/messages', async (route) => {
-      if (route.request().method() === 'POST') {
-        await route.abort();
-        return;
-      }
-      await route.continue();
-    });
-
-    await chatInput.fill(failingMessage);
+  // Loop-based send: verify each message is posted and rendered in chat.
+  for (const message of messagesToSend) {
+    await chatInput.fill(message);
     await sendButton.click();
-    await expect(page.getByText('Failed to send message. Please try again.')).toBeVisible();
-    await expect(chatInput).toHaveValue(failingMessage);
-
-    // Remove failure simulation and verify that retry succeeds.
-    await page.unroute('**/api/groupchat/**/messages');
-    await sendButton.click();
-    await expect(page.getByText(failingMessage, { exact: true })).toBeVisible();
-    await expect(chatInput).toHaveValue('');
-  } finally {
-    // Always try to delete the created workspace so reruns stay conflict-free.
-    if (createdGroupId) {
-      page.once('dialog', (dialog) => dialog.accept());
-      await page.goto(`/workspace/${createdGroupId}`);
-      const deleteWorkspaceButton = page.getByRole('button', { name: 'Delete workspace' });
-      if (await deleteWorkspaceButton.isVisible().catch(() => false)) {
-        await deleteWorkspaceButton.click();
-        await expect(page).toHaveURL(/\/workspaces$/);
-      }
-    }
-
-    // Best-effort subject cleanup (API availability differs by backend deployment).
-    if (createdSubjectId && appOrigin) {
-      const token = await page.evaluate(() => localStorage.getItem('jwt_token'));
-      if (token) {
-        await page.request.delete(`${appOrigin}/api/academic/subjects/${createdSubjectId}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        }).catch(() => {});
-      }
-    }
+    await expect(page.getByText(message, { exact: true })).toBeVisible();
   }
+
+  // Input should be cleared after the last send.
+  await expect(chatInput).toHaveValue('');
+});
+
+// Test 4: Keyboard shortcuts-------------------------------------------------
+test('4 — Enter key sends message, Shift+Enter does not', async ({ page }) => {
+  await setupMocks(page);
+  const chatInput = await goToChat(page);
+
+  // Shift+Enter should NOT send the message.
+  await chatInput.fill('should not send');
+  await chatInput.press('Shift+Enter');
+  // Message should still be in the input, not rendered as a chat bubble.
+  await expect(page.locator('.gc-bubble').filter({ hasText: 'should not send' })).toHaveCount(0);
+
+  // Enter (without Shift) should send the message.
+  await chatInput.fill('sent via enter');
+  await chatInput.press('Enter');
+  await expect(page.getByText('sent via enter', { exact: true })).toBeVisible();
+  await expect(chatInput).toHaveValue('');
+});
+
+// Test 5: Failed send error handling -------------------------------------------------
+test('5 — Failed send shows error and restores input', async ({ page }) => {
+  await setupMocks(page);
+  const chatInput = await goToChat(page);
+  const sendButton = page.locator('.gc-send-btn');
+
+  const failingMessage = 'this should fail';
+
+  // Override chat route to abort POST requests (simulate network failure).
+  await page.route('**/api/groupchat/*/messages', async (route) => {
+    if (route.request().method() === 'POST') {
+      await route.abort();
+      return;
+    }
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ messages: [] }),
+    });
+  });
+
+  await chatInput.fill(failingMessage);
+  await sendButton.click();
+
+  // Error toast should appear and the failed message text should be restored in the input.
+  await expect(page.getByText('Failed to send message. Please try again.')).toBeVisible();
+  await expect(chatInput).toHaveValue(failingMessage);
+});
+
+// Test 6: Retry after failure -------------------------------------------------
+test('6 — Retry after failed send succeeds', async ({ page }) => {
+  const { messages } = await setupMocks(page);
+  const chatInput = await goToChat(page);
+  const sendButton = page.locator('.gc-send-btn');
+
+  let msgCounter = 100;
+  const failingMessage = 'retry me';
+
+  // First: make POST fail.
+  await page.route('**/api/groupchat/*/messages', async (route) => {
+    if (route.request().method() === 'POST') {
+      await route.abort();
+      return;
+    }
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ messages }),
+    });
+  });
+
+  await chatInput.fill(failingMessage);
+  await sendButton.click();
+  await expect(page.getByText('Failed to send message. Please try again.')).toBeVisible();
+  await expect(chatInput).toHaveValue(failingMessage);
+
+  // Remove failure override and restore success handler.
+  await page.unroute('**/api/groupchat/*/messages');
+  await page.route('**/api/groupchat/*/messages', async (route) => {
+    if (route.request().method() === 'POST') {
+      const body = route.request().postDataJSON();
+      const newMsg = {
+        id: `msg-${++msgCounter}`,
+        senderUserId: 'user-1',
+        senderName: 'Test User',
+        messageText: body.messageText,
+        sentAt: new Date().toISOString(),
+      };
+      messages.push(newMsg);
+      return route.fulfill({
+        status: 201,
+        contentType: 'application/json',
+        body: JSON.stringify(newMsg),
+      });
+    }
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ messages }),
+    });
+  });
+
+  // Retry — should succeed now.
+  await sendButton.click();
+  await expect(page.getByText(failingMessage, { exact: true })).toBeVisible();
+  await expect(chatInput).toHaveValue('');
+});
+
+// Test 7: Pre-seeded messages-------------------------------------------------
+test('7 — Pre-sent messages shows with correct sender info', async ({ page }) => {
+  const { messages } = await setupMocks(page);
+
+  // Pre-seed messages before navigating.
+  messages.push(
+    {
+      id: 'msg-a',
+      senderUserId: 'user-2',
+      senderName: 'Alice Johnson',
+      messageText: 'Hey everyone!',
+      sentAt: new Date(Date.now() - 3600_000).toISOString(),
+    },
+    {
+      id: 'msg-b',
+      senderUserId: 'user-1',
+      senderName: 'Test User',
+      messageText: 'Hi Alice!',
+      sentAt: new Date(Date.now() - 1800_000).toISOString(),
+    },
+  );
+
+  await page.goto(`/workspace/${GROUP_ID}`);
+
+  // Both messages should be visible.
+  await expect(page.getByText('Hey everyone!')).toBeVisible();
+  await expect(page.getByText('Hi Alice!')).toBeVisible();
+
+  // Other user's name is shown; own messages don't display sender name.
+  await expect(page.locator('.gc-sender').filter({ hasText: 'Alice Johnson' })).toBeVisible();
+
+  // Header shows correct message count.
+  await expect(page.getByText('2 messages in this workspace')).toBeVisible();
+});
+
+// Test 8: Singular message count grammar -------------------------------------------------
+test('8 — Header shows singular "message" for exactly one message', async ({ page }) => {
+  const { messages } = await setupMocks(page);
+
+  // Pre-seed a single message.
+  messages.push({
+    id: 'msg-solo',
+    senderUserId: 'user-1',
+    senderName: 'Test User',
+    messageText: 'Only one here',
+    sentAt: new Date().toISOString(),
+  });
+
+  await page.goto(`/workspace/${GROUP_ID}`);
+
+  // Header should use singular "message" (not "messages").
+  await expect(page.getByText('1 message in this workspace')).toBeVisible();
 });
