@@ -212,6 +212,6 @@ test('8 — Header shows singular "message" for exactly one message', async ({ p
 
   await page.goto(`/workspace/${GROUP_ID}`);
 
-  // Header should use singular "message" (not "messages").
+  // Header should use singular "message" .
   await expect(page.getByText('1 message in this workspace')).toBeVisible();
 });
