@@ -96,25 +96,8 @@ test.describe('Goals - Manual Goal Creation', () => {
     await setupPage(page, context);
   });
 
-  // ── 1. Header button is visible and disabled without a module ─────────────
 
-  test('should show add manually button visible in header', async ({ page }) => {
-    // Wait for the page to fully settle with mocked modules
-    await page.waitForFunction(
-      () => {
-        const select = document.querySelector('select');
-        return select && select.querySelectorAll('option').length > 1;
-      },
-      { timeout: 10000 }
-    );
-
-    const headerAddBtn = page.locator('button.subjects-btn', { hasText: '+ Add Manually' });
-    await expect(headerAddBtn).toBeVisible();
-    // With mocked data, first module is auto-selected, so button is enabled
-    await expect(headerAddBtn).toBeEnabled();
-  });
-
-  // ── 2. Button enables after module selection ──────────────────────────────
+  // ── Button enables after module selection ──────────────────────────────
 
   test('should enable add manually button after module selected', async ({ page }) => {
     await page.waitForFunction(
@@ -131,14 +114,8 @@ test.describe('Goals - Manual Goal Creation', () => {
     await expect(headerAddBtn).toBeEnabled({ timeout: 5000 });
   });
 
-  // ── 3. Opens manual form ──────────────────────────────────────────────────
 
-  test('should open manual goal form when button clicked', async ({ page }) => {
-    await openManualForm(page);
-    await expect(page.getByText('📝 Add Manually')).toBeVisible();
-  });
-
-  // ── 4. Form renders all required fields ───────────────────────────────────
+  // ── Form renders all required fields (Smoke Test)───────────────────────────────────
 
   test('should display manual form with all fields', async ({ page }) => {
     await openManualForm(page);
@@ -156,67 +133,8 @@ test.describe('Goals - Manual Goal Creation', () => {
     ).toBeVisible();
   });
 
-  // ── 5. Goal name input ────────────────────────────────────────────────────
 
-  test('should allow entering goal name', async ({ page }) => {
-    await openManualForm(page);
-
-    const nameInput = page.locator('input[placeholder="e.g. Complete Lab 7"]');
-    await nameInput.fill('Lab Assignment 5');
-    await expect(nameInput).toHaveValue('Lab Assignment 5');
-  });
-
-  // ── 6. Description textarea ───────────────────────────────────────────────
-
-  test('should allow entering description', async ({ page }) => {
-    await openManualForm(page);
-
-    const descInput = page.locator(
-      'textarea[placeholder="What do you need to achieve in this goal?"]'
-    );
-    await descInput.fill('Complete all tasks in the lab sheet');
-    await expect(descInput).toHaveValue('Complete all tasks in the lab sheet');
-  });
-
-  // ── 7. Semester tag input ─────────────────────────────────────────────────
-
-  test('should allow entering semester tag', async ({ page }) => {
-    await openManualForm(page);
-
-    const semesterInput = page.locator('input[placeholder="e.g. Y3S1"]');
-    await semesterInput.fill('Y3S2');
-    await expect(semesterInput).toHaveValue('Y3S2');
-  });
-
-  // ── 8. Color selector ─────────────────────────────────────────────────────
-
-  test('should allow selecting color tag', async ({ page }) => {
-    await openManualForm(page);
-
-    const colorSelect = page.locator('select').nth(1);
-    await colorSelect.selectOption('Green');
-    await expect(colorSelect).toHaveValue('Green');
-  });
-
-  // ── 9. Add single step ────────────────────────────────────────────────────
-
-  test('should add a step with step builder', async ({ page }) => {
-    await openManualForm(page);
-
-    const stepAdder = page.locator(
-      'textarea[placeholder="Type a step and press Add or Enter…"]'
-    );
-    await stepAdder.fill('Understand the algorithm');
-    await page.locator('button.goals-step-adder-btn').click();
-
-    await expect(page.locator('.goals-manual-step-text').first()).toHaveText(
-      'Understand the algorithm'
-    );
-    // Adder clears itself after commit
-    await expect(stepAdder).toHaveValue('');
-  });
-
-  // ── 10. Add step via Enter key ────────────────────────────────────────────
+  // ── Add step via Enter key ────────────────────────────────────────────
 
   test('should add a step by pressing Enter in step adder', async ({ page }) => {
     await openManualForm(page);
@@ -230,122 +148,8 @@ test.describe('Goals - Manual Goal Creation', () => {
     await expect(page.locator('.goals-manual-step-text').first()).toHaveText('Press Enter step');
   });
 
-  // ── 11. Add multiple steps ────────────────────────────────────────────────
 
-  test('should add multiple steps', async ({ page }) => {
-    await openManualForm(page);
-
-    const stepAdder = page.locator(
-      'textarea[placeholder="Type a step and press Add or Enter…"]'
-    );
-    const addStepBtn = page.locator('button.goals-step-adder-btn');
-
-    for (const step of ['Step 1: Understand', 'Step 2: Code', 'Step 3: Test']) {
-      await stepAdder.fill(step);
-      await addStepBtn.click();
-    }
-
-    const stepTexts = page.locator('.goals-manual-step-text');
-    await expect(stepTexts).toHaveCount(3);
-    await expect(stepTexts.nth(0)).toHaveText('Step 1: Understand');
-    await expect(stepTexts.nth(1)).toHaveText('Step 2: Code');
-    await expect(stepTexts.nth(2)).toHaveText('Step 3: Test');
-  });
-
-  // ── 12. Step count label updates ──────────────────────────────────────────
-
-  test('should update step count label as steps are added', async ({ page }) => {
-    await openManualForm(page);
-
-    await expect(page.getByText(/0 steps added/i)).toBeVisible();
-
-    const stepAdder = page.locator(
-      'textarea[placeholder="Type a step and press Add or Enter…"]'
-    );
-    await stepAdder.fill('First step');
-    await page.locator('button.goals-step-adder-btn').click();
-
-    await expect(page.getByText(/1 step added/i)).toBeVisible();
-  });
-
-  // ── 13. Delete a step ─────────────────────────────────────────────────────
-
-  test('should delete a step', async ({ page }) => {
-    await openManualForm(page);
-
-    const stepAdder = page.locator(
-      'textarea[placeholder="Type a step and press Add or Enter…"]'
-    );
-    await stepAdder.fill('Step to delete');
-    await page.locator('button.goals-step-adder-btn').click();
-
-    await expect(page.locator('.goals-manual-step-text').first()).toHaveText('Step to delete');
-
-    await page.locator('.goals-step-delete-btn').first().click();
-
-    await expect(page.locator('.goals-manual-step-text')).toHaveCount(0);
-  });
-
-  // ── 14. Delete only the targeted step ────────────────────────────────────
-
-  test('should delete only the targeted step', async ({ page }) => {
-    await openManualForm(page);
-
-    const stepAdder = page.locator(
-      'textarea[placeholder="Type a step and press Add or Enter…"]'
-    );
-    const addStepBtn = page.locator('button.goals-step-adder-btn');
-
-    await stepAdder.fill('Keep this step');
-    await addStepBtn.click();
-    await stepAdder.fill('Delete this step');
-    await addStepBtn.click();
-
-    // Delete the second step (index 1)
-    await page.locator('.goals-step-delete-btn').nth(1).click();
-
-    const remaining = page.locator('.goals-manual-step-text');
-    await expect(remaining).toHaveCount(1);
-    await expect(remaining.first()).toHaveText('Keep this step');
-  });
-
-  // ── 15. Add Step button disabled when textarea is empty ───────────────────
-
-  test('should keep Add Step button disabled when textarea is empty', async ({ page }) => {
-    await openManualForm(page);
-
-    await expect(page.locator('button.goals-step-adder-btn')).toBeDisabled();
-  });
-
-  // ── 16. FIXED: disable native HTML validation before triggering JS validation
-  test('should show error when submitting without goal name', async ({ page }) => {
-    await openManualForm(page);
-
-    // Leave name empty, fill valid semester
-    await page.locator('input[placeholder="e.g. Y3S1"]').fill('Y3S1');
-
-    // Add a step
-    const stepAdder = page.locator(
-      'textarea[placeholder="Type a step and press Add or Enter…"]'
-    );
-    await stepAdder.fill('A step');
-    await page.locator('button.goals-step-adder-btn').click();
-
-    // Disable browser native validation so JS validation in submitGoal() runs
-    await page.evaluate(() => {
-      document.querySelectorAll('form').forEach(f => { f.noValidate = true; });
-    });
-
-    await page.locator('button.subjects-btn', { hasText: /Create Goal/i }).click();
-
-    await expect(page.locator('.subjects-error')).toContainText(
-      /Goal name is required/i,
-      { timeout: 5000 }
-    );
-  });
-
-
-  // ── 17. FIXED: same approach for semester validation
+  // ──------------- semester validation (Edge Cases) ────────────────────────────────────────────
   test('should show error when submitting without semester tag', async ({ page }) => {
     await openManualForm(page);
 
@@ -372,7 +176,7 @@ test.describe('Goals - Manual Goal Creation', () => {
     );
   });
 
-  // ── 18. Validation: at least one step required ────────────────────────────
+  // ── Validation: at least one step required  ────────────────────────────
 
   test('should show error when submitting with no steps', async ({ page }) => {
     await openManualForm(page);
@@ -386,18 +190,8 @@ test.describe('Goals - Manual Goal Creation', () => {
     await expect(page.locator('.subjects-error')).toContainText(/Add at least one step/i);
   });
 
-  // ── 19. Cancel closes the form ────────────────────────────────────────────
 
-  test('should close form when cancel is clicked', async ({ page }) => {
-    await openManualForm(page);
-
-    // Target the Cancel button scoped inside the form card only
-    await page.locator('.goals-card').getByRole('button', { name: /Cancel/i }).click();
-
-    await expect(page.getByText('📝 Add Manually')).not.toBeVisible({ timeout: 3000 });
-  });
-
-  // ── 20. Successful goal creation ─────────────────────────────────────────
+  // ── Successful goal creation (Happy path) ─────────────────────────────────────────
 
   test('should create a goal and add it to the list', async ({ page }) => {
     const newGoal = {

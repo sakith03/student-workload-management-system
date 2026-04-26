@@ -89,21 +89,12 @@ test.describe('Goals - Goal List Display', () => {
         await setupPage(page, context);
     });
 
-    // FIX: "Select a module" text lives inside a hidden <option> element.
-    // Goals.jsx renders the visible empty-state as:
-    //   <div className="subjects-empty">Select a module above to view its goals.</div>
-    // Target that visible div text instead.
+
     test('should select module prompt when no module chosen', async ({ page }) => {
-        // Goals.jsx auto-selects the first module via useEffect, so by the time
-        // networkidle fires a module is already selected. To get back to the
-        // "no module" empty state we force-reset the <select> value to '' via
-        // page.evaluate(). We cannot use selectOption({ value: '' }) because the
-        // placeholder <option value="" disabled> has the `disabled` attribute and
-        // Playwright refuses to select disabled options.
+
         await waitForModules(page);
 
-        // Force the select back to '' and dispatch a React-compatible change event
-        // so the component's onChange handler fires and clears selectedModuleId.
+
         await page.evaluate(() => {
             const select = document.querySelector('select');
             if (!select) return;
@@ -116,16 +107,12 @@ test.describe('Goals - Goal List Display', () => {
 
         await page.waitForTimeout(300);
 
-        // Goals.jsx renders when selectedModuleId is '':
-        //   <div className="subjects-empty">Select a module above to view its goals.</div>
         await expect(
             page.locator('.subjects-empty', { hasText: /Select a module above/i })
         ).toBeVisible({ timeout: 5000 });
     });
 
-    // FIX: Goals.jsx uses class "goals-goal-card" not "goal-card".
-    // Also selectOption nth(1) picks mod-002 but auto-selection already set mod-001;
-    // explicitly select mod-001 to guarantee the mocked goals load.
+
     test('should display goals after module selection', async ({ page }) => {
         await waitForModules(page);
         await page.locator('select').first().selectOption(MOCK_MODULES[0].id);
@@ -142,9 +129,7 @@ test.describe('Goals - Goal List Display', () => {
         expect(hasGoals || hasEmptyState).toBeTruthy();
     });
 
-    // FIX: strict mode violation — getByText(/No goals|Upload a lab sheet/i) matched
-    // TWO elements ("No goals yet" and "Upload a lab sheet for..."). 
-    // Target the specific "No goals yet" <p> inside .subjects-empty instead.
+
     test('should show empty state when no goals exist', async ({ page }) => {
         await waitForModules(page);
         await page.locator('select').first().selectOption(MOCK_MODULES[0].id);
@@ -160,7 +145,6 @@ test.describe('Goals - Goal List Display', () => {
         }
     });
 
-    // FIX: use correct class "goals-color-dot" (Goals.jsx: className="goals-color-dot")
     test('should display goal color indicators', async ({ page }) => {
         await waitForModules(page);
         await page.locator('select').first().selectOption(MOCK_MODULES[0].id);

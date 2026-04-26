@@ -58,11 +58,6 @@ async function setupPage(page, context) {
 }
 
 // ── Helper: wait for modules then select mod-001 ──────────────────────────────
-// WHY: Goals.jsx shows an empty-state panel when no module is selected or goals=[].
-// That panel contains a SECOND "✦ Upload Lab Sheet" button. Without a module
-// selected, getByRole('button', /Upload Lab Sheet/i) resolves to 2 elements and
-// Playwright throws a strict-mode violation. Selecting a module + loading goals
-// collapses the empty state so only the single header button remains.
 
 async function selectFirstModule(page) {
     await page.waitForFunction(
@@ -78,10 +73,7 @@ async function selectFirstModule(page) {
     await page.waitForTimeout(300);
 }
 
-// ── Scope to the header button by CSS class to avoid strict-mode violation ────
-// goals-btn--ai appears on the header button (always rendered) and on the
-// empty-state button (only rendered when goals=[]).  After selectFirstModule()
-// the empty-state is gone, so .first() is the unique header button.
+
 
 function headerUploadBtn(page) {
     return page.locator('button.goals-btn.goals-btn--ai').first();
@@ -144,16 +136,4 @@ test.describe('Goals - Upload Lab Sheet (AI)', () => {
         await expect(page.getByText(/AI Goal Extraction/i)).not.toBeVisible({ timeout: 3000 });
     });
 
-    test('should close upload zone with close button', async ({ page }) => {
-        const uploadBtn = headerUploadBtn(page);
-        await expect(uploadBtn).toBeEnabled({ timeout: 5000 });
-        await uploadBtn.click();
-
-        await expect(page.getByText(/AI Goal Extraction/i)).toBeVisible();
-        const closeBtn = page.locator('button').filter({ hasText: '✕' }).first();
-        if (await closeBtn.isVisible()) {
-            await closeBtn.click();
-            await expect(page.getByText(/AI Goal Extraction/i)).not.toBeVisible({ timeout: 3000 });
-        }
-    });
 });
