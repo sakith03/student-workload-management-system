@@ -2,7 +2,6 @@
 const { Given, When, Then } = require('@cucumber/cucumber');
 const { expect } = require('chai');
 const FormData = require('form-data');
-const axios = require('axios');
 
 // ─── GIVEN ────────────────────────────────────────────────────────────────────
 
@@ -41,7 +40,6 @@ When('I try to upload without providing a file', async function () {
     // Controller check: if (file is null || file.Length == 0) → 400 "File is required."
     const form = new FormData();
     // intentionally not appending any file
-
     await this.postForm(`/groups/${this.groupId}/files`, form);
 });
 

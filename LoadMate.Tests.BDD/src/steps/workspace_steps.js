@@ -79,25 +79,6 @@ When('I try to create a workspace with an empty name', async function () {
     });
 });
 
-When('I try to create a workspace with name {string}', async function (name) {
-    await this.post('/groups', {
-        subjectId: this.subjectId,
-        name,
-        description: 'desc'
-    });
-});
-
-When('I try to create a workspace with max members set to {string}', async function (maxMembersStr) {
-    const maxMembers = parseInt(maxMembersStr, 10);
-    await this.post('/groups', {
-        subjectId: this.subjectId,
-        name: 'Team',
-        description: 'desc',
-        maxMembers: maxMembers
-    });
-});
-
-
 When('I try to create a workspace without a token', async function () {
     // Temporarily clear token to test unauthenticated access
     const savedToken = this.token;
@@ -112,13 +93,11 @@ When('I try to create a workspace without a token', async function () {
 
 // ─── WHEN: Workspace Update ───────────────────────────────────────────────────
 
-
 When('I update the workspace name to {string} description {string} and max members {int}', async function (name, description, maxMembers) {
-    // API PUT request eka yawanawa
     await this.put(`/groups/${this.groupId}`, {
-        name: name,
-        description: description,
-        maxMembers: maxMembers,
+        name,
+        description,
+        maxMembers,
         subjectId: this.subjectId
     });
 });
@@ -126,9 +105,9 @@ When('I update the workspace name to {string} description {string} and max membe
 When(/^I try to update the workspace name to "(.*)" and max members (-?\d+)$/, async function (name, maxMembersStr) {
     const maxMembers = parseInt(maxMembersStr, 10);
     await this.put(`/groups/${this.groupId}`, {
-        name: name,
+        name,
         description: 'Test description',
-        maxMembers: maxMembers,
+        maxMembers,
         subjectId: this.subjectId
     });
 });
@@ -153,10 +132,6 @@ When('I delete the workspace', async function () {
 
 When('I try to fetch the workspace', async function () {
     await this.get(`/groups/${this.groupId}`);
-});
-
-When('I try to fetch a workspace with a random non-existent ID', async function () {
-    await this.get(`/groups/${randomUUID()}`);
 });
 
 When('the second user tries to delete the workspace', async function () {
