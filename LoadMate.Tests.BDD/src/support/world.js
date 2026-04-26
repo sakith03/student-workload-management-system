@@ -12,8 +12,8 @@ class LoadMateWorld extends World {
     super(options);
 
     // --- BASE CONFIGURATION ---
-    this.uiBaseUrl = config.uiBaseUrl || 'http://localhost:3000';
-    this.apiBaseUrl = config.apiBaseUrl || 'http://localhost:5000';
+    this.uiBaseUrl = process.env.UI_BASE_URL || config.uiBaseUrl || 'http://localhost:3000';
+    this.apiBaseUrl = process.env.API_BASE_URL || config.apiBaseUrl || 'http://localhost:5000';
 
     // nethma: Playwright Browser Objects ---
     this.browser = null;

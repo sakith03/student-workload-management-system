@@ -1,3 +1,4 @@
+@ui 
 Feature: Authentication (Login)
   As a registered user
   I want to log in securely
