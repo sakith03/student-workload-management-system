@@ -1,0 +1,6 @@
+node_modules/
+reports/
+artifacts/
+playwright-report/
+.env.local
+

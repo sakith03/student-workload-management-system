@@ -1,0 +1,29 @@
+{
+  "name": "loadmate.tests.bdd",
+  "version": "1.0.0",
+  "description": "Combined BDD Tests for API and UI",
+  "main": "index.js",
+  "scripts": {
+    "test": "npm run test:bdd",
+    "test:bdd": "cucumber-js",
+    "test:report": "cucumber-js --format html:reports/cucumber-report.html",
+    "test:bdd:smoke": "cucumber-js --tags \"@smoke\"",
+    "test:bdd:headed": "set E2E_HEADLESS=false && cucumber-js",
+    "test:workspace:local": "cucumber-js --tags \"@api\" --format progress",
+    "test:workspace:deployed": "cross-env E2E_API_BASE_URL=https://backend-loadmate-b3ezg2behsgyerbw.centralindia-01.azurewebsites.net/api cucumber-js --tags \"@api\" --format progress"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@cucumber/cucumber": "^12.8.1",
+    "@playwright/test": "^1.59.1",
+    "cross-env": "^7.0.3",
+    "dotenv": "^17.4.2",
+    "mssql": "^12.5.0",
+    "playwright": "^1.59.1",
+    "axios": "^1.6.8",
+    "chai": "^4.4.1",
+    "form-data": "^4.0.0"
+  }
+}
