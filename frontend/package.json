@@ -10,7 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@microsoft/signalr": "^8.0.7",
+    "@microsoft/signalr": "^8.0.17",
     "axios": "^1.13.6",
     "canvas-confetti": "^1.9.4",
     "lucide-react": "^0.575.0",
