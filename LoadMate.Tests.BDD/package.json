@@ -6,7 +6,7 @@
   "scripts": {
     "test": "npm run test:bdd",
     "test:bdd": "cucumber-js",
-    "test:report": "cucumber-js --format html:reports/cucumber-report.html",
+    "npm ": "cucumber-js --format html:reports/cucumber-report.html",
     "test:bdd:smoke": "cucumber-js --tags \"@smoke\"",
     "test:bdd:headed": "set E2E_HEADLESS=false && cucumber-js",
     "test:workspace:local": "cucumber-js --tags \"@api\" --format progress",
@@ -18,12 +18,12 @@
   "devDependencies": {
     "@cucumber/cucumber": "^12.8.1",
     "@playwright/test": "^1.59.1",
+    "axios": "^1.16.0",
+    "chai": "^4.4.1",
     "cross-env": "^7.0.3",
     "dotenv": "^17.4.2",
+    "form-data": "^4.0.0",
     "mssql": "^12.5.0",
-    "playwright": "^1.59.1",
-    "axios": "^1.6.8",
-    "chai": "^4.4.1",
-    "form-data": "^4.0.0"
+    "playwright": "^1.59.1"
   }
 }

@@ -28,10 +28,11 @@ public class GoalParserController : ControllerBase
     /// and returns structured goal data for pre-filling the form.
     /// </summary>
     [HttpPost("parse-document")]
+    [Consumes("multipart/form-data")]
     [RequestSizeLimit(10_485_760)]                         // 10 MB
     [RequestFormLimits(MultipartBodyLengthLimit = 10_485_760)]
     public async Task<IActionResult> ParseDocument(
-        [FromForm]  IFormFile file,
+        IFormFile file,
         [FromQuery] Guid?     subjectId,
         CancellationToken     cancellationToken)
     {

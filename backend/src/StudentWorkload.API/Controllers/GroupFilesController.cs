@@ -70,8 +70,9 @@ public class GroupFilesController : ControllerBase
     }
 
     [HttpPost]
+    [Consumes("multipart/form-data")]
     [RequestSizeLimit(50 * 1024 * 1024)]
-    public async Task<IActionResult> Upload(Guid groupId, [FromForm] IFormFile? file)
+    public async Task<IActionResult> Upload(Guid groupId, IFormFile? file)
     {
         var userId = GetUserId();
         if (!await CanAccessGroup(groupId, userId))

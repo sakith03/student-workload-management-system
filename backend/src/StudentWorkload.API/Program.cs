@@ -92,7 +92,11 @@ builder.Services.AddAuthorization();
 builder.Services.AddControllers();
 builder.Services.AddSignalR();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    // Fix Swagger generation for endpoints that accept IFormFile via [FromForm]
+    c.OperationFilter<StudentWorkload.API.Swagger.FileUploadOperationFilter>();
+});
 
 // ─── CORS ─────────────────────────
 builder.Services.AddCors(options =>
